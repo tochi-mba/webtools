@@ -2,7 +2,7 @@
 // Connect to the database
 $host = "localhost";
 $user = "root";
-$pass = "";
+$pass = "bye";
 $dbname = "webtools";
 
 $conn = mysqli_connect($host, $user, $pass, $dbname);
