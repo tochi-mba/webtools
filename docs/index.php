@@ -54,13 +54,30 @@
             padding: 10px;
             border-radius: 5px;
         }
+        pre{
+        white-space: pre-wrap;
+        overflow-wrap: break-word;
+        }
     </style>
 </head>
 <body>
     <?php 
     
     require "navbar.php";
+    if(isset($_SESSION['uid'])){
+        require '../connect.php';
+        $uid = $_SESSION['uid'];
+        $sql = "SELECT api_token FROM users WHERE uid = '$uid'";
+        $query = mysqli_query($conn, $sql);
+        if($query){
+            $row = mysqli_fetch_assoc($query);
+            $api_token = $row['api_token'];
+        }
+    } else {
+        $api_token = "[api_token]";
+    }
     ?>
+
     <div class="container">
         <div class="menu">
             <a href="#create" class="active">Create</a>
@@ -78,7 +95,7 @@
             <h2>Data constraints</h2>
             <pre>
             {
-              "api_token": "[valid API token]",
+              "api_token": "<?php echo $api_token;?>",
               "title": "[title of the script]",
               "tags": "[comma separated list of tags]",
               "description": "[description of the script]",
@@ -87,16 +104,53 @@
               "readme": "[README file]"
             }
             </pre>
+            <h2>Rules</h2>
+            <pre>
+                <table>
+                    <tr>
+                    <th>Field</th>
+                    <th>Required</th>
+                    </tr>
+                    <tr>
+                    <td>api_token</td>
+                    <td>Yes</td>
+                    </tr>
+                    <tr>
+                    <td>title</td>
+                    <td>Yes</td>
+                    </tr>
+                    <tr>
+                    <td>tags</td>
+                    <td>No</td>
+                    </tr>
+                    <tr>
+                    <td>description</td>
+                    <td>No</td>
+                    </tr>
+                    <tr>
+                    <td>js_code</td>
+                    <td>No</td>
+                    </tr>
+                    <tr>
+                    <td>css_code</td>
+                    <td>No</td>
+                    </tr>
+                    <tr>
+                    <td>readme</td>
+                    <td>No</td>
+                    </tr>
+                </table>
+            </pre>
             <h2>Data example</h2>
             <pre>
             {
-              "api_token": "[api_token]",
-              "title": "[title]",
-              "tags": "[tags]",
-              "description": "[description]",
-              "js_code": "[JS code]",
-              "css_code": "[CSS code]",
-              "readme": "[README]"
+              "api_token": "<?php echo $api_token;?>",
+              "title": "My New Project",
+              "tags": "animation,art",
+              "description": "This project sets the background to animals playing",
+              "js_code": "raw js code",
+              "css_code": "raw css code",
+              "readme": "readme text"
             }
             </pre>
             <h2>Success Response</h2>
@@ -142,20 +196,7 @@
                         <li class="tab col s3"><a href="#java">Java</a></li>
                     </ul>
                 </div>
-                <?php 
-                if(isset($_SESSION['uid'])){
-                    require '../connect.php';
-                    $uid = $_SESSION['uid'];
-                    $sql = "SELECT api_token FROM users WHERE uid = '$uid'";
-                    $query = mysqli_query($conn, $sql);
-                    if($query){
-                        $row = mysqli_fetch_assoc($query);
-                        $api_token = $row['api_token'];
-                    }
-                } else {
-                    $api_token = "[api_token]";
-                }
-                ?>
+                
                 <div id="js" class="col s12">
                     <textarea id="js-example" >
 fetch('/api/create/', {
@@ -317,16 +358,66 @@ try {
             <h2>Data constraints</h2>
             <pre>
             {
-              "api_token": "[valid API token]",
+              "api_token": "<?php echo $api_token;?>",
               "mode": "[0, 1, 2, 3]",
               "amount": "[amount of scripts]",
               "script_id": "[unique script id]"
             }
             </pre>
+            <h2>Rules</h2>
+            <pre>
+            <table>
+            <tr>
+                <th>Rule</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>API Token</td>
+                <td>The API token must be set in the request body.</td>
+            </tr>
+            <tr>
+                <td>Mode</td>
+                <td>The mode must be set in the request body. The mode can be 0, 1, 2, or 3.</td>
+            </tr>
+            <tr>
+                <td>Amount</td>
+                <td>The amount must be set in the request body when the mode is 0 or 1.</td>
+            </tr>
+            <tr>
+                <td>Script ID</td>
+                <td>The script ID must be set in the request body when the mode is 2.</td>
+            </tr>
+            </table>
+            </pre>
+            <h2>Mode Rules</h2>
+            <pre style="text-align: center;">
+            <table>
+            <tr>
+                <th>Mode</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>0</td>
+                <td>Retrieves the specified number of scripts from the database.</td>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td>Retrieves the specified number of scripts from the database in descending order.</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>Retrieves the specified script from the database.</td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td>Retrieves all scripts from the database.</td>
+            </tr>
+            </table>
+            </pre>
             <h2>Data example</h2>
             <pre>
             {
-              "api_token": "[api_token]",
+              "api_token": "<?php echo $api_token;?>",
               "mode": "[0, 1, 2, 3]",
               "amount": "[amount of scripts]",
               "script_id": "[unique script id]"
