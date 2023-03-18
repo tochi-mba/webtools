@@ -1,0 +1,9 @@
+<?php
+echo
+?>
+<script>
+    signature="webtoolz"
+    console.log(signature)
+</script>
+<?php
+?>
