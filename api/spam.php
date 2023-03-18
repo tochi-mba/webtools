@@ -1,4 +1,17 @@
 <?php
+$file_name = '../../spam_detection/spam.txt';
+
+// Read the contents of the file
+$contents = file_get_contents($file_name);
+
+// Decode the JSON object
+$data = json_decode($contents, true);
+
+// Check if the object has more than 100 keys
+if (count($data) > 100) {
+    // Delete the object and make the file empty
+    file_put_contents($file_name, '');
+}
 $api_token = $data["api_token"];
 
 // Check if the API token is empty
@@ -16,7 +29,6 @@ $max_requests_per_second = 20;
 // Get the api_token request header
 
 // Check if the api_token is stored in a text file
-$file_name = '../../spam_detection/spam.txt';
 $file_content = file_get_contents($file_name);
 $dataSpam = json_decode($file_content, true);
 
