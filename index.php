@@ -24,7 +24,7 @@ body{
 }
 #webtools {
     font-family: 'Roboto Mono', monospace;
-    font-size: 3rem;
+    font-size: 2rem;
     color: white;
 }
 
@@ -44,10 +44,10 @@ body{
   float: left;
   color: white;
   text-align: center;
-  padding: 12px;
+  padding: 8px;
   text-decoration: none;
-  font-size: 18px;
-  line-height: 25px;
+  font-size: 14px;
+  line-height: 20px;
   border-radius: 4px;
 }
 
@@ -62,7 +62,7 @@ body{
 
 #subtext {
     font-family: 'Roboto Mono', monospace;
-    font-size: 1.5rem;
+    font-size: 1rem;
     color: white;
     text-align: center;
     width:60%;
@@ -70,10 +70,26 @@ body{
 
 #developer {
     font-family: 'Roboto Mono', monospace;
-    font-size: 2rem;
+    font-size: 1.5rem;
     color: white;
     text-align: left;
     width:60%;
+}
+
+@media only screen and (max-width: 600px) {
+    #webtools {
+        font-size: 1.5rem;
+    }
+    #subtext {
+        font-size: 0.8rem;
+    }
+    #developer {
+        font-size: 1rem;
+    }
+    .navbar a {
+        font-size: 12px;
+        padding: 6px;
+    }
 }
 
 </style>
@@ -84,7 +100,7 @@ body{
     <div >
         <div id="webtools">
            <center>
-           <h1 style="padding:0px;margin:10px;font-size:6rem">Webtools <span id="developer">Developer</span></h1>
+           <h1 style="padding:0px;margin:10px;font-size:4rem">Webtools <span id="developer">Developer</span></h1>
            </center> 
            <center>
            <div id="subtext">We know the power of good development. That is why we created Webtools, an open source platform for developers made by developers.</div>

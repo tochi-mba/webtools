@@ -1,6 +1,7 @@
 <script src="https://kit.fontawesome.com/ac579d55ec.js" crossorigin="anonymous"></script>
 
-<div class="nvbar">
+
+<nav class="nvbar">
         <a href="index.php">Home</a>
         <?php if(isset($_SESSION['uid'])) { ?>
           <a href="new_script.php">New Project</a>
@@ -14,7 +15,7 @@
         <a href="register.php" class="right">Register</a>
         <?php }?>
         
-    </div>
+        </nav>
 <style>
   .nvbar {
   position: fixed;
