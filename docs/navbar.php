@@ -4,7 +4,7 @@
         <a href="../index.php">Home</a>
         <?php if(isset($_SESSION['uid'])) { ?>
           <a href="../new_script.php">New Project</a>
-          <a href="../scripts.php">My Project</a>
+          <a href="../scripts.php">My Projects</a>
           <a href="../docs/">Docs</a>
           <a href="../profile.php" class="right">Profile</a>
           <a href="../logout.php" class="right">Logout</a>

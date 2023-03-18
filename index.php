@@ -77,6 +77,104 @@ body{
 }
 
 </style>
+<style>
+/* mobile view */
+@media only screen and (max-width: 600px) {
+  #bb {
+    display: flex;
+    flex-direction: column;
+  }
+  #webtools {
+    font-size: 3rem;
+  }
+  
+  #subtext {
+    font-size: 1.5rem;
+    width: 100%;
+  }
+  
+  #developer {
+    font-size: 2rem;
+    width: 100%;
+    text-align: center;
+  }
+  
+  .navbar {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .navbar a {
+    width: 25%;
+  }
+  
+}
+
+/* tablet view */
+@media only screen and (max-width: 1024px) and (min-width: 600px) {
+  #bb {
+    display: flex;
+    flex-direction: column;
+  }
+  #webtools {
+    font-size: 5rem;
+  }
+  
+  #subtext {
+    font-size: 2rem;
+    width: 80%;
+  }
+  
+  #developer {
+    font-size: 3rem;
+    width: 80%;
+    text-align: center;
+  }
+  
+  .navbar {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .navbar a {
+    width: 50%;
+  }
+  
+}
+
+/* desktop view */
+@media only screen and (min-width: 1024px) {
+  #bb {
+    display: flex;
+    flex-direction: row;
+  }
+  #webtools {
+    font-size: 6rem;
+  }
+  
+  #subtext {
+    font-size: 2rem;
+    width: 60%;
+  }
+  
+  #developer {
+    font-size: 3rem;
+    width: 60%;
+    text-align: left;
+  }
+  
+  .navbar {
+    width: 50%;
+  }
+  
+  .navbar a {
+    width: 25%;
+  }
+  
+}
+</style>
 </head>
 
 <body id="bb" >
