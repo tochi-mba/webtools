@@ -2,7 +2,7 @@
 
 
 <nav class="nvbar">
-        <a href="index.php">Home</a>
+        <a href="./">Home</a>
         <?php if(isset($_SESSION['uid'])) { ?>
           <a href="new_script.php">New Project</a>
           <a href="scripts.php">My Project</a>
