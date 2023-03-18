@@ -699,8 +699,15 @@ require "is_logged.php";
     
     
         // Generate a unique ID
-        $unique_id = uniqid();
     
+        while (true) {
+            $unique_id = uniqid();
+            $query = "SELECT * FROM scripts WHERE script_id = $unique_id";
+            $result = mysqli_query($conn, $query);
+            if (mysqli_num_rows($result) == 0) {
+                break;
+            }
+        }
         // Create a folder for the POST files
         while (file_exists("./scripts/" . $_SESSION["uid"] . "/" . $unique_id)) {
             $unique_id = uniqid();
