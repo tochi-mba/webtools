@@ -5,10 +5,10 @@ $file_name = '../../spam_detection/spam.txt';
 $contents = file_get_contents($file_name);
 
 // Decode the JSON object
-$data = json_decode($contents, true);
+$data1 = json_decode($contents, true);
 
 // Check if the object has more than 100 keys
-if (count($data) > 100) {
+if (count($data1) > 100) {
     // Delete the object and make the file empty
     file_put_contents($file_name, '');
 }
