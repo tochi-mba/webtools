@@ -1,9 +1,9 @@
 <?php
 // Connect to the database
-$host = "sql200.epizy.com";
-$user = "epiz_33825562";
-$pass = "MQiLFxQZcafpB1h";
-$dbname = "epiz_33825562_webtools";
+$host = "localhost";
+$user = "id20471517_webtools_user";
+$pass = "vmaVMb.289+z2KA";
+$dbname = "id20471517_webtools";
 
 $conn = mysqli_connect($host, $user, $pass, $dbname);
 
