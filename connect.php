@@ -1,9 +1,9 @@
 <?php
 // Connect to the database
 $host = "localhost";
-$user = "id20471517_webtools_user";
-$pass = "vmaVMb.289+z2KA";
-$dbname = "id20471517_webtools";
+$user = "root";
+$pass = "";
+$dbname = "webtools";
 
 $conn = mysqli_connect($host, $user, $pass, $dbname);
 
