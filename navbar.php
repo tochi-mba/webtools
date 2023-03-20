@@ -57,15 +57,4 @@
 <div style="margin-bottom:55px" ></div> 
 
 
-<!--just to remove the watermark-->
-<script>
-window.onload = function(){
-    //find all elements with the exact inline CSS
-  let elements = document.querySelectorAll(`[style*="text-align:right;position:fixed;z-index:9999999;bottom:0;width:auto;right:1%;cursor:pointer;line-height:0;display:block!important"]`);
 
-  //loop through the found elements and delete them
-  elements.forEach(element => {
-      element.parentNode.removeChild(element);
-  });
-}
-</script>
