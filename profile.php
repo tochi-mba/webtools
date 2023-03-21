@@ -21,9 +21,11 @@ if (isset($_POST['update'])) {
     $api_token_hidden=$_POST['api_token_hidden'];
     ?>
     <script>
+        console.log("hi<?php echo $api_token_hidden;?>");
     </script>
     <?php
     if ($api_token_hidden==="1") {
+        echo "hi";
         function generateApiToken() {
             require "connect.php"; 
 
@@ -53,9 +55,6 @@ if (isset($_POST['update'])) {
     }
     
     //validate input
-    if (strlen($firstname) < 3 || strlen($lastname) < 3 || strlen($username) < 6) {
-        $error_message = 'Please make sure your entries are correct!';
-    }
     
     //only check if there is no error message
     if (strlen($error_message) == 0) {
@@ -64,6 +63,7 @@ if (isset($_POST['update'])) {
     $sql = "UPDATE `users` SET `api_token`='$api_token', `first_name`='$firstname', `last_name`='$lastname', `username`='$username' WHERE `uid`='$uid';";
     
     if ($conn->query($sql) === TRUE) {
+        echo "User information updated successfully";
     } else {
         }
     }

@@ -293,8 +293,8 @@
                 <label for="css">Include CSS?</label>
                 <input type="checkbox" <?php echo $cssIDE?> name="css" id="cssCheckbox">
                 <br>
-                <input type="text" id="input" />
-                <input type="hidden" id="list" name="tags" value="<?php echo $tagsIDE?>" />
+                <input type="text" id="input" value="<?php echo $tagsIDE?>"/>
+                <input type="hidden" id="list" name="tags" />
                 <div id="list-container"></div>
                 <br>
                 <div id="libraryShow"></div>
@@ -455,14 +455,6 @@
         const input = document.getElementById('input');
         const list = document.getElementById('list');
         const listContainer = document.getElementById('list-container');
-        const value = input.value;
-        if (value) {
-            const listValue = list.value ? list.value.split(',') : [];
-            listValue.push(value);
-            list.value = listValue.join(',');
-            input.value = '';
-            renderList();
-        }
         input.addEventListener('keyup', (e) => {
             if (e.keyCode === 13) {
                 const value = input.value;
@@ -494,6 +486,7 @@
             });
         };
         window.onload = function() {
+            
             document.getElementById("css-code").style.display = "none";
         }
         // Get the tabs
