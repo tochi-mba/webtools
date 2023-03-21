@@ -1,0 +1,6 @@
+{
+  "chartjs": { "name": "Chart.js", "file": "chartjs.php"},
+  "jquery": { "name": "jQuery", "file": "jQuery.php" },
+  "react": { "name": "React", "file": "react.php" },
+  "three": { "name": "Three.js", "file": "three.php" }
+}
