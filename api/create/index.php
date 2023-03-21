@@ -55,6 +55,11 @@ if (isset($data['api_token'])) {
             } else {
                 $readme = "";
             }
+            if(isset($data["libraries"])) {
+                $libraries = $data["libraries"];
+            } else {
+                $libraries = "";
+            }
 
             // Dictionary that will keep track of which POST is empty and which one is active
             $post_status = array();
@@ -155,7 +160,7 @@ if (isset($data['api_token'])) {
 
             $post_status = json_encode($post_status);
             $current_timestamp = gmdate("Y-m-d H:i:s", time());
-            $sql = "INSERT INTO scripts (ID, script_id, uid, active_files, date_created, last_edited, version, title, tags, category, description) VALUES (NULL, '$unique_id', '$uid', '$post_status ', '$current_timestamp', '$current_timestamp', 'v1', '$title', '$tags', '', '$description');";
+            $sql = "INSERT INTO scripts (ID, script_id, uid, active_files, date_created, last_edited, version, title, tags, category, description, libraries) VALUES (NULL, '$unique_id', '$uid', '$post_status ', '$current_timestamp', '$current_timestamp', 'v1', '$title', '$tags', '', '$description', '$libraries');";
             if (mysqli_query($conn, $sql)) {
                 echo json_encode([
                     "success" => true,
@@ -168,6 +173,7 @@ if (isset($data['api_token'])) {
                         "js_code" => $js_code,
                         "css_code" => $css_code,
                         "readme" => $readme,
+                        "libraries" => $libraries,
                         "timestamp" => $current_timestamp,
                         "version" => "v1"
                     ]

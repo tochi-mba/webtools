@@ -101,7 +101,8 @@
               "description": "[description of the script]",
               "js_code": "[JavaScript code]",
               "css_code": "[CSS code]",
-              "readme": "[README file]"
+              "readme": "[README file]",
+              "libraries": "[comma separated list of libraries by their id]"
             }
             </pre>
             <h2>Rules</h2>
@@ -139,6 +140,10 @@
                     <td>readme</td>
                     <td>No</td>
                     </tr>
+                    <tr>
+                    <td>libraries</td>
+                    <td>No</td>
+                    </tr>
                 </table>
             </pre>
             <h2>Data example</h2>
@@ -150,7 +155,8 @@
               "description": "This project sets the background to animals playing",
               "js_code": "raw js code",
               "css_code": "raw css code",
-              "readme": "readme text"
+              "readme": "readme text",
+              "libraries": "threejs,jquery"
             }
             </pre>
             <h2>Success Response</h2>
@@ -169,6 +175,7 @@
                 "js_code": "[JS code]",
                 "css_code": "[CSS code]",
                 "readme": "[README]",
+                "libraries": "[libraries]",
                 "timestamp": "2020-08-20 12:00:00",
                 "version": "v1"
               }
