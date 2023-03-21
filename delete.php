@@ -38,7 +38,6 @@ require "connect.php";
         
        // Execute query to delete row from database
        $sql = "DELETE FROM scripts WHERE uid='$uid' AND script_id='$script_id'";
-       echo $sql;
        $result = mysqli_query($conn,$sql);
         
        // Check if file exists
@@ -50,7 +49,11 @@ require "connect.php";
        // Check if query was successful
        if ($result) {
            // Redirect and pass success variable
-           header("location: scripts.php?delete=1&id=".$script_id."&name=".$_POST["name"]);
+           ?>
+           <script>
+               window.location = 'scripts.php?delete=1&id="<?php echo $script_id ?>"&name="<?php echo $_POST["name"]?>"';
+           </script>
+           <?php
        }
         
     }
