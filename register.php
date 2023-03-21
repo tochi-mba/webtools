@@ -28,6 +28,8 @@
 
         
         function generateApiToken() {
+            require "connect.php";
+
             // Generate a random token
             $api_token = bin2hex(random_bytes(16));
             
@@ -74,7 +76,7 @@
                     $api_token=generateApiToken();
 
                     $defaultFile = "./test_suite/default.php";
-                    $newFile = "./test_suite/$uid.php";
+                    $newFile = "./test_suite/users/$uid.php";
 
                     if(file_exists($defaultFile)){
                         $defaultFileContent = file_get_contents($defaultFile);

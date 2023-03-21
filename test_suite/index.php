@@ -9,6 +9,6 @@
     <title>Document</title>
 </head>
 <body>
-    <?php require $_SESSION['uid'].".php";?>
+    <?php require "./users/".$_SESSION['uid'].".php";?>
 </body>
 </html>
