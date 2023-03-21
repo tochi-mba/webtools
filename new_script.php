@@ -366,6 +366,32 @@ require "is_logged.php";
     <div id="ide">
         <center>
             <h5 style="color:white"><?php echo ucwords($_POST["title"]);?></h5>
+            <?php
+                //api for this
+                if(isset($_POST['librariesSave'])){
+                    $libraries = $_POST['librariesSave'];
+
+                    // Turn the title into a list
+                    $libraries_list1 = array_filter(array_map('trim', explode(',', $libraries)));
+                    // Iterate through the list
+                    $libraries_json = array();
+                    $libraries_list=json_decode(file_get_contents('./libraries/libraries.json'), true);
+                    foreach($libraries_list as $key => $value){
+                        foreach($libraries_list1 as $key1 => $value1){
+                            if($key==$value1){
+                                $libraries_json[] = $value['name'];
+                            }
+                        }
+                    }
+                    
+                    $listLib= implode(', ', $libraries_json); 
+                    
+                    ?>
+                    <p style="color:white"><?php echo $listLib ?></p>
+                    <?php
+
+                }
+            ?>
         </center>
         <div id="tabs"> <?php 
             if (isset($_POST["css"])&&isset($_POST["js"])) {
@@ -746,144 +772,75 @@ require "is_logged.php";
 // Check to see if all of $_POST["code"], $_POST["codeCss"], and $_POST["codeReadme"] are set
     // Check that all required POST variables are set
     if (isset($_POST["code"], $_POST["codeCss"], $_POST["codeReadme"], $_POST["projectTitle"], $_POST["tags"], $_POST["librarySave"])) {
-       //placeholder for description
-        $description="";
-    
-        // Sanitize the POST input
-        $title= mysqli_real_escape_string($conn, $_POST["projectTitle"]);
-        $tags = mysqli_real_escape_string($conn, $_POST["tags"]);
-        $librarySave=mysqli_real_escape_string($conn, $_POST["librarySave"]);
+        function CallAPI($method, $url, $data = false)
+        {
+            $curl = curl_init();
 
+            switch ($method)
+            {
+                case "POST":
+                    curl_setopt($curl, CURLOPT_POST, 1);
 
-        // Dictionary that will keep track of which POST is empty and which one is active
-        $post_status = array();
-    
-        // Check to see if each POST is empty
-        
-        if (trim($_POST["code"]) === '') {
-            // Add "code" to the post_status array as empty
-            $post_status["code"] = "empty";
-        } else {
-            // Add "code" to the post_status array as active
-            $post_status["code"] = "active";
-        }
-    
-        if (trim($_POST["codeCss"]) === '') {
-            // Add "codeCss" to the post_status array as empty
-            $post_status["codeCss"] = "empty";
-        } else {
-            // Add "codeCss" to the post_status array as active
-            $post_status["codeCss"] = "active";
-        }
-    
-    
-        // Generate a unique ID
-    
-        while (true) {
-            $unique_id = uniqid();
-            $query = "SELECT script_id FROM scripts WHERE script_id = '$unique_id'";
-            $result = mysqli_query($conn, $query);
-            if (mysqli_num_rows($result) === 0) {
-                break;
+                    if ($data)
+                        curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+                    break;
+                case "PUT":
+                    curl_setopt($curl, CURLOPT_PUT, 1);
+                    break;
+                default:
+                    if ($data)
+                        $url = sprintf("%s?%s", $url, http_build_query($data));
             }
+
+            // Optional Authentication:
+            curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+            curl_setopt($curl, CURLOPT_USERPWD, "username:password");
+
+            curl_setopt($curl, CURLOPT_URL, $url);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+
+            $result = curl_exec($curl);
+
+            curl_close($curl);
+
+            return $result;
         }
-        // Create a folder for the POST files
-        while (file_exists("./scripts/" . $_SESSION["uid"] . "/" . $unique_id)) {
-            $unique_id = uniqid();
-        }
-    
-        // Create a folder for the POST files
-    
-        if (!is_dir("./scripts/" . $_SESSION["uid"])) {
-            mkdir("./scripts/" . $_SESSION["uid"], 0755, true);
-            mkdir("./scripts/" . $_SESSION["uid"] . "/" . $unique_id . "/v1/", 0755, true);
-        } else {
-            mkdir("./scripts/" . $_SESSION["uid"] . "/" . $unique_id . "/v1/", 0755, true);
-        }
-        // Check to see if the "code" POST is active and create a .js file
-        if ($post_status["code"] == "active") {
-            // Create the .js file
-            $code = mysqli_real_escape_string($conn, $_POST['code']);
-    
-            // Define a regular expression pattern to match values between ">>" and "<<"
-            $pattern = '/\(\((.*?)\)\)/';
+        // Get the api_token from the users table
+        $sql = "SELECT api_token FROM users WHERE uid = '".$_SESSION['uid']."'";
+        $result = mysqli_query($conn, $sql);
+
+        // Check if query was successful
+        if (mysqli_num_rows($result) > 0) {
+            // Fetch the api_token
+            $row = mysqli_fetch_assoc($result);
+            $api_token = $row['api_token'];
+            $data = array(
+                'api_token' => $api_token,
+                'title' => $_POST["projectTitle"],
+                'tags' => $_POST["tags"],
+                'description' => '',
+                'js_code' => $_POST["code"],
+                'css_code' => $_POST["codeCss"],
+                'readme' => $_POST["codeReadme"],
+                'libraries' => $_POST["librarySave"]
+            );
+            $url=$website."/api/create/";
+            $response=CallAPI("POST", $url, $data);
+            $response=json_decode($response,true);
+            if ($response['success']=="true"){
+                ?>
+                <script>
+                    window.location.href = "scripts.php";
+                </script>
+                <?php
+            }
             
-            // Search for all matches of the pattern in the input code and store them in $matches
-            preg_match_all($pattern, $code, $matches);
-    
-            // Extract the second group of each match (i.e., the value between ">>" and "<<") and store them in $result
-            $result = $matches[1];
-    
-            // Output the resulting array
-            print_r($result);
-    
-            // Initialize an empty string $params
-            $params="";
-    
-            // Loop through each value in $result and construct a string $params that sets a variable with the value extracted from a URL parameter using the key as the variable name
-            for ($i=0; $i < sizeof($result); $i++) {
-            $params=$params.'$'.$result[$i]."=queryURL.searchParams.get('".$result[$i]."'); \n";
-            }
-    
-            // Remove all HTML tags from the code using a regular expression
-            $code = preg_replace('/\(\(|\)\)/', '', $code);
-    
-            // Create a new file in the user's directory with the name $scriptId.js and write JavaScript code to it
-            $file = fopen("./scripts/" . $_SESSION["uid"] . "/" . $unique_id . "/v1/" . $unique_id . ".js", "w") or die("Unable to create the .js file!");
-            if (!empty($result)) {
-                // If $result is not empty, write JavaScript code that extracts values from the URL parameters and runs the user's code
-                fwrite($file,  "window.addEventListener('load', function(){
-        const scripts = document.getElementsByTagName('script');
-        const currentScript = scripts[scripts.length - 1];
-        let queryURL = new URL(currentScript.src);
-        ".$params."    ".$code."
-    });");
-                fclose($file); // close the file
-            } elseif (empty($result)) {
-                // If $result is empty, write JavaScript code that simply runs the user's code
-                fwrite($file,  "window.addEventListener('load', function(){
-        ".$code."
-    });");
-                fclose($file); // close the file
-            }
-        }
-    
-        // Check to see if the "codeCss" POST is active and create a .css file
-        if ($post_status["codeCss"] == "active") {
-            // Create the .css file
-            $css_file = fopen("./scripts/" . $_SESSION["uid"] . "/" . $unique_id . "/v1/" . $unique_id . ".css", "w") or die("Unable to create the .css file!");
-            // Write the contents of the "codeCss" POST to the .css file
-            fwrite($css_file, mysqli_real_escape_string($conn, $_POST["codeCss"]));
-            // Close the file
-            fclose($css_file);
+        } else {
+            echo "No results found";
         }
         
-    
-        // Create the README file
-        $readme_file = fopen("./scripts/" . $_SESSION["uid"] . "/" . $unique_id . "/v1/README.txt", "w") or die("Unable to create the README file!");
-        // Write the contents of the "codeReadme" POST to the README file
-        fwrite($readme_file, mysqli_real_escape_string($conn, $_POST["codeReadme"]));
-        // Close the file
-        fclose($readme_file);
-        $uid=$_SESSION["uid"];
-        $post_status = json_encode($post_status);
-        $current_timestamp = gmdate("Y-m-d H:i:s", time());
-        $sql = "INSERT INTO scripts (ID, script_id, uid, active_files, date_created, last_edited, version, title, tags, category, description, libraries)
-        VALUES (NULL, '$unique_id', '$uid', '$post_status ', '$current_timestamp', '$current_timestamp', 'v1', '$title', '$tags', '', '$description', '$librarySave');";
-    
-        if (mysqli_query($conn, $sql)) {
-            ?> <script>
-            window.location.href = "./scripts.php";
-        </script> <?php
-        } else {
-            ?> <script>
-            location.reload();
-        </script> <?php
-        }
-    // If any of the POST variables are not set
-    } else {
-        /////
     }
+       
 ?> <script>
         window.addEventListener("load", function() {
             document.querySelector(".loadingScreen").style.display = "none";

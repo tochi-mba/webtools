@@ -2,7 +2,7 @@
 
 <?php
 // Get the data from the request
-$data = json_decode(file_get_contents('php://input'), true);
+$data = $_POST;
 if (isset($data['api_token'])) {
     require "../spam.php";
 
@@ -109,9 +109,6 @@ if (isset($data['api_token'])) {
 
                 // Extract the second group of each match (i.e., the value between ">>" and "<<") and store them in $result
                 $result = $matches[1];
-
-                // Output the resulting array
-                print_r($result);
 
                 // Initialize an empty string $params
                 $params = "";
