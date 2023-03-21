@@ -125,11 +125,11 @@ if (isset($data['api_token'])) {
                 $file = fopen("../../scripts/" . $uid . "/" . $unique_id . "/v1/" . $unique_id . ".js", "w") or die("Unable to create the .js file!");
                 if(!empty($result)) {
                     // If $result is not empty, write JavaScript code that extracts values from the URL parameters and runs the user's code
-                    fwrite($file, "window.addEventListener('load', function(){ const scripts = document.getElementsByTagName('script'); const currentScript = scripts[scripts.length - 1]; let queryURL = new URL(currentScript.src); ".$params." ".$code." });");
+                    fwrite($file, "const scripts = document.getElementsByTagName('script'); const currentScript = scripts[scripts.length - 1]; let queryURL = new URL(currentScript.src); ".$params." ".$code);
                     fclose($file); // close the file
                 } elseif(empty($result)) {
                     // If $result is empty, write JavaScript code that simply runs the user's code
-                    fwrite($file, "window.addEventListener('load', function(){ ".$code." });");
+                    fwrite($file, $code);
                     fclose($file); // close the file
                 }
             }

@@ -1,4 +1,10 @@
 <?php 
+
+require "head.php"; 
+require "is_logged.php";
+
+?>
+<?php 
   $cssIDE = '';
   $jsIDE = '';
   $jsCodeIDE = '';
@@ -7,7 +13,7 @@
   $titleIDE='';
   $librariesIDE='';
   $tagsIDE='';
-  $page="new"
+  $page="new";
 require "ide.php";
 
 
