@@ -72,6 +72,20 @@
                     // Insert into database
                     $current_timestamp = gmdate("Y-m-d H:i:s", time());
                     $api_token=generateApiToken();
+
+                    $defaultFile = "./test_suite/default.php";
+                    $newFile = "./test_suite/$uid.php";
+
+                    if(file_exists($defaultFile)){
+                        $defaultFileContent = file_get_contents($defaultFile);
+                        if(file_put_contents($newFile, $defaultFileContent)){
+                            echo "New file created for user $uid in ./test_suite/";
+                        } else {
+                            echo "Error creating new test suite for user $uid";
+                        }
+                    } else {
+                        echo "Default file not found";
+                    }
                     $sql = "INSERT INTO `users` (`ID`, `uid`, `first_name`, `last_name`, `password`, `username`, `scripts`, `account_created`, `api_token`) VALUES (NULL, '$uid', '$firstname', '$lastname', '$password', '$username', '', '$current_timestamp', '$api_token');";
                     if ($conn->query($sql) === TRUE) {
                         echo "New record created successfully";

@@ -250,8 +250,10 @@ require "is_logged.php";
     <script src="./codemirror/addon/scroll/annotatescrollbar.js"></script>
     <script src="./codemirror/addon/search/matchesonscrollbar.js"></script>
     <script src="./codemirror/ddon/search/jump-to-line.js"></script>
-    <!-- Includes the navbar.php file -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
 
+    <!-- Includes the navbar.php file -->
+   
 <body>
     <div class="loadingScreen">
         <img class="loader" src="./assets/images/loading.gif" />
@@ -274,8 +276,7 @@ require "is_logged.php";
             <span class="close-modal" style="font-size:40px;cursor:pointer">&times;</span>
             <iframe id="iframe" width="100%" height="100%"></iframe>
             <div class="input-container">
-                <label for="link">Link:</label>
-                <input type="text" id="link" />
+                <button type="button" onclick='window.open("./test_suite/edit.php", "_blank");'>Edit Test Suite</button>
                 <div id="variables"></div>
                 <button id="go">Test</button>
             </div>
@@ -284,6 +285,8 @@ require "is_logged.php";
     <center>
         <h1 id="titleShow" style="color:white"></h1>
     </center>
+    
+    <input type="hidden" id="errorCreate">
     <div id="modal">
         <form id="choiceBox" method="post">
             <center>
@@ -299,10 +302,67 @@ require "is_logged.php";
                 <input type="hidden" id="list" name="tags" value="" />
                 <div id="list-container"></div>
                 <br>
+                <div id="libraryShow"></div>
+                <label for="libraries">Libraries:</label>
+                <input type="hidden"id="librariesSave" name="librariesSave">
+                <select name="libraries" id="libraries">
+                    <?php
+                        $json = file_get_contents('./libraries/libraries.json');
+                        $jsonArr = json_decode($json, true);
+                        
+                        foreach ($jsonArr as $key => $value) {
+                            echo '<option value="'.$key.'">'.$value["name"].'</option>';
+                        }
+                    ?>
+                </select>
+                <button id="addLibrary" type="button">Add Library</button>
+                <br>
                 <center><button type="button" onclick="document.getElementById('choiceBox').submit();">Go</button></center>
             </center>
         </form>
     </div>
+    <script>
+       document.getElementById('addLibrary').addEventListener('click', function(){
+        let librarySelect = document.getElementById('libraries');
+        let libraryValue = librarySelect.options[librarySelect.selectedIndex];
+        let libraryShowDiv = document.getElementById('libraryShow');
+        let librarySaveInput = document.getElementById('librariesSave');
+        let libraryList = librarySaveInput.value.split(',');
+        if(!libraryList.includes(libraryValue.value)){
+            libraryList.push(libraryValue.value);
+            let libraryDiv = document.createElement('div');
+            libraryDiv.innerHTML = libraryValue.text + '<span style="cursor:pointer" class="remove" onclick="removeLibrary(this)">X</span>';
+            libraryShowDiv.appendChild(libraryDiv);
+            librarySaveInput.value = libraryList.join(',');
+            sortable('.sortable');
+        }
+    });
+    function removeLibrary(element){
+        let libraryShowDiv = document.getElementById('libraryShow');
+        let librarySaveInput = document.getElementById('librariesSave');
+        let libraryList = librarySaveInput.value.split(',');
+        let libraryValue = element.parentNode.innerText.replace('X', '').trim();
+        libraryList.splice(libraryList.indexOf(libraryValue), 1);
+        librarySaveInput.value = libraryList.join(',');
+        libraryShowDiv.removeChild(element.parentNode);
+    }
+    var sortable = function(selector){
+        var el = document.querySelector(selector);
+        var sortable = Sortable.create(el, {
+            handle: '.handle',
+            onEnd: function (evt) {
+                let librarySaveInput = document.getElementById('librariesSave');
+                let libraryList = librarySaveInput.value.split(',');
+                let newLibraryList = [];
+                let libraryShowDiv = document.getElementById('libraryShow');
+                for(let i=0; i<libraryShowDiv.children.length; i++){
+                    newLibraryList.push(libraryShowDiv.children[i].innerText.replace('X', '').trim());
+                }
+                librarySaveInput.value = newLibraryList.join(',');
+            }
+        });
+    }
+    </script>
     <div id="ide">
         <center>
             <h5 style="color:white"><?php echo ucwords($_POST["title"]);?></h5>
@@ -335,11 +395,14 @@ require "is_logged.php";
             }
         ?> <a href="#" data-tab="readme" id="readmeTab">README</a> # <div id="test-button-container">
                 <button style="float:right !important;text-align:right" onclick="openModal()">Test<img style="width:40px" id="test-button" src="./assets/images/play.png" alt="Play Icon" /></button>
+               
+                
             </div>
         </div>
         <div id="code-viewer">
-            <pre><form id="codeForm" method="post"><input type="hidden" name="projectTitle" value="<?php echo $_POST["title"]?>"><input type="hidden" name="tags" value="<?php echo $_POST["tags"]?>"><div id="js-code" ondrop="handleDrop(event)" ondragover="handleDragOver(event)"><textarea id="code" placeholder="Type your code here..."></textarea></div><div id="css-code" ondrop="handleDrop(event)" ondragover="handleDragOver(event)"><textarea id="codeCss" placeholder="Type your code here..."></textarea></div><div id="readme" ondrop="handleDrop(event)" ondragover="handleDragOver(event)"><textarea id="codeReadme" placeholder="Type your code here..."></textarea></div><button style="margin-top:10px" onclick="submitForm()" type="button" id="codeButton">Submit</button></form></pre>
+            <pre><form id="codeForm" method="post"><input type="hidden" value="<?php echo (isset($_POST["librariesSave"]) ? $_POST["librariesSave"] : ''); ?>" id="editorLibraries" name="librarySave"><input type="hidden" name="projectTitle" value="<?php echo $_POST["title"]?>"><input type="hidden" name="tags" value="<?php echo $_POST["tags"]?>"><div id="js-code" ondrop="handleDrop(event)" ondragover="handleDragOver(event)"><textarea id="code" placeholder="Type your code here..."></textarea></div><div id="css-code" ondrop="handleDrop(event)" ondragover="handleDragOver(event)"><textarea id="codeCss" placeholder="Type your code here..."></textarea></div><div id="readme" ondrop="handleDrop(event)" ondragover="handleDragOver(event)"><textarea id="codeReadme" placeholder="Type your code here..."></textarea></div><button style="margin-top:10px" onclick="submitForm()" type="button" id="codeButton">Submit</button></form></pre>
         </div>
+       
     </div> <?php
     if (isset($_POST["title"])) {
         ?> <script>
@@ -596,6 +659,19 @@ require "is_logged.php";
         const link = document.getElementById('link');
         const variables = document.getElementById('variables');
         const go = document.getElementById('go');
+        const libraries = document.getElementById('editorLibraries').value;
+        let splitValues = [];
+        // Split the comma separated list
+        let list1 = libraries.split(",");
+
+        // Loop through the list
+        for (let i = 0; i < list1.length; i++) {
+        // Check if the value is not empty
+        if (list1[i] !== "") {
+            // Push the value to the array
+            splitValues.push(list1[i]);
+        }
+        }
         // Get the script string
         // Create the inputs for the variables
         // Open the modal
@@ -603,6 +679,7 @@ require "is_logged.php";
             var scriptString = editor.getValue();
             // Get the variables from the script string
             var variablesArray = scriptString.match(/\(\((.*?)\)\)/g);
+            console.log(variablesArray);
             if (variablesArray != null) {
                 let i = 0;
                 variablesArray.forEach(variable => {
@@ -631,6 +708,7 @@ require "is_logged.php";
         };
         // Inject the script and CSS into the iframe
         go.addEventListener('click', () => {
+            iframe.src = "./test_suite/index.php";
             var scriptString = editor.getValue();
             let regex = /\(\(([\w\s]+)\)\)/;
             scriptString = scriptString.replace(regex, "$1");
@@ -644,12 +722,10 @@ require "is_logged.php";
                 i++;
             }
             scriptString = string + scriptString;
-            console.log(scriptString);
-            iframe.src = link.value;
+            
             iframe.onload = () => {
-                const script = document.createElement('script');
-                script.innerHTML = scriptString;
-                iframe.contentWindow.document.body.appendChild(script);
+                // Append the script tag to the iframe's innerHTML
+                iframe.contentWindow.eval(scriptString);
                 const css = document.createElement('style');
                 css.innerHTML = editorCss.getValue();
                 iframe.contentWindow.document.head.appendChild(css);
@@ -669,13 +745,16 @@ require "is_logged.php";
 
 // Check to see if all of $_POST["code"], $_POST["codeCss"], and $_POST["codeReadme"] are set
     // Check that all required POST variables are set
-    if (isset($_POST["code"], $_POST["codeCss"], $_POST["codeReadme"], $_POST["projectTitle"], $_POST["tags"])) {
+    if (isset($_POST["code"], $_POST["codeCss"], $_POST["codeReadme"], $_POST["projectTitle"], $_POST["tags"], $_POST["librarySave"])) {
        //placeholder for description
         $description="";
     
         // Sanitize the POST input
         $title= mysqli_real_escape_string($conn, $_POST["projectTitle"]);
         $tags = mysqli_real_escape_string($conn, $_POST["tags"]);
+        $librarySave=mysqli_real_escape_string($conn, $_POST["librarySave"]);
+
+
         // Dictionary that will keep track of which POST is empty and which one is active
         $post_status = array();
     
@@ -702,9 +781,9 @@ require "is_logged.php";
     
         while (true) {
             $unique_id = uniqid();
-            $query = "SELECT * FROM scripts WHERE script_id = $unique_id";
+            $query = "SELECT script_id FROM scripts WHERE script_id = '$unique_id'";
             $result = mysqli_query($conn, $query);
-            if (mysqli_num_rows($result) == 0) {
+            if (mysqli_num_rows($result) === 0) {
                 break;
             }
         }
@@ -789,8 +868,8 @@ require "is_logged.php";
         $uid=$_SESSION["uid"];
         $post_status = json_encode($post_status);
         $current_timestamp = gmdate("Y-m-d H:i:s", time());
-        $sql = "INSERT INTO scripts (ID, script_id, uid, active_files, date_created, last_edited, version, title, tags, category, description)
-        VALUES (NULL, '$unique_id', '$uid', '$post_status ', '$current_timestamp', '$current_timestamp', 'v1', '$title', '$tags', '', '$description');";
+        $sql = "INSERT INTO scripts (ID, script_id, uid, active_files, date_created, last_edited, version, title, tags, category, description, libraries)
+        VALUES (NULL, '$unique_id', '$uid', '$post_status ', '$current_timestamp', '$current_timestamp', 'v1', '$title', '$tags', '', '$description', '$librarySave');";
     
         if (mysqli_query($conn, $sql)) {
             ?> <script>

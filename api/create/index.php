@@ -96,7 +96,7 @@ if (isset($data['api_token'])) {
                 // Create the .js file
                 $code = $js_code;
 
-                // Define a regular expression pattern to match values between ">>" and "<<"
+                // Define a regular expression pattern to match values between "((" and "))"
                 $pattern = '/\(\((.*?)\)\)/';
 
                 // Search for all matches of the pattern in the input code and store them in $matches
