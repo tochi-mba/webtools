@@ -370,6 +370,13 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
         if (password_verify($password, $row['password'])) {
             $_SESSION['uid']=$row['uid'];
             $_SESSION['username'] = $username;
+            ?>
+            <script>
+                sessionStorage.setItem('uid','<?php echo $_SESSION['uid']?>');
+                sessionStorage.setItem('username','<?php echo $_SESSION['username']?>');
+
+            </script>
+            <?php
             // Redirect to secured page
             ?>
             <script>

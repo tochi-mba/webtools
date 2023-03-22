@@ -265,12 +265,15 @@
         #ide {
             display: none;
         }
+        
     </style>
     <div class="modal" style="height:100%" id="modalRun">
         <div style="height:100%" class="modal-content">
-            <span class="close-modal" style="font-size:40px;cursor:pointer">&times;</span>
+            <span class="close-modal" style="font-size:40px;cursor:pointer;background-color:#1E1F1F;color:white">&times;</span>
             <iframe id="iframe" width="100%" height="100%"></iframe>
-            <div class="input-container">
+            
+            </script>
+            <div class="input-container" style="background-color:#1E1F1F">
                 <button type="button" onclick='window.open("./test_suite/edit.php", "_blank");'>Edit Test Suite</button>
                 <div id="variables"></div>
                 <button id="go">Test</button>
