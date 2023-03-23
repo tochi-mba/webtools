@@ -370,11 +370,12 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
         if (password_verify($password, $row['password'])) {
             $_SESSION['uid']=$row['uid'];
             $_SESSION['username'] = $username;
+            $_SESSION['api_token'] = $row['api_token'];
             ?>
             <script>
                 sessionStorage.setItem('uid','<?php echo $_SESSION['uid']?>');
                 sessionStorage.setItem('username','<?php echo $_SESSION['username']?>');
-
+                sessionStorage.setItem('api_token','<?php echo $_SESSION['api_token']?>');
             </script>
             <?php
             // Redirect to secured page

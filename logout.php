@@ -5,9 +5,9 @@
    // Destroy the session
    session_destroy();
 ?>
-<script>sessionStorage.clear();</script>
+<script>sessionStorage.clear();
+window.location="login.php";</script>
 <?
-   // Redirect to login page
-   header("location: login.php");
+   
    exit;
 ?>

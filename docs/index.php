@@ -85,7 +85,7 @@
         </div>
         <div class="endpoint" id="create">
             <h1>Create</h1>
-            <p>This API allows users to create a new script.</p>
+            <p>This API allows users to create a new project.</p>
             <h2>URL</h2>
             <pre>/api/create/</pre>
             <h2>Method</h2>
@@ -96,9 +96,9 @@
             <pre>
             {
               "api_token": "<?php echo $api_token;?>",
-              "title": "[title of the script]",
+              "title": "[title of the project]",
               "tags": "[comma separated list of tags]",
-              "description": "[description of the script]",
+              "description": "[description of the project]",
               "js_code": "[JavaScript code]",
               "css_code": "[CSS code]",
               "readme": "[README file]",
@@ -210,9 +210,9 @@ fetch('/api/create/', {
   method: 'POST',
   body: JSON.stringify({
     api_token: '<?php echo $api_token;?>',
-    title: '[title of the script]',
+    title: '[title of the project]',
     tags: '[comma separated list of tags]',
-    description: '[description of the script]',
+    description: '[description of the project]',
     js_code: '[JavaScript code]',
     css_code: '[CSS code]',
     readme: '[README file]'
@@ -227,7 +227,7 @@ fetch('/api/create/', {
     console.log('New Script Created!');
     console.log(data.data);
   } else {
-    console.log('Error creating script');
+    console.log('Error creating project');
     console.log(data.message);
   }
 });
@@ -237,9 +237,9 @@ fetch('/api/create/', {
                     <textarea id="php-example" >
  $data = array(
      'api_token' => '<?php echo $api_token;?>',
-     'title' => '[title of the script]',
+     'title' => '[title of the project]',
      'tags' => '[comma separated list of tags]',
-     'description' => '[description of the script]',
+     'description' => '[description of the project]',
      'js_code' => '[JavaScript code]',
      'css_code' => '[CSS code]',
      'readme' => '[README file]'
@@ -261,7 +261,7 @@ fetch('/api/create/', {
      echo 'New Script Created!';
      print_r($data['data']);
  } else {
-     echo 'Error creating script';
+     echo 'Error creating project';
      echo $data['message'];
  }
                     </textarea>
@@ -277,12 +277,12 @@ url = '/api/create/'
 
 data = {
     'api_token': '<?php echo $api_token;?>',
-    'title': 'My first script',
-    'tags': 'example, script, first',
-    'description': 'This is an example script',
+    'title': 'My first project',
+    'tags': 'example, project, first',
+    'description': 'This is an example project',
     'js_code': 'console.log("Hello World!");',
     'css_code': 'body { background-color: red; }',
-    'readme': 'My first script using the API'
+    'readme': 'My first project using the API'
 }
 
 response = requests.post(url,  data=json.dumps(data))
@@ -300,9 +300,9 @@ import java.net.HttpURLConnection;
 import org.json.*;
  
 String apiToken = "<?php echo $api_token;?>";
-String title = "[title of the script]";
+String title = "[title of the project]";
 String tags = "[comma separated list of tags]";
-String description = "[description of the script]";
+String description = "[description of the project]";
 String jsCode = "[JavaScript code]";
 String cssCode = "[CSS code]";
 String readme = "[README file]";
@@ -339,7 +339,7 @@ try {
             System.out.println("New Script Created!");
             System.out.println(jsonObject.getJSONObject("data"));
         } else {
-            System.out.println("Error creating script");
+            System.out.println("Error creating project");
             System.out.println(jsonObject.getString("message"));
         }
     } else {
@@ -368,7 +368,7 @@ try {
               "api_token": "<?php echo $api_token;?>",
               "mode": "[0, 1, 2, 3]",
               "amount": "[amount of scripts]",
-              "script_id": "[unique script id]"
+              "script_id": "[unique project id]"
             }
             </pre>
             <h2>Rules</h2>
@@ -392,7 +392,7 @@ try {
             </tr>
             <tr>
                 <td>Script ID</td>
-                <td>The script ID must be set in the request body when the mode is 2.</td>
+                <td>The project ID must be set in the request body when the mode is 2.</td>
             </tr>
             </table>
             </pre>
@@ -413,7 +413,7 @@ try {
             </tr>
             <tr>
                 <td>2</td>
-                <td>Retrieves the specified script from the database.</td>
+                <td>Retrieves the specified project from the database.</td>
             </tr>
             <tr>
                 <td>3</td>
@@ -427,7 +427,7 @@ try {
               "api_token": "<?php echo $api_token;?>",
               "mode": "[0, 1, 2, 3]",
               "amount": "[amount of scripts]",
-              "script_id": "[unique script id]"
+              "script_id": "[unique project id]"
             }
             </pre>
             <h2>Success Response</h2>
@@ -507,7 +507,7 @@ fetch(url, {
     console.log(data);
   });
 
-// Mode 2: Get a specific script 
+// Mode 2: Get a specific project 
 const script_id = '12345';
 const params2 = { api_token: token, mode: 2, script_id: script_id };
 fetch(url, {
@@ -565,7 +565,7 @@ $response = file_get_contents($url, false, stream_context_create(array(
 echo 'Mode 1:'; 
 echo $response;
 
-// Mode 2: Get a specific script 
+// Mode 2: Get a specific project 
 $script_id = '12345'; 
 $params = array('api_token' => $token, 'mode' => 2, 'script_id' => $script_id); 
 $response = file_get_contents($url, false, stream_context_create(array(
@@ -614,7 +614,7 @@ response = requests.get(url, params=params)
 print('Mode 1:') 
 print(response.json()) 
 
-# Mode 2: Get a specific script 
+# Mode 2: Get a specific project 
 script_id = '12345' 
 params = {'api_token': token, 'mode': 2, 'script_id': script_id} 
 response = requests.get(url, params=params) 
@@ -684,7 +684,7 @@ public class ApiRequest {
             System.out.println("Mode 1:");
             System.out.println(response.toString());
 
-            // Mode 2: Get a specific script
+            // Mode 2: Get a specific project
             String script_id = "12345";
             params = "api_token=" + URLEncoder.encode(token, "UTF-8") + "&mode=2&script_id=" + URLEncoder.encode(script_id, "UTF-8");
             obj = new URL(url);
@@ -729,6 +729,118 @@ public class ApiRequest {
                 </div>
             </div>
     </div>
+    <div class="endpoint" id="edit_projects">
+    <h1>Edit</h1>
+    <p>This API endpoint allows users to edit their scripts.</p>
+    <h2>URL</h2>
+    <pre>/api/scripts/edit.php</pre>
+    <h2>HTTP Method</h2>
+    <pre>POST</pre>
+    <h2>Rules</h2>
+            <pre>
+                <table>
+                    <tr>
+                    <th>Field</th>
+                    <th>Required</th>
+                    </tr>
+                    <tr>
+                    <td>api_token</td>
+                    <td>Yes</td>
+                    </tr>
+                    <tr>
+                    <td>script_id</td>
+                    <td>Yes</td>
+                    </tr>
+                    <tr>
+                    <td>js_code</td>
+                    <td>No</td>
+                    </tr>
+                    <tr>
+                    <td>css_code</td>
+                    <td>No</td>
+                    </tr>
+                    <tr>
+                    <td>readme</td>
+                    <td>No</td>
+                    </tr>
+                    <tr>
+                    <td>title</td>
+                    <td>No</td>
+                    </tr>
+                    <tr>
+                    <td>description</td>
+                    <td>No</td>
+                    </tr>
+                    <tr>
+                    <td>tags</td>
+                    <td>No</td>
+                    </tr>
+                    <tr>
+                    <td>libraries</td>
+                    <td>No</td>
+                    </tr>
+                </table>
+            </pre>
+    <h2>Data Examples</h2>
+    <pre>
+        {
+            "api_token": "1234567890abcdefghijklmnopqrstuvwxyz",
+            "script_id": "1234567890abcdefghijklmnopqrstuvwxyz",
+            "js_code": "console.log('Hello World!');",
+            "css_code": "body { background-color: #000; }",
+            "readme": "This is a sample project.",
+            "title": "Sample Script",
+            "description": "This is a sample project.",
+            "tags": "sample,project",
+            "libraries": "jquery,bootstrap"
+        }
+    </pre>
+    <h2>Success Response</h2>
+    <h3>Code</h3>
+    <pre>200 OK</pre>
+    <h3>Content example</h3>
+    <pre>
+        {
+            "success": true,
+            "script_id": "1234567890abcdefghijklmnopqrstuvwxyz",
+            "version": "v1.01",
+            "edited": true
+        }
+    </pre>
+    <h2>Error Response</h2>
+    <h3>Code</h3>
+    <pre>400 BAD REQUEST</pre>
+    <h3>Content</h3>
+    <pre>
+        {
+            "success": false,
+            "message": "Script ID is required"
+        }
+    </pre>
+    <h2>Example Code in Different Languages</h2>
+    <div class="row">
+        <div class="col s12">
+            <ul class="tabs_edit_projects">
+                <li class="tab col s3"><a class="active" href="#js_edit_projects">JavaScript</a></li>
+                <li class="tab col s3"><a href="#php_edit_projects">PHP</a></li>
+                <li class="tab col s3"><a href="#python_edit_projects">Python</a></li>
+                <li class="tab col s3"><a href="#java_edit_projects">Java</a></li>
+            </ul>
+        </div>
+        <div id="js_edit_projects" class="col s12">
+            <textarea id="js-example_edit_projects" > </textarea>
+        </div>
+        <div id="php_edit_projects" class="col s12">
+            <textarea id="php-example_edit_projects" > </textarea>
+        </div>
+        <div id="python_edit_projects" class="col s12">
+            <textarea id="python-example_edit_projects" > </textarea>
+        </div>
+        <div id="java_edit_projects" class="col s12">
+            <textarea id="java-example_edit_projects" > </textarea>
+        </div>
+    </div>
+</div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             var jsExample = document.getElementById('js-example');
@@ -781,6 +893,50 @@ public class ApiRequest {
             var javaExample = document.getElementById('java-example_get_projects');
             var menuLinks = document.querySelectorAll('.menu a');
             var tabs = document.querySelectorAll('.tabs_get_projects');
+
+            var jsEditor = CodeMirror.fromTextArea(jsExample, {
+                mode: 'javascript',
+                readOnly: true,
+                tabSize: 4,
+                lineNumbers: true
+            });
+            var phpEditor = CodeMirror.fromTextArea(phpExample, {
+                mode: 'php',
+                readOnly: true,
+                tabSize: 4,
+                lineNumbers: true
+            });
+            var pythonEditor = CodeMirror.fromTextArea(pythonExample, {
+                mode: 'python',
+                readOnly: true,
+                tabSize: 4,
+                lineNumbers: true
+            });
+            var javaEditor = CodeMirror.fromTextArea(javaExample, {
+                mode: 'java',
+                readOnly: true,
+                tabSize: 4,
+                lineNumbers: true
+            });
+
+            M.Tabs.init(tabs);
+
+            for (var i = 0; i < menuLinks.length; i++) {
+                menuLinks[i].addEventListener('click', function(e) {
+                    e.preventDefault();
+                    var href = this.getAttribute('href');
+                    var top = document.querySelector(href).offsetTop;
+                    window.scrollTo(0, top);
+                });
+            }
+            
+            //edit_projects
+            var jsExample = document.getElementById('js-example_edit_projects');
+            var phpExample = document.getElementById('php-example_edit_projects');
+            var pythonExample = document.getElementById('python-example_edit_projects');
+            var javaExample = document.getElementById('java-example_edit_projects');
+            var menuLinks = document.querySelectorAll('.menu a');
+            var tabs = document.querySelectorAll('.tabs_edit_projects');
 
             var jsEditor = CodeMirror.fromTextArea(jsExample, {
                 mode: 'javascript',

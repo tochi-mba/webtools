@@ -63,7 +63,14 @@ if (isset($_POST['update'])) {
     $sql = "UPDATE `users` SET `api_token`='$api_token', `first_name`='$firstname', `last_name`='$lastname', `username`='$username' WHERE `uid`='$uid';";
     
     if ($conn->query($sql) === TRUE) {
-        echo "User information updated successfully";
+        $_SESSION['username'] = $username;
+        $_SESSION['api_token'] = $api_token;
+        ?>
+        <script>
+            sessionStorage.setItem('username','<?php echo $_SESSION['username']?>');
+            sessionStorage.setItem('api_token','<?php echo $_SESSION['api_token']?>');
+        </script>
+        <?php
     } else {
         }
     }

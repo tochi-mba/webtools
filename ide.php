@@ -671,6 +671,7 @@
             var code = editor.getValue();
             var codeCss = editorCss.getValue();
             var codeReadme = editorReadme.getValue();
+            var editorLibraries = document.getElementById("editorLibraries").value;
             //Create hidden inputs
             var form = document.getElementById('codeForm');
             var hiddenInput1 = document.createElement("input");
@@ -780,79 +781,100 @@
             document.querySelector('.loadingScreen').style.display = 'none';
         };
     </script> <?php
+ function CallAPI($method, $url, $data = false)
+ {
+     $curl = curl_init();
 
+     switch ($method)
+     {
+         case "POST":
+             curl_setopt($curl, CURLOPT_POST, 1);
+
+             if ($data)
+                 curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+             break;
+         case "PUT":
+             curl_setopt($curl, CURLOPT_PUT, 1);
+             break;
+         default:
+             if ($data)
+                 $url = sprintf("%s?%s", $url, http_build_query($data));
+     }
+
+     // Optional Authentication:
+     curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+     curl_setopt($curl, CURLOPT_USERPWD, "username:password");
+
+     curl_setopt($curl, CURLOPT_URL, $url);
+     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+
+     $result = curl_exec($curl);
+
+     curl_close($curl);
+
+     return $result;
+ }
 // Check to see if all of $_POST["code"], $_POST["codeCss"], and $_POST["codeReadme"] are set
     // Check that all required POST variables are set
     if ($page=="edit") {
-        # code...
+        if (isset($_POST["code"], $_POST["codeCss"], $_POST["codeReadme"], $_POST["projectTitle"], $_POST["tags"], $_POST["librarySave"])) {
+
+         // Set API token
+         $api_token = $_SESSION['api_token'];
+         // Set script ID
+         $script_id = $_GET['script_id'];
+         echo $_POST["librarySave"];
+         // Set data array
+         $data = array(
+             'api_token' => $api_token,
+             'script_id' => $script_id,
+             'js_code' => $_POST["code"],
+             'css_code' => $_POST["codeCss"],
+             'readme' => $_POST["codeReadme"],
+             'title' => $_POST["projectTitle"],
+             'description' => "",
+             'tags' => $_POST["tags"],
+             'libraries' => $_POST["librarySave"]
+         );
+         $url=$website."/api/edit/";
+         // Call API
+         $response = CallAPI('POST', $url, $data);
+         $response=json_decode($response,true);
+            if ($response['success']=="true"){
+                ?>
+                <script>
+                    window.location.href = "./edit.php?script_id=<?php echo $script_id; ?>";
+                </script>
+                <?php
+            }
+                
+        }
     }elseif ($page=="new") {
         if (isset($_POST["code"], $_POST["codeCss"], $_POST["codeReadme"], $_POST["projectTitle"], $_POST["tags"], $_POST["librarySave"])) {
-            function CallAPI($method, $url, $data = false)
-            {
-                $curl = curl_init();
-    
-                switch ($method)
-                {
-                    case "POST":
-                        curl_setopt($curl, CURLOPT_POST, 1);
-    
-                        if ($data)
-                            curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
-                        break;
-                    case "PUT":
-                        curl_setopt($curl, CURLOPT_PUT, 1);
-                        break;
-                    default:
-                        if ($data)
-                            $url = sprintf("%s?%s", $url, http_build_query($data));
-                }
-    
-                // Optional Authentication:
-                curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-                curl_setopt($curl, CURLOPT_USERPWD, "username:password");
-    
-                curl_setopt($curl, CURLOPT_URL, $url);
-                curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-    
-                $result = curl_exec($curl);
-    
-                curl_close($curl);
-    
-                return $result;
+           
+            $api_token = $_SESSION['api_token'];
+            $data = array(
+                'api_token' => $api_token,
+                'title' => $_POST["projectTitle"],
+                'tags' => $_POST["tags"],
+                'description' => '',
+                'js_code' => $_POST["code"],
+                'css_code' => $_POST["codeCss"],
+                'readme' => $_POST["codeReadme"],
+                'libraries' => $_POST["librarySave"]
+            );
+            $url=$website."/api/create/";
+            $response=CallAPI("POST", $url, $data);
+            $response=json_decode($response,true);
+            if ($response['success']=="true"){
+                ?>
+                <script>
+                    window.location.href = "scripts.php";
+                </script>
+                <?php
             }
-            // Get the api_token from the users table
-            $sql = "SELECT api_token FROM users WHERE uid = '".$_SESSION['uid']."'";
-            $result = mysqli_query($conn, $sql);
-    
-            // Check if query was successful
-            if (mysqli_num_rows($result) > 0) {
-                // Fetch the api_token
-                $row = mysqli_fetch_assoc($result);
-                $api_token = $row['api_token'];
-                $data = array(
-                    'api_token' => $api_token,
-                    'title' => $_POST["projectTitle"],
-                    'tags' => $_POST["tags"],
-                    'description' => '',
-                    'js_code' => $_POST["code"],
-                    'css_code' => $_POST["codeCss"],
-                    'readme' => $_POST["codeReadme"],
-                    'libraries' => $_POST["librarySave"]
-                );
-                $url=$website."/api/create/";
-                $response=CallAPI("POST", $url, $data);
-                $response=json_decode($response,true);
-                if ($response['success']=="true"){
-                    ?>
-                    <script>
-                        window.location.href = "scripts.php";
-                    </script>
-                    <?php
-                }
                 
-            } else {
-                echo "No results found";
-            }
+            
             
         }
     }

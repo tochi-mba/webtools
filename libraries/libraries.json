@@ -1,6 +1,7 @@
 {
   "chartjs": { "name": "Chart.js", "file": "chartjs.php"},
-  "jquery": { "name": "jQuery", "file": "jQuery.php" },
+  "jquery": { "name": "jQuery", "file": "jquery.php" },
   "react": { "name": "React", "file": "react.php" },
-  "three": { "name": "Three.js", "file": "three.php" }
+  "three": { "name": "Three.js", "file": "three.php" },
+  "gsap": { "name": "GSAP", "file": "gsap.php" }
 }
