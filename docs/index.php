@@ -82,6 +82,8 @@
         <div class="menu">
             <a href="#create" class="active">Create</a>
             <a href="#get_projects" class="active">Get Projects</a>
+            <a href="#edit_projects" class="active">Edit Projects</a>
+
         </div>
         <div class="endpoint" id="create">
             <h1>Create</h1>
@@ -733,7 +735,7 @@ public class ApiRequest {
     <h1>Edit</h1>
     <p>This API endpoint allows users to edit their scripts.</p>
     <h2>URL</h2>
-    <pre>/api/scripts/edit.php</pre>
+    <pre>/api/edit/</pre>
     <h2>HTTP Method</h2>
     <pre>POST</pre>
     <h2>Rules</h2>
@@ -784,8 +786,8 @@ public class ApiRequest {
     <h2>Data Examples</h2>
     <pre>
         {
-            "api_token": "1234567890abcdefghijklmnopqrstuvwxyz",
-            "script_id": "1234567890abcdefghijklmnopqrstuvwxyz",
+            "api_token": "<?php echo $api_token;?>",
+            "script_id": "58vd47",
             "js_code": "console.log('Hello World!');",
             "css_code": "body { background-color: #000; }",
             "readme": "This is a sample project.",
@@ -802,7 +804,7 @@ public class ApiRequest {
     <pre>
         {
             "success": true,
-            "script_id": "1234567890abcdefghijklmnopqrstuvwxyz",
+            "script_id": "58vd47",
             "version": "v1.01",
             "edited": true
         }
