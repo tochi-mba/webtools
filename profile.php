@@ -19,13 +19,7 @@ if (isset($_POST['update'])) {
     $username   = validateInput($_POST['username']);
     $api_token = validateInput($_POST['api_token']);
     $api_token_hidden=$_POST['api_token_hidden'];
-    ?>
-    <script>
-        console.log("hi<?php echo $api_token_hidden;?>");
-    </script>
-    <?php
     if ($api_token_hidden==="1") {
-        echo "hi";
         function generateApiToken() {
             require "connect.php"; 
 
@@ -85,7 +79,11 @@ if (isset($_POST['update'])) {
     <title>Edit User Info</title>
     <link rel="stylesheet" href="style.css">
 </head>
-
+<style>
+    body{
+        background-color: #1E1F1F;
+    }
+</style>
 <body>
     
     <?php

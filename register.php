@@ -14,7 +14,6 @@
 <?php
     require "connect.php";
     require "navbar.php";
-
     if(isset($_POST['username'],$_POST['firstname'],$_POST['lastname'],$_POST['password'])){
         function generate_uid()
         {

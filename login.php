@@ -356,6 +356,7 @@ button{
 <?php
 require "connect.php";
 require "navbar.php";
+
 if (isset($_POST['username']) && isset($_POST['password'])) {
     // Get the POSTed login details
     $username = $_POST['username'];

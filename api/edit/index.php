@@ -48,6 +48,7 @@ if (isset($data['api_token'])) {
                         //Check if the content of the file is the same as the js_code field
                         if ($data['js_code']!=file_get_contents("../../scripts/".$uid."/".$script_id."/".$row['version']."/".$script_id.".js")) {
                             $edited=true;
+                            
                         }
                     } else {
                         //If the file does not exist, check if the js_code field is empty
@@ -89,12 +90,32 @@ if (isset($data['api_token'])) {
 
                 //If any of the fields were edited
                 if ($edited) {
-                    //Create a new folder with a 0.01 increment of the version number
-                    $new_version = $row['version'];
-                    $number = (float) substr($new_version, 1);
-                    $number += 0.01;
-                    $new_version = "v" . $number;
-                    mkdir("../../scripts/".$uid."/".$script_id."/".$new_version);
+                    if ($row['purchased']==null || $row['purchased']=="false") {
+                        //Create a new folder with a 0.01 increment of the version number
+                        $new_version = $row['version'];
+                        $dir = "../../scripts/".$uid."/".$script_id."/".$new_version;
+                        if (is_dir($dir)) {
+                            $objects = scandir($dir);
+                            foreach ($objects as $object) {
+                                if ($object != "." && $object != "..") {
+                                    if (filetype($dir."/".$object) == "dir") rrmdir($dir."/".$object); else unlink($dir."/".$object);
+                                }
+                            }
+                            reset($objects);
+                            rmdir($dir);
+                        }
+                        $number = (float) substr($new_version, 1);
+                        $number += 0.01;
+                        $new_version = "v" . $number;
+                        mkdir("../../scripts/".$uid."/".$script_id."/".$new_version);
+                    }else{
+                        $new_version = $row['version'];
+                        $number = (float) substr($new_version, 1);
+                        $number += 0.01;
+                        $new_version = "v" . $number;
+                        mkdir("../../scripts/".$uid."/".$script_id."/".$new_version);
+                    }
+                    
 
                     //Add the js file to the new folder
                     if (isset($data['js_code']) && $data['js_code']!="") {

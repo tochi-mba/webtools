@@ -280,12 +280,13 @@
             </div>
         </div>
     </div>
-    <center>
-        <h1 id="titleShow" style="color:white"></h1>
-    </center>
+    
     
     <input type="hidden" id="errorCreate">
     <div id="modal">
+    <center>
+        <h1 id="titleShow" style="color:black"><?php echo ucwords($titleIDE)?></h1>
+    </center>
         <form id="choiceBox" method="post">
             <center>
                 <label for="title">Title: </label>
@@ -728,8 +729,10 @@
                     input.type = 'text';
                     input.id = "variable" + i;
                     input.classList.add(variableName);
+                    variableName = variableName.charAt(0).toUpperCase() + variableName.slice(1)+": "
                     var label = document.createElement('label');
                     label.for = variableName;
+                    label.style.color="white";
                     label.innerText = variableName;
                     variables.appendChild(label);
                     variables.appendChild(input);

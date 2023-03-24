@@ -10,6 +10,7 @@ require "is_logged.php";
 if(isset($_GET['script_id'])){
     require "connect.php";
     $script_id = $_GET['script_id'];
+    
     $uid = $_SESSION['uid'];
 
     // Check if the script_id exists
@@ -77,6 +78,9 @@ if(isset($_GET['script_id'])){
         echo "Script does not exist";
         exit;
     }
+}else{
+    echo "Script id not provided";
+    exit;
 }
 
 require "ide.php";
