@@ -106,7 +106,11 @@ if (isset($data['api_token'])) {
                         }
                         $number = (float) substr($new_version, 1);
                         $number += 0.01;
-                        $new_version = "v" . $number;
+                        if (strpos($number, '.') !== false) {
+                            $new_version = "v" . $number;
+                        } else {
+                            $new_version = "v" . (int) $number;
+                        }
                         mkdir("../../scripts/".$uid."/".$script_id."/".$new_version);
                     }else{
                         $new_version = $row['version'];

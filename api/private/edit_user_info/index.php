@@ -1,7 +1,7 @@
 
 
 <?php
-session_start();
+require "../private.php";
 require "../../../connect.php"; 
 
 function validateInput($data) {
@@ -12,7 +12,6 @@ function validateInput($data) {
   }
   
 if (isset($_POST['update'])&&$_POST['update']==true) {
-   
     foreach ($_POST as $key => $value) {
         $_POST[$key] = validateInput($value);
     }
@@ -29,30 +28,21 @@ if (isset($_POST['update'])&&$_POST['update']==true) {
     //only check if there is no error message
     if (strlen($error_message) == 0) {
     //insert user info into the database
-    $uid = $_SESSION['uid'];
     $api_token = $data['api_token_hidden'] === '1' ? generateApiToken() : $data['api_token'];
-    $sql = "UPDATE `users` SET `api_token`='$api_token', `first_name`='{$data['first_name']}', `last_name`='{$data['last_name']}', `username`='{$data['username']}' WHERE `uid`='$uid';";
+    $sql = "UPDATE `users` SET `api_token`='$api_token', `first_name`='{$data['first_name']}', `last_name`='{$data['last_name']}', `username`='{$data['username']}' WHERE `api_token`='{$data['api_token']}';";
     
-    if ($conn->query($sql) === TRUE) {
-        $_SESSION['username'] = $data['username'];
-        $_SESSION['api_token'] = $api_token;
-        ?>
-        <script>
-            sessionStorage.setItem('username','<?php echo $_SESSION['username']?>');
-            sessionStorage.setItem('api_token','<?php echo $_SESSION['api_token']?>');
-        </script>
-        <?php
-         $sql = "SELECT * FROM users WHERE uid='$uid'";
-         $result = $conn->query($sql);
-         
-         if ($result->num_rows > 0) {
+    if (mysqli_query($conn, $sql)) {
+       
+         $sql = "SELECT * FROM users WHERE `api_token` ='$api_token'";
+         $result = mysqli_query($conn, $sql);
+
+         if(mysqli_num_rows($result) > 0){
              $row = $result->fetch_assoc();
              $firstname=$row['first_name'];
              $lastname=$row['last_name'];
              $username=$row['username'];
              $api_token=$row['api_token'];
-         } 
-         echo json_encode(
+             echo json_encode(
                 array(
                     "status" => "success",
                     "message" => "User information updated successfully",
@@ -64,10 +54,17 @@ if (isset($_POST['update'])&&$_POST['update']==true) {
                     )
                 )
             );
+         } 
+         
          
     } else {
         }
     }
+}else{
+    echo json_encode(array(
+        "status" => "failed",
+        "message" => "Please fill all the required fields"
+    ));
 }
 
 function generateApiToken() {

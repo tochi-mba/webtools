@@ -119,9 +119,15 @@
 					$params = $matches[1];
 					return $params;
 				}
-				
-				
-				$script=file_get_contents("./scripts/".$_POST["user"]."/".$_POST["script_id"].".js");
+				require "connect.php";
+				$query = "SELECT * FROM scripts WHERE script_id = '$script_id'";
+				$result = mysqli_query($conn, $query);
+				if(mysqli_num_rows($result) > 0){
+					// Script exists
+					$row = mysqli_fetch_assoc($result);
+					$version=$row['version'];
+				}
+				$script=file_get_contents("./scripts/".$_GET["user"]."/".$_GET["script_id"]."/".$version."/".$_GET["script_id"].".js");
 				$params=extractSearchParams($script) ;	
 				$parStr="";
 				for ($i=0; $i < sizeof($params); $i++) { 
@@ -129,7 +135,7 @@
 				}
 
 				?>
-				<script src="./webtools?id=<?php echo $_POST["script_id"]?>&u=<?php echo $_POST["user"]; echo $parStr;?>"></script>
+				<script src="./webtools?id=<?php echo $_GET["script_id"]?>&u=<?php echo $_GET["user"]; echo $parStr;?>"></script>
 				</textarea>
 				<button class="copy-btn" onclick="copyScript()">Copy Script</button>
 				<div class="copy-message hide">Code copied!</div>

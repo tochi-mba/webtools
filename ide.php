@@ -4,14 +4,15 @@
 
 <head>
     <title>Code Editor</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.korzh.com/metroui/v4.5.1/css/metro-all.min.css">
+
     <style>
         body {
             font-family: sans-serif;
             font-size: 14px;
             margin: 0;
             padding: 0;
-            background: #1E1F1F;
+            background: #1E1F1F !important;
         }
 
         #editor {
@@ -139,20 +140,12 @@
         }
 
         #test-button-container {
-            width: 100%
+            width: 100%;
         }
 
         #test-button {
-            background-color: #f2f2f2;
-            border-radius: 5px;
-            transition: background-color 0.2s ease-in-out;
             padding: 10px;
         }
-
-        #test-button:hover {
-            background-color: #e2e2e2;
-        }
-
         .CodeMirror-scroll {
             padding-bottom: 0
         }
@@ -179,8 +172,12 @@
         .CodeMirror {
             border-top: 1px solid black;
             border-bottom: 1px solid black;
+           
         }
 
+        .CodeMirror-scroll{
+            overflow-x: hidden;
+        }
         dt {
             font-family: monospace;
             color: #666;
@@ -197,7 +194,7 @@
             box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.4), 0 6px 20px 0 rgba(0, 0, 0, 0.2);
             border-radius: 5px;
             background-color: white;
-            padding: 10px
+            overflow: hidden;
         }
 
         .list-item {
@@ -213,6 +210,8 @@
             height: 100vh;
         }
     </style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    
     <link rel="stylesheet" href="./codemirror/lib/codemirror.css">
     <link rel="stylesheet" href="./codemirror/addon/lint/lint.css">
     <link rel="stylesheet" href="./codemirror/addon/dialog/dialog.css">
@@ -233,21 +232,10 @@
     <script src="./codemirror/addon/edit/closebrackets.js"></script>
     <script src="./codemirror/mode/javascript/javascript.js"></script>
     <link rel="stylesheet" href="./codemirror/addon/display/fullscreen.css">
-    <script src="./codemirror/mode/xml/xml.js"></script>
     <script src="./codemirror/addon/display/fullscreen.js"></script>
-    <script src="./codemirror/addon/scroll/annotatescrollbar.js"></script>
-    <script src="./codemirror/addon/search/matchesonscrollbar.js"></script>
-    <script src="./codemirror/addon/search/searchcursor.js"></script>
-    <script src="./codemirror/addon/search/match-highlighter.js"></script>
-    <script src="./codemirror/addon/dialog/dialog.js"></script>
-    <script src="./codemirror/addon/search/searchcursor.js"></script>
-    <script src="./codemirror/addon/search/search.js"></script>
-    <script src="./codemirror/addon/scroll/annotatescrollbar.js"></script>
-    <script src="./codemirror/addon/search/matchesonscrollbar.js"></script>
-    <script src="./codemirror/ddon/search/jump-to-line.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
 
     <!-- Includes the navbar.php file -->
+    
    
 <body>
     <div class="loadingScreen">
@@ -265,46 +253,80 @@
         #ide {
             display: none;
         }
-        
+        .library{
+            width:fit-content;
+            margin:none;
+            float: left !important;
+            margin-left:10px !important;
+            color:white;
+            font-size:12px;
+            border:solid grey 1px;
+            padding:5px;
+            margin-top:10px;
+
+        }
+        #libraryShow{
+            margin-left:-10px !important;
+            height:fit-content !important;
+            width:100% !important;
+        }
+        #addLibrary{
+            width: 20px;
+            height: 20px;
+            background-color:#4C5053;
+            border:solid grey 1px;
+            line-height: 20px;
+            color:grey;
+            font-size:12px;
+            
+            
+        }
+        a:hover{
+        text-decoration: none !important;
+        }
     </style>
     <div class="modal" style="height:100%" id="modalRun">
         <div style="height:100%" class="modal-content">
-            <span class="close-modal" style="font-size:40px;cursor:pointer;background-color:#1E1F1F;color:white">&times;</span>
+            <div  style="background-color:#1E1F1F;color:white">
+        <span style="cursor:pointer;font-size:30px;padding:0;width:fit-content;height:fit-content" class="close-modal">&times;</span>
+        <div style="float:right; display:inline;margin:0;margin-right:20px;top:20%" id="variables"></div>
+
+        </div>
             <iframe id="iframe" width="100%" height="100%"></iframe>
             
             </script>
             <div class="input-container" style="background-color:#1E1F1F">
-                <button type="button" onclick='window.open("./test_suite/edit.php", "_blank");'>Edit Test Suite</button>
-                <div id="variables"></div>
-                <button id="go">Test</button>
+                <button style="border-radius:5px;width:fit-content;padding:5px;margin-top:10px;margin-bottom:10px" type="button" onclick='window.open("./test_suite/edit.php", "_blank");'>Edit Test Suite</button>
+                <button style="border-radius:5px;width:fit-content;padding:5px" id="go">Go</button>
             </div>
         </div>
     </div>
     
     
     <input type="hidden" id="errorCreate">
-    <div id="modal">
-    <center>
-        <h1 id="titleShow" style="color:black"><?php echo ucwords($titleIDE)?></h1>
-    </center>
-        <form id="choiceBox" method="post">
-            <center>
-                <label for="title">Title: </label>
-                <input name="title" value="<?php echo $titleIDE?>" id="title" type="text">
-                <label for="js">Include JS?</label>
-                <input type="checkbox" <?php echo $jsIDE?> name="js" id="jsCheckbox">
+    <div id="modal" style="width:260px">
+        <div style="width:100%;min-height:25px;background-color:#494949;position: relative;" id="config_header">
+            <h1 id="titleShow" style="font-size:12px;color:white;position: absolute; left: 5px; top: 50%; transform: translateY(-50%); width: 100%;overflow-wrap: break-word;padding-top:10px;padding-bottom:10px;height:fit-content"><?php echo ucwords($titleIDE)?></h1>
+
+        </div>
+        <form style="background-color:#3D3F41;  padding: 10px;-webkit-box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);
+-moz-box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);
+box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="post">
+                <label style="margin-top:20px;font-size:12px;color:white" for="title">Title: </label>
+                <input style="font-size:12px;width:80%" name="title" value="<?php echo $titleIDE?>" id="title" type="text">
                 <br>
-                <label for="css">Include CSS?</label>
-                <input type="checkbox" <?php echo $cssIDE?> name="css" id="cssCheckbox">
                 <br>
-                <input type="text" id="input" value="<?php echo $tagsIDE?>"/>
-                <input type="hidden" id="list" name="tags" />
-                <div id="list-container"></div>
+                <input style="" type="checkbox" <?php echo $jsIDE?> name="js" id="jsCheckbox">
+                <label style="font-size:12px;color:white;margin-left:3px" for="js">Include JS?</label>
                 <br>
-                <div id="libraryShow"></div>
-                <label for="libraries">Libraries:</label>
+                <br>
+                <input style="" type="checkbox" <?php echo $cssIDE?> name="css" id="cssCheckbox">
+                <label style="font-size:12px;color:white;margin-left:3px" for="css">Include CSS?</label>
+                <br>
+                <br>
+                <label style="color:white;font-size: 12px" for="libraries">Libraries:</label>
                 <input type="hidden"id="librariesSave" value="<?php echo $librariesIDE?>" name="librariesSave">
-                <select name="libraries" id="libraries">
+                <select style="font-size:12px;background-color:#4C5053; color:white;border:solid grey 1px;height:20px" name="libraries" id="libraries">
                     <?php
                         $json = file_get_contents('./libraries/libraries.json');
                         $jsonArr = json_decode($json, true);
@@ -314,10 +336,16 @@
                         }
                     ?>
                 </select>
-                <button id="addLibrary" type="button">Add Library</button>
+                <button id="addLibrary" type="button">+</button>
+                <div id="libraryShow"></div>
                 <br>
-                <center><button type="button" onclick="document.getElementById('choiceBox').submit();">Go</button></center>
-            </center>
+                <br>
+                <label style="font-size:12px;color:white;" for="tags">Tags: (seperate with a comma)</label>
+                <input type="text"  placeholder="Enter Tags..." name="tags" data-role="taginput" value="<?php echo $tagsIDE?>" data-tag-trigger="Comma">
+
+                <br>
+                <button style="border:solid grey 1px;color:white;font-weight:bold;background-color:#4C5053;border-radius:5px;width:40px;font-size:12px" type="button" onclick="document.getElementById('choiceBox').submit();">Next</button>
+            
         </form>
     </div>
     <script>
@@ -329,7 +357,8 @@
         for (let i = 0; i < libraryList.length; i++) {
             if (libraryList[i]!="") {
                 let libraryDiv = document.createElement('div');
-                libraryDiv.innerHTML = libraryList[i] + '<span style="cursor:pointer" class="remove" onclick="removeLibrary(this)">X</span>';
+                libraryDiv.classList.add('library');
+                libraryDiv.innerHTML = libraryList[i] + '<span style="cursor:pointer;color:grey" class="remove" onclick="removeLibrary(this)"> X</span>';
                 libraryShowDiv.appendChild(libraryDiv);
             }
            
@@ -344,7 +373,8 @@
         if(!libraryList.includes(libraryValue.value)){
             libraryList.push(libraryValue.value);
             let libraryDiv = document.createElement('div');
-            libraryDiv.innerHTML = libraryValue.text + '<span style="cursor:pointer" class="remove" onclick="removeLibrary(this)">X</span>';
+            libraryDiv.classList.add('library');
+            libraryDiv.innerHTML = libraryValue.text + '<span style="cursor:pointer;color:grey" class="remove" onclick="removeLibrary(this)"> X</span>';
             libraryShowDiv.appendChild(libraryDiv);
             librarySaveInput.value = libraryList.join(',');
         }
@@ -377,7 +407,7 @@
     </script>
     <div id="ide">
         <center>
-            <h5 style="color:white"><?php echo ucwords($_POST["title"]);?></h5>
+            <h5 style="color:white;margin:0"><?php echo ucwords($_POST["title"]);?></h5>
             <?php
                 //api for this
                 if(isset($_POST['librariesSave'])){
@@ -399,7 +429,7 @@
                     $listLib= implode(', ', $libraries_json); 
                     
                     ?>
-                    <p style="color:white"><?php echo $listLib ?></p>
+                    <p style="color:white;margin:0"><?php echo $listLib ?></p>
                     <?php
 
                 }
@@ -432,13 +462,13 @@
                 }
             }
         ?> <a href="#" data-tab="readme" id="readmeTab">README</a> # <div id="test-button-container">
-                <button style="float:right !important;text-align:right" onclick="openModal()">Test<img style="width:40px" id="test-button" src="./assets/images/play.png" alt="Play Icon" /></button>
-               
+                <button style="float:right !important;text-align:right;background:none;border:none" onclick="openModal()"><img style="width:20px;padding:0px;" id="test-button" src="./assets/images/play.png" alt="Play Icon" /></button>
+                <button style="float:right !important;margin-right:10px;border-radius:5px;border:solid grey 1px;color:white;background-color:#282A36;font-size:12px;font-weight:bold;width:60px;height:30px" onclick="submitForm()" type="button" id="codeButton"><?php echo ($page=="edit"? "Update": "Create")?></button>
                 
             </div>
         </div>
         <div id="code-viewer">
-            <pre><form id="codeForm" method="post"><input type="hidden" value="<?php echo (isset($_POST["librariesSave"]) ? $_POST["librariesSave"] : ''); ?>" id="editorLibraries" name="librarySave"><input type="hidden" name="projectTitle" value="<?php echo $_POST["title"]?>"><input type="hidden" name="tags" value="<?php echo $_POST["tags"]?>"><div id="js-code" ondrop="handleDrop(event)" ondragover="handleDragOver(event)"><textarea id="code" placeholder="Type your code here..."><?php echo $jsCodeIDE?></textarea></div><div id="css-code" ondrop="handleDrop(event)" ondragover="handleDragOver(event)"><textarea id="codeCss" placeholder="Type your code here..."><?php echo $cssCodeIDE?></textarea></div><div id="readme" ondrop="handleDrop(event)" ondragover="handleDragOver(event)"><textarea id="codeReadme" placeholder="Type your code here..."><?php echo $readmeCodeIDE?></textarea></div><button style="margin-top:10px" onclick="submitForm()" type="button" id="codeButton">Submit</button></form></pre>
+            <pre><form id="codeForm" method="post"><input type="hidden" value="<?php echo (isset($_POST["librariesSave"]) ? $_POST["librariesSave"] : ''); ?>" id="editorLibraries" name="librarySave"><input type="hidden" name="projectTitle" value="<?php echo $_POST["title"]?>"><input type="hidden" name="tags" value="<?php echo $_POST["tags"]?>"><div id="js-code" ondrop="handleDrop(event)" ondragover="handleDragOver(event)"><textarea id="code" placeholder="Type your code here..."><?php echo $jsCodeIDE?></textarea></div><div id="css-code" ondrop="handleDrop(event)" ondragover="handleDragOver(event)"><textarea id="codeCss" placeholder="Type your code here..."><?php echo $cssCodeIDE?></textarea></div><div id="readme" ondrop="handleDrop(event)" ondragover="handleDragOver(event)"><textarea id="codeReadme" placeholder="Type your code here..."><?php echo $readmeCodeIDE?></textarea></div></form></pre>
         </div>
        
     </div> <?php
@@ -456,39 +486,6 @@
             let capitalizedWords = words.map(word => word.charAt(0).toUpperCase() + word.slice(1));
             titleShow.innerHTML = capitalizedWords.join(" ");
         }
-        const input = document.getElementById('input');
-        const list = document.getElementById('list');
-        const listContainer = document.getElementById('list-container');
-        input.addEventListener('keyup', (e) => {
-            if (e.keyCode === 13) {
-                const value = input.value;
-                if (value) {
-                    const listValue = list.value ? list.value.split(',') : [];
-                    listValue.push(value);
-                    list.value = listValue.join(',');
-                    input.value = '';
-                    renderList();
-                }
-            }
-        });
-        const renderList = () => {
-            listContainer.innerHTML = '';
-            const listValue = list.value ? list.value.split(',') : [];
-            listValue.forEach((item, index) => {
-                const itemElement = document.createElement('div');
-                itemElement.classList.add('list-item');
-                itemElement.innerHTML = item;
-                const deleteButton = document.createElement('button');
-                deleteButton.innerHTML = 'X';
-                deleteButton.addEventListener('click', () => {
-                    listValue.splice(index, 1);
-                    list.value = listValue.join(',');
-                    renderList();
-                });
-                itemElement.appendChild(deleteButton);
-                listContainer.appendChild(itemElement);
-            });
-        };
         window.onload = function() {
             
             document.getElementById("css-code").style.display = "none";
@@ -526,12 +523,6 @@
                         break;
                 }
             });
-        });
-        // Add click event listener to test button
-        const testButton = document.querySelector('#test-button');
-        testButton.addEventListener('click', e => {
-            // Run the code
-            // ...
         });
         var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
             lineNumbers: true,
@@ -729,6 +720,8 @@
                     input.type = 'text';
                     input.id = "variable" + i;
                     input.classList.add(variableName);
+                    input.style.marginLeft="10px";
+                    input.style.marginRight="20px";
                     variableName = variableName.charAt(0).toUpperCase() + variableName.slice(1)+": "
                     var label = document.createElement('label');
                     label.for = variableName;
@@ -888,6 +881,7 @@
         });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+    <script src="https://cdn.korzh.com/metroui/v4.5.1/js/metro.min.js"></script>
 </body>
 
 </html>

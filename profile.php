@@ -11,63 +11,90 @@ function validateInput($data) {
 }
 
 $error_message = "";
-
+function CallAPI($method, $url, $data = false)
+    {
+        $curl = curl_init();
+   
+        switch ($method)
+        {
+            case "POST":
+                curl_setopt($curl, CURLOPT_POST, 1);
+   
+                if ($data)
+                    curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+                break;
+            case "PUT":
+                curl_setopt($curl, CURLOPT_PUT, 1);
+                break;
+            default:
+                if ($data)
+                    $url = sprintf("%s?%s", $url, http_build_query($data));
+        }
+   
+        // Optional Authentication:
+        curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+        curl_setopt($curl, CURLOPT_USERPWD, "username:password");
+   
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+   
+        $result = curl_exec($curl);
+   
+        curl_close($curl);
+   
+        return $result;
+    }
 if (isset($_POST['update'])) {
-    // retrieve the form data by using the element's name attributes value as key
-    $firstname  = validateInput($_POST['first_name']);
-    $lastname  = validateInput($_POST['last_name']);
-    $username   = validateInput($_POST['username']);
-    $api_token = validateInput($_POST['api_token']);
-    $api_token_hidden=$_POST['api_token_hidden'];
-    if ($api_token_hidden==="1") {
-        function generateApiToken() {
-            require "connect.php"; 
+    
 
-            // Generate a random token
-            $api_token = bin2hex(random_bytes(16));
-            
-            //Query the DB to check if the token already exists
-            $query = "SELECT * FROM users WHERE api_token=?";
-            $stmt = mysqli_prepare($conn, $query);
-            mysqli_stmt_bind_param($stmt, "s", $api_token);
-            mysqli_stmt_execute($stmt);
-            $result = mysqli_stmt_get_result($stmt);
-            
-            //If the token already exists, generate another one
-            if(mysqli_num_rows($result) > 0) {
-                generateApiToken();
-            }
-            
-            return $api_token;
-        }
-        $api_token = generateApiToken();
-    }
-    
-    //If required fields are empty
-    if (empty($firstname) || empty($lastname) || empty($username)) {
-        $error_message = "Please fill in the required fields";
-    }
-    
-    //validate input
-    
-    //only check if there is no error message
-    if (strlen($error_message) == 0) {
-    //insert user info into the database
-    $uid = $_SESSION['uid'];
-    $sql = "UPDATE `users` SET `api_token`='$api_token', `first_name`='$firstname', `last_name`='$lastname', `username`='$username' WHERE `uid`='$uid';";
-    
-    if ($conn->query($sql) === TRUE) {
-        $_SESSION['username'] = $username;
-        $_SESSION['api_token'] = $api_token;
-        ?>
-        <script>
-            sessionStorage.setItem('username','<?php echo $_SESSION['username']?>');
-            sessionStorage.setItem('api_token','<?php echo $_SESSION['api_token']?>');
-        </script>
-        <?php
-    } else {
-        }
-    }
+    $data=array(
+                "first_name" => $_POST['first_name'],
+                "last_name" => $_POST['last_name'],
+                "username" => $_POST['username'],
+                "api_token" => $_POST['api_token'],
+                "update"  => true,
+                "api_token_hidden" => "1"
+    );
+    $url=$website."/api/private/edit_user_info/";
+    $response=CallAPI("POST",$url,$data);
+    $response=json_decode($response,true);
+
+    $_SESSION['username'] = $response['data']['username'];
+    $_SESSION['api_token'] = $response['data']['api_token'];
+    ?>
+    <script>
+        sessionStorage.setItem('username','<?php echo $_SESSION['username']?>');
+        sessionStorage.setItem('api_token','<?php echo $_SESSION['api_token']?>');
+    </script>
+    <?php
+    $url=$website."/api/private/get_user_info/";
+    $data=array(
+        "api_token" => $_SESSION['api_token'],
+        "uid" => $_SESSION['uid']
+    );
+    $response=CallAPI("POST",$url,$data);
+    $response=json_decode($response,true);
+    $firstname=$response['first_name'];
+    $lastname=$response['last_name'];
+    $username=$response['username'];
+    $api_token=$response['api_token'];
+    ?>
+    <script>
+        window.location="./profile.php";
+    </script>
+    <?php
+}else{
+    $url=$website."/api/private/get_user_info/";
+    $data=array(
+        "api_token" => $_SESSION['api_token'],
+        "uid" => $_SESSION['uid']
+    );
+    $response=CallAPI("POST",$url,$data);
+    $response=json_decode($response,true);
+    $firstname=$response['first_name'];
+    $lastname=$response['last_name'];
+    $username=$response['username'];
+    $api_token=$response['api_token'];
 }
 ?>
 
@@ -92,27 +119,6 @@ if (isset($_POST['update'])) {
         <form action="" id="formUpdate" method="post">
             <h1>Edit User Information</h1>
             <hr>
-            <?php if (!empty($error_message)) { ?>
-            <div class="alert alert-danger">
-                <?php echo $error_message; ?>
-            </div>
-            <?php }
-            $uid=$_SESSION['uid'];
-            $sql = "SELECT * FROM users WHERE uid='$uid'";
-            $result = $conn->query($sql);
-        
-            if ($result->num_rows > 0) {
-                $row = $result->fetch_assoc();
-                $firstname=$row['first_name'];
-                $lastname=$row['last_name'];
-                $username=$row['username'];
-                $api_token=$row['api_token'];
-            } else {
-                echo "Incorrect login details";
-            }
-            
-            
-            ?>
             <div class="form-group">
                 <label for="first_name">First Name:</label>
                 <input type="text" name="first_name" value="<?php echo $firstname ?>" class="form-control" />

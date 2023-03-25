@@ -156,7 +156,7 @@ div.scriptlist div form input {
                 <input type="hidden" name="name" value="<?php echo ucwords($title); ?>">
                 <input type="submit" value="Delete">
             </form>
-            <form action="headcode.php" method="POST">
+            <form action="headcode.php" method="GET">
                 <input type="hidden" name="script_id" value="<?php echo $script_id; ?>">
                 <input type="hidden" name="user" value="<?php echo $_SESSION['uid']; ?>">
 
