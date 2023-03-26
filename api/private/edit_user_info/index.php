@@ -9,9 +9,30 @@ function validateInput($data) {
     $data = stripslashes($data);
     $data = htmlspecialchars($data);
     return $data;
-  }
+}
   
+function generateApiToken() {
+    require "../../../connect.php"; 
+
+    // Generate a random token
+    $api_token = bin2hex(random_bytes(16));
+    
+    //Query the DB to check if the token already exists
+    $query = "SELECT * FROM users WHERE api_token=?";
+    $stmt = mysqli_prepare($conn, $query);
+    mysqli_stmt_bind_param($stmt, "s", $api_token);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    
+    //If the token already exists, generate another one
+    if(mysqli_num_rows($result) > 0) {
+        generateApiToken();
+    }
+    
+    return $api_token;
+}
 if (isset($_POST['update'])&&$_POST['update']==true) {
+    require "../spam.php";
     foreach ($_POST as $key => $value) {
         $_POST[$key] = validateInput($value);
     }
@@ -58,6 +79,12 @@ if (isset($_POST['update'])&&$_POST['update']==true) {
          
          
     } else {
+        echo json_encode(
+            array(
+                "status" => "failed",
+                "message" => "Something went wrong, please try again later"
+            )
+        );
         }
     }
 }else{
@@ -67,24 +94,5 @@ if (isset($_POST['update'])&&$_POST['update']==true) {
     ));
 }
 
-function generateApiToken() {
-    require "../../../connect.php"; 
 
-    // Generate a random token
-    $api_token = bin2hex(random_bytes(16));
-    
-    //Query the DB to check if the token already exists
-    $query = "SELECT * FROM users WHERE api_token=?";
-    $stmt = mysqli_prepare($conn, $query);
-    mysqli_stmt_bind_param($stmt, "s", $api_token);
-    mysqli_stmt_execute($stmt);
-    $result = mysqli_stmt_get_result($stmt);
-    
-    //If the token already exists, generate another one
-    if(mysqli_num_rows($result) > 0) {
-        generateApiToken();
-    }
-    
-    return $api_token;
-}
 ?>
