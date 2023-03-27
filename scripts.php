@@ -117,9 +117,9 @@ require "is_logged.php";
   --card-icon-background-color: rgba(255, 255, 255, 0.08);
   --card-icon-border-color: rgba(255, 255, 255, 0.12);
   --card-shine-opacity: .1;
-  --card-shine-gradient: conic-gradient(from 205deg at 50% 50%, rgba(16, 185, 129, 0) 0deg, #10B981 25deg, rgba(52, 211, 153, 0.18) 295deg, rgba(16, 185, 129, 0) 360deg);
+  --card-shine-gradient: conic-gradient(from 205deg at 50% 50%, rgba(128, 128, 128, 0) 0deg, #10B981 25deg, rgba(52, 211, 153, 0.18) 295deg, rgba(128, 128, 128, 0) 360deg);
   --card-line-color: #2A2B2C;
-  --card-tile-color: rgba(16, 185, 129, 0.05);
+  --card-tile-color: rgba(128, 128, 128, 0.05);
 
   --card-hover-border-color: rgba(255, 255, 255, 0.2);
   --card-hover-box-shadow-1: rgba(0, 0, 0, 0.04);
@@ -151,9 +151,9 @@ require "is_logged.php";
     --card-icon-background-color: rgba(24, 24, 27, 0.04);
     --card-icon-border-color: rgba(24, 24, 27, 0.1);
     --card-shine-opacity: .3;
-    --card-shine-gradient: conic-gradient(from 225deg at 50% 50%, rgba(16, 185, 129, 0) 0deg, #10B981 25deg, #EDFAF6 285deg, #FFFFFF 345deg, rgba(16, 185, 129, 0) 360deg);
+    --card-shine-gradient: conic-gradient(from 225deg at 50% 50%, rgba(128, 128, 128, 0) 0deg, #10B981 25deg, #EDFAF6 285deg, #FFFFFF 345deg, rgba(128, 128, 128, 0) 360deg);
     --card-line-color: #E9E9E7;
-    --card-tile-color: rgba(16, 185, 129, 0.08);
+    --card-tile-color: rgba(128, 128, 128, 0.08);
 
     --card-hover-border-color: rgba(24, 24, 27, 0.15);
     --card-hover-box-shadow-1: rgba(24, 24, 27, 0.05);
@@ -185,7 +185,6 @@ require "is_logged.php";
 
 .card {
   background-color: var(--background-color);
-  box-shadow: 0px var(--card-box-shadow-1-y) var(--card-box-shadow-1-blur) var(--card-box-shadow-1), 0px var(--card-box-shadow-2-y) var(--card-box-shadow-2-blur) var(--card-box-shadow-2), 0 0 0 1px var(--card-border-color);
   padding: 56px 16px 16px 16px;
   border-radius: 15px;
   cursor: pointer;
@@ -200,30 +199,7 @@ require "is_logged.php";
     background-color: var(--card-background-color);
   }
 
-  .icon {
-    z-index: 2;
-    position: relative;
-    display: table;
-    padding: 8px;
-
-    &::after {
-      content: 'vv';
-      position: absolute;
-      backdrop-filter: blur(2px);
-      transition: background-color .25s, border-color .25s;
-    }
-
-    svg {
-      position: relative;
-      z-index: 1;
-      display: block;
-      width: 24px;
-      height: 24px;
-      transform: translateZ(0);
-      color: var(--card-icon-color);
-      transition: color .25s;
-    }
-  }
+ 
 
   h4 {
     z-index: 2;
@@ -245,29 +221,7 @@ require "is_logged.php";
     color: var(--text-color);
   }
 
-  .shine {
-    border-radius: inherit;
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    overflow: hidden;
-    opacity: 0;
-    transition: opacity .5s;
-
-    &:before {
-      content: '';
-      width: 150%;
-      padding-bottom: 150%;
-      border-radius: 50%;
-      position: absolute;
-      left: 50%;
-      bottom: 55%;
-      filter: blur(35px);
-      opacity: var(--card-shine-opacity);
-      transform: translateX(-50%);
-      background-image: var(--card-shine-gradient);
-    }
-  }
+  
 
   .background {
     border-radius: inherit;
@@ -281,7 +235,6 @@ require "is_logged.php";
 
       .tile {
         position: absolute;
-        background-color: var(--card-tile-color);
         animation-duration: 8s;
         animation-iteration-count: infinite;
         opacity: 0;
@@ -464,22 +417,8 @@ require "is_logged.php";
   &:hover {
     box-shadow: 0px 3px 6px var(--card-hover-box-shadow-1), 0px var(--card-hover-box-shadow-2-y) var(--card-hover-box-shadow-2-blur) var(--card-hover-box-shadow-2), 0 0 0 1px var(--card-hover-border-color);
 
-    .icon {
-      &::after {
-        background-color: var(--card-hover-icon-background-color);
-        border-color: var(--card-hover-icon-border-color);
-      }
+   
 
-      svg {
-        color: var(--card-hover-icon-color);
-      }
-    }
-
-    .shine {
-      opacity: 1;
-      transition-duration: .5s;
-      transition-delay: 0s;
-    }
 
     .background {
 
@@ -557,6 +496,25 @@ body {
 
 }
     </style>
+    <style>
+      .versionTags{
+        width:fit-content;
+        display:flex;
+        height:fit-content;
+        padding:3px;
+        border-radius:3px;
+      }
+      .projectBtns{
+        margin-top:10px;
+      }
+      .projectBtns form{
+        display:inline-block;
+      }
+      .projectBtns form button{
+        border-radius:3px;
+        border:solid grey 1px;
+      }
+    </style>
 </head>
 
 <body>
@@ -603,6 +561,10 @@ $data= array(
 );
 $response = CallAPI("GET", $website."/api/get_projects/", $data);
 $projects = json_decode($response, true);
+$versions = array();
+foreach ($projects['data'] as $key => $value) {
+  $versions[] = $projects['data'][$key]['version'];
+}
 if(isset($_GET['q'])&&trim($_GET['q'])!=""){
    
     // Get the search term from the URL
@@ -673,7 +635,7 @@ if(isset($_GET['q'])&&trim($_GET['q'])!=""){
         }
         
         // Check if the search term is in the libraries
-        if(strpos(strtolower($project['libraries']), $search_term) !== false) {
+        if(strpos(strtolower($project['libraries']), $search_term) !== false ) {
             $relevance += 1;
         }
         
@@ -759,15 +721,33 @@ if (isset($_GET['sort'])) {
     <input type="submit" value="Go">
     </form>
    <?php
-    require "modules.php";
+   $versionNumbers=$versions;
+    require "versionTagColors.php";
+    ?>
+  <div class="grid">
+    <?php
     foreach($projects as $project) {
-      echo "\n\nTitle: {$project['title']}\n";
-      echo "Script ID: {$project['script_id']}\n";
       $libraries = explode(',', $project['libraries']);
       $libraries = array_filter($libraries);
-      echo "Libraries: " . implode(',', $libraries) . "\n";
-      echo "Version: {$project['version']}\n";
+      
+      if($project['status'] == '1') {
+        $color="128, 128, 128";
+      }elseif($project['status'] == '2') {
+        $color="255, 0, 0";
+      }elseif($project['status'] == '3') {
+        $color="0, 128, 0";
+      }elseif($project['status'] == '4') {
+        $color="255, 215, 0";
+      }elseif($project['status'] == null) {
+        $color="255, 0, 0";
+      }
+      $version=$project['version'];
+      require "modules.php";
+     
     }
+    ?>
+    </div>
+    <?php
    ?>
 
     </div>

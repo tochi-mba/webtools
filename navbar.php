@@ -8,7 +8,7 @@
   background: none;
   color: white;
   padding: 10px;
-  z-index: 1;
+  z-index: 12;
   font-family: 'Roboto Mono', monospace;
   margin-bottom: 10px;
 }
