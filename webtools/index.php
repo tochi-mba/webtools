@@ -39,13 +39,19 @@ if(isset($_GET['p'], $_GET['lang'], $_GET['u'])) {
                     // If the language is 'js'
                     if($_GET['lang'] == "js") {
                         // It redirects the page to the script file
-                        echo file_get_contents($project_folder."/".$_GET['p'].".js");
+                        $code = file_get_contents($project_folder."/".$_GET['p'].".js");
+                        require "../jsServe.php";
+                        echo $code;
                         // It adds a log to the 'logs' variable
-                        $logs=$logs."console.log('TubeCode: Script loaded successfully');";
+                        $logs=$logs."console.log('CodeConnect: Script loaded successfully');";
                     // If the language is 'css'
                     } else if($_GET['lang'] == "css") {
                         // It redirects the page to the style file
                         $css=$project_folder."/".$_GET['p'].".css";
+                        if (!file_exists($css)) {
+                            echo "console.log('CodeConnectError: Style file not found');";
+                            exit();
+                        }
                         // It adds a log to the 'logs' variable
                         $css_content = file_get_contents($css);
                         $css_content = str_replace(array("\r\n", "\r", "\n"), " ", $css_content);
@@ -56,16 +62,16 @@ if(isset($_GET['p'], $_GET['lang'], $_GET['u'])) {
                         document.head.appendChild(styleTag);
                         <?php
                         // It adds a log to the 'logs' variable
-                        $logs=$logs."console.log('TubeCode: Style loaded successfully');";
+                        $logs=$logs."console.log('CodeConnect: Style loaded successfully');";
                     // If the language is neither 'js' nor 'css'
                     } else {
                         // It adds an error log to the 'logs' variable
-                        $logs=$logs."console.log('TubeCodeError: Invalid language');";
+                        $logs=$logs."console.log('CodeConnectError: Invalid language');";
                     }
                 // If the folder doesn't exist
                 } else {
                     // It adds an error log to the 'logs' variable
-                    $logs=$logs."console.log('TubeCodeError: Error: Invalid version');";
+                    $logs=$logs."console.log('CodeConnectError: Error: Invalid version');";
                 }
             // If the parameter 'v' is not set in the URL
             } else {
@@ -89,14 +95,20 @@ if(isset($_GET['p'], $_GET['lang'], $_GET['u'])) {
                     // If the language is 'js'
                     if($_GET['lang'] == "js") {
                         // It redirects the page to the script file
-                        echo file_get_contents($project_folder."/".$_GET['p'].".js");
+                        $code = file_get_contents($project_folder."/".$_GET['p'].".js");
+                        require "../jsServe.php";
+                        echo $code;
                         // It adds a log to the 'logs' variable
-                        $logs=$logs."console.log('TubeCode: Script loaded successfully');";
+                        $logs=$logs."console.log('CodeConnect: Script loaded successfully');";
                     // If the language is 'css'
                     } else if($_GET['lang'] == "css") {
                         // It redirects the page to the style file
                         $css=$project_folder."/".$_GET['p'].".css";
                         // It adds a log to the 'logs' variable
+                        if (!file_exists($css)) {
+                            echo "console.log('CodeConnectError: Style file not found');";
+                            exit();
+                        }
                         $css_content = file_get_contents($css);
                         $css_content = str_replace(array("\r\n", "\r", "\n"), " ", $css_content);
                         echo "let cssContent = '$css_content';";
@@ -106,37 +118,37 @@ if(isset($_GET['p'], $_GET['lang'], $_GET['u'])) {
                         document.head.appendChild(styleTag);
                         <?php
                         // It adds a log to the 'logs' variable
-                        $logs=$logs."console.log('TubeCode: Style loaded successfully');";
+                        $logs=$logs."console.log('CodeConnect: Style loaded successfully');";
                     // If the language is neither 'js' nor 'css'
                     } else {
                         // It adds an error log to the 'logs' variable
-                        $logs=$logs."console.log('TubeCodeError: Invalid Language);";
+                        $logs=$logs."console.log('CodeConnectError: Invalid Language);";
                     }
                 // If the 'versions' array is empty
                 } else {
                     // It adds an error log to the 'logs' variable
-                    $logs=$logs."console.log('TubeCodeError: No versions found);";
+                    $logs=$logs."console.log('CodeConnectError: No versions found);";
                 }
             }
         // If the URL of the page is not in the 'authorized_websites' array
         } else {
             // It adds an error log to the 'logs' variable
-            $logs=$logs."console.log('TubeCodeError: Unauthorized website');";
+            $logs=$logs."console.log('CodeConnectError: Unauthorized website');";
         }
     // If the query returns 0 rows
     } else {
         // It adds an error log to the 'logs' variable
-        $logs=$logs."console.log('TubeCodeError: Script not found');";
+        $logs=$logs."console.log('CodeConnectError: Script not found');";
     }
 // If the parameters 'p', 'lang', and 'u' are not set in the URL
 } else{
     // It adds an error log to the 'logs' variable
-    $logs=$logs."console.log('TubeCodeError: Missing parameters');";
+    $logs=$logs."console.log('CodeConnectError: Missing parameters');";
     
 }
 if($logs != "") {
     // It prints the logs
-    echo "".$logs."";
+    echo ";".$logs."";
 }
 
 // If the 'logs' variable is not empty
