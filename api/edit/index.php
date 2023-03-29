@@ -90,15 +90,28 @@ if (isset($data['api_token'])) {
 
                 //If any of the fields were edited
                 if ($edited) {
-                    if ($row['purchased']==null || $row['purchased']=="false") {
-                        //Create a new folder with a 0.01 increment of the version number
+                    if ($row['save_all']=='true' || $row['save_all']==null || $row['purchased']=="true") {
+                        if ($row['save_all']==null) {
+                            $sql = "UPDATE `scripts` SET `save_all`='true' WHERE `uid`='$uid' AND `script_id`='$script_id'";
+                            $result = mysqli_query($conn, $sql);
+                        }
+                        $new_version = $row['version'];
+                        $number = (float) substr($new_version, 1);
+                        $number += 0.01;
+                        $new_version = "v" . $number;
+                        mkdir("../../scripts/".$uid."/".$script_id."/".$new_version);
+                    }else{
+                        if ($row['purchased']==null) {
+                            $sql = "UPDATE `scripts` SET `purchased`='false' WHERE `uid`='$uid' AND `script_id`='$script_id'";
+                            $result = mysqli_query($conn, $sql);
+                        }
                         $new_version = $row['version'];
                         $dir = "../../scripts/".$uid."/".$script_id."/".$new_version;
                         if (is_dir($dir)) {
                             $objects = scandir($dir);
                             foreach ($objects as $object) {
                                 if ($object != "." && $object != "..") {
-                                    if (filetype($dir."/".$object) == "dir") rrmdir($dir."/".$object); else unlink($dir."/".$object);
+                                    if (filetype($dir."/".$object) == "dir") rmdir($dir."/".$object); else unlink($dir."/".$object);
                                 }
                             }
                             reset($objects);
@@ -111,12 +124,6 @@ if (isset($data['api_token'])) {
                         } else {
                             $new_version = "v" . (int) $number;
                         }
-                        mkdir("../../scripts/".$uid."/".$script_id."/".$new_version);
-                    }else{
-                        $new_version = $row['version'];
-                        $number = (float) substr($new_version, 1);
-                        $number += 0.01;
-                        $new_version = "v" . $number;
                         mkdir("../../scripts/".$uid."/".$script_id."/".$new_version);
                     }
                     

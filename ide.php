@@ -928,6 +928,13 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
         integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous">
     </script>
     <script src="https://cdn.korzh.com/metroui/v4.5.1/js/metro.min.js"></script>
+    <script>
+        document.addEventListener('keydown', function(e) {
+            if (e.keyCode == 83 && (navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey)) {
+                e.preventDefault();
+            }
+        }, false);
+    </script>
 </body>
 
 </html>

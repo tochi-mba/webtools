@@ -2,8 +2,12 @@
 
 
 //sort the version numbers
-sort($versionNumbers);
-$numberOfVersions = count($versionNumbers);
+
+//create an array to store the version numbers and their matching colors
+$versionNumberColors = array();
+if (count($versionNumbers) >1) {
+    sort($versionNumbers);
+    $numberOfVersions = count($versionNumbers);
 
 //find the maximum and minimum version numbers
 $maxVersionNumber = max($versionNumbers);
@@ -13,8 +17,7 @@ $minVersionNumber = min($versionNumbers);
 $maxVersionNumberColor = "rgb(255,0,0)";
 $minVersionNumberColor = "rgb(0,0,255)";
 
-//create an array to store the version numbers and their matching colors
-$versionNumberColors = array();
+
 
 //assign the maximum and minimum version numbers to the array
 $versionNumberColors[$maxVersionNumber] = $maxVersionNumberColor;
@@ -37,6 +40,11 @@ for($i=1; $i<$numberOfVersions-1; $i++){
 
 //output the version number and their associated colors
 ksort($versionNumberColors);
+}elseif(count($versionNumbers) == 1){
+    $versionNumberColors[$versionNumbers[0]] = "rgb(255,0,0)";
+
+}
+
 
 
 

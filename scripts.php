@@ -12,7 +12,6 @@ require "is_logged.php";
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
         integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <style>
-
     body {
         background: #1E1F1F !important;
         color: #eee;
@@ -89,10 +88,6 @@ require "is_logged.php";
         font-size: 0.8rem;
         padding: 0.2rem;
     }
-
-    
-
-    
     </style>
     <!-- Search bar -->
     <style>
@@ -100,7 +95,7 @@ require "is_logged.php";
     </style>
     <!-- cards css -->
     <style type="text/scss">
-  body {
+        body {
   --background-color: #18181B;
   --text-color: #A1A1AA;
 
@@ -485,7 +480,7 @@ html {
   }
 }
 
-// Center
+
 body {
   min-height: 100vh;
   font-family: 'Inter', Arial;
@@ -497,29 +492,62 @@ body {
 }
     </style>
     <style>
-      .versionTags{
-        width:fit-content;
-        display:flex;
-        height:fit-content;
-        padding:3px;
-        border-radius:3px;
-      }
-      .projectBtns{
-        margin-top:10px;
-      }
-      .projectBtns form{
-        display:inline-block;
-      }
-      .projectBtns form button{
-        border-radius:3px;
-        border:solid grey 1px;
-      }
+    .versionTags {
+        width: fit-content;
+        display: flex;
+        height: fit-content;
+        padding: 3px;
+        border-radius: 3px;
+    }
+
+    .projectBtns {
+        margin-top: 10px;
+    }
+
+    .projectBtns form {
+        display: inline-block;
+    }
+
+    .projectBtns form button {
+        border-radius: 3px;
+        border: solid grey 1px;
+    }
+
+    ::-webkit-scrollbar {
+        width: 5px;
+        height: 5px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background-color: #888;
+        border-radius: 5px;
+
+    }
+
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: #888 #eee;
+    }
+
+    code {
+        font-family: Consolas, "courier new";
+        color: white;
+        padding: 2px;
+        font-size: 105%;
+    }
     </style>
 </head>
 
 <body>
     <?php require "connect.php";
     require "navbar.php";
+    ?>
+    <style>
+    .nvbar {
+        background-color: #1e1e1e;
+    }
+    </style>
+    <?php
  function CallAPI($method, $url, $data = false)
  {
      $curl = curl_init();
@@ -540,7 +568,7 @@ body {
                  $url = sprintf("%s?%s", $url, http_build_query($data));
      }
 
-     // Optional Authentication:
+     
      curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
      curl_setopt($curl, CURLOPT_USERPWD, "username:password");
 
@@ -567,104 +595,133 @@ foreach ($projects['data'] as $key => $value) {
 }
 if(isset($_GET['q'])&&trim($_GET['q'])!=""){
    
-    // Get the search term from the URL
+    
     $search_term = strtolower($_GET['q']);
 
-    // Initialize the project_temp array
+    
     $project_temp = array();
 
-    // Loop through the projects array
     foreach($projects['data'] as $project) {
-        // Calculate the relevance of the project
-        $relevance = 0;
-        
-        // Check if the search term is in the tags
-        if(strpos(strtolower($project['tags']), $search_term) !== false) {
-            $relevance += 10;
-        }
-
-        // Check if the search term is in the script_id
-        if(strpos($project['script_id'], $search_term) !== false) {
-          $relevance += 6;
-        }
-      
-        // Check if the search term is in the title
-        if(strpos(strtolower($project['title']), $search_term) !== false) {
-            $relevance += 5;
-        }
-
-        // Check if the search term is in the status
-        if($project['status'] == '1') {
-          $status="unlisted";
-        }elseif($project['status'] == '2') {
-          $status="private";
-        }elseif($project['status'] == '3') {
-          $status="public";
-        }elseif($project['status'] == '4') {
-          $status="monetized";
-        }elseif($project['status'] == null) {
-          $status="private";
-        }
-        if(strpos($status, $search_term) !== false) {
-          $relevance += 5;
+      if($project['status'] == '1') {
+        $status="unlisted";
+      }elseif($project['status'] == '2') {
+        $status="private";
+      }elseif($project['status'] == '3') {
+        $status="public";
+      }elseif($project['status'] == '4') {
+        $status="monetized";
+      }elseif($project['status'] == null) {
+        $status="private";
+      }
+      if($search_term == "status:".$status.""){
+        if($status == "private") {
+            $project_temp[] = $project;
+        } else if($status == "monetized") {
+            $project_temp[] = $project;
+        } else if($status == "public") {
+            $project_temp[] = $project;
+        } else if($status == "unlisted") {
+            $project_temp[] = $project;
         }
         
-        // Check if the search term is in the date_created
-        if(strpos(strtolower($project['date_created']), $search_term) !== false) {
-            $relevance += 3;
-        }
-        
-        // Check if the search term is in the category
-        if(strpos(strtolower($project['category']), $search_term) !== false) {
-            $relevance += 2;
-        }
-        
-        // Check if the search term is in the description
-        if(strpos(strtolower($project['description']), $search_term) !== false) {
-            $relevance += 1;
-        }
-        
-        // Check if the search term is in the version
-        if(strpos(strtolower($project['version']), $search_term) !== false) {
-            $relevance += 1;
-        }
-        
-        // Check if the search term is in the authorized users
-        if(strpos($project['authorized_users'], $search_term) !== false) {
-            $relevance += 1;
-        }
-        
-        // Check if the search term is in the libraries
-        if(strpos(strtolower($project['libraries']), $search_term) !== false ) {
-            $relevance += 1;
-        }
-        
-        // Check if the search term is in the collaborators
-        if(strpos(strtolower($project['collaborators']), $search_term) !== false) {
-            $relevance += 1;
-        }
-        
-        // Check if the search term is in the authorized_websites
-        if(strpos(strtolower($project['authorized_websites']), $search_term) !== false) {
-            $relevance += 1;
-        }
-        
-        // Add the relevance to the project
-        $project['relevance'] = $relevance;
-        
-        // Add the project to the project_temp array
-        $project_temp[] = $project;
+      }
     }
+    if (count($project_temp) == 0) {
+      foreach($projects['data'] as $project) {
+          
+          $relevance = 0;
+          
+          
+          if(strpos(strtolower($project['tags']), $search_term) !== false) {
+              $relevance += 10;
+          }
 
-    // Sort the project_temp array by relevance
-    usort($project_temp, function($a, $b) {
+          
+          if(strpos($project['script_id'], $search_term) !== false) {
+            $relevance += 6;
+          }
+        
+          
+          if(strpos(strtolower($project['title']), $search_term) !== false) {
+              $relevance += 5;
+          }
+
+          
+          if($project['status'] == '1') {
+            $status="unlisted";
+          }elseif($project['status'] == '2') {
+            $status="private";
+          }elseif($project['status'] == '3') {
+            $status="public";
+          }elseif($project['status'] == '4') {
+            $status="monetized";
+          }elseif($project['status'] == null) {
+            $status="private";
+          }
+          if(strpos($status, $search_term) !== false) {
+            $relevance += 5;
+          }
+          
+          
+          if(strpos(strtolower($project['date_created']), $search_term) !== false) {
+              $relevance += 3;
+          }
+          
+          
+          if(strpos(strtolower($project['category']), $search_term) !== false) {
+              $relevance += 2;
+          }
+          
+          
+          if(strpos(strtolower($project['description']), $search_term) !== false) {
+              $relevance += 1;
+          }
+          
+          
+          if(strpos(strtolower($project['version']), $search_term) !== false) {
+              $relevance += 1;
+          }
+          
+          
+          if(strpos($project['authorized_users'], $search_term) !== false) {
+              $relevance += 1;
+          }
+          
+          
+          if(strpos(strtolower($project['libraries']), $search_term) !== false ) {
+              $relevance += 1;
+          }
+          
+          
+          if(strpos(strtolower($project['collaborators']), $search_term) !== false) {
+              $relevance += 1;
+          }
+          
+          
+          if(strpos(strtolower($project['authorized_websites']), $search_term) !== false) {
+              $relevance += 1;
+          }
+          
+          
+          $project['relevance'] = $relevance;
+          
+          
+          $project_temp[] = $project;
+      }
+      usort($project_temp, function($a, $b) {
         return $b['relevance'] - $a['relevance'];
-    });
+      });
 
-    $filtered_projects = array_filter($project_temp, function($project) {
-      return $project['relevance'] != 0;
-    });
-    $projects['data'] = $filtered_projects;
+      $project_temp = array_filter($project_temp, function($project) {
+        return $project['relevance'] != 0;
+      });
+    }
+    
+   
+
+    
+    
+    $projects['data'] = $project_temp;
 }
 $projects=$projects['data'];
 
@@ -676,12 +733,12 @@ if (isset($_GET['sort'])) {
     $reverse = 'false';
   }
   if ($sort == "last_modified") {
-    // Sort the projects array by last edited
+    
     usort($projects, function($a, $b) {
       return strtotime($b['last_edited']) - strtotime($a['last_edited']);
     });
   }elseif ($sort == "date_created") {
-    // Sort the projects array by date created
+    
     usort($projects, function($a, $b) {
       return strtotime($b['date_created']) - strtotime($a['date_created']);
     });
@@ -690,7 +747,7 @@ if (isset($_GET['sort'])) {
       return strcmp(strtolower($a['title']), strtolower($b['title']));
     });
   }else{
-    // Sort the projects array by last edited
+    
     usort($projects, function($a, $b) {
       return strtotime($b['last_edited']) - strtotime($a['last_edited']);
     });
@@ -700,32 +757,127 @@ if (isset($_GET['sort'])) {
     $projects = array_reverse($projects);
   }
 }else{
-    // Sort the projects array by last edited
+    
     usort($projects, function($a, $b) {
       return strtotime($b['last_edited']) - strtotime($a['last_edited']);
     });
 }
   ?>
     <!-- edit delete generate headcode. script id, title, version -->
-    <form method="get">
-    <center><input type="search" name="q" id="" value="<?php echo (isset($_GET['q']) ? $_GET['q'] : "")?>"></center>
-    <select name="sort" id="">
-      <option value="last_modified" <?php echo (isset($_GET['sort'])&&$_GET['sort']=="last_modified" ? "selected" : "")?>>Time Modified</option>
-      <option value="date_created" <?php echo (isset($_GET['sort'])&&$_GET['sort']=="date_created" ? "selected" : "")?>>Time Created</option>
-      <option value="name" <?php echo (isset($_GET['sort'])&&$_GET['sort']=="name" ? "selected" : "")?>>Name</option>
-    </select>
-    <select name="r" id="">
-      <option value="false" <?php echo (isset($_GET['r'])&&$_GET['r']=="false" ? "selected" : "")?>>⬇</option>
-      <option value="true" <?php echo (isset($_GET['r'])&&$_GET['r']=="true" ? "selected" : "")?>>⬆</option>
-    </select>
-    <input type="submit" value="Go">
+
+    <form style="padding-top:30px" method="get">
+        <center><input type="search" name="q" id="" value="<?php echo (isset($_GET['q']) ? $_GET['q'] : "")?>"></center>
+        <select name="sort" id="">
+            <option value="last_modified"
+                <?php echo (isset($_GET['sort'])&&$_GET['sort']=="last_modified" ? "selected" : "")?>>Time Modified
+            </option>
+            <option value="date_created"
+                <?php echo (isset($_GET['sort'])&&$_GET['sort']=="date_created" ? "selected" : "")?>>Time Created
+            </option>
+            <option value="name" <?php echo (isset($_GET['sort'])&&$_GET['sort']=="name" ? "selected" : "")?>>Name
+            </option>
+        </select>
+        <select name="r" id="">
+            <option value="false" <?php echo (isset($_GET['r'])&&$_GET['r']=="false" ? "selected" : "")?>>⬇</option>
+            <option value="true" <?php echo (isset($_GET['r'])&&$_GET['r']=="true" ? "selected" : "")?>>⬆</option>
+        </select>
+        <input type="submit" value="Go">
     </form>
-   <?php
+    <?php
+
+$dir = './scripts/'.$_SESSION['uid']."/";
+function getMbsValue($value) {
+  return $value / 1048576;
+}
+function mbToBytes($mbs) {
+  return $mbs * 1024 * 1024;
+}
+if (is_dir($dir)) {
+    $size = 0;
+    $dir_iterator = new RecursiveDirectoryIterator($dir);
+    $iterator = new RecursiveIteratorIterator($dir_iterator, RecursiveIteratorIterator::SELF_FIRST);
+    foreach ($iterator as $file) {
+        $size += $file->getSize();
+    }
+    
+
+    $alotted_storage=file_get_contents("./config.json");
+    $alotted_storage=json_decode($alotted_storage, true);
+    $alotted_storage=$alotted_storage['free_alotted_space'];
+    $percentage = ($size / mbToBytes($alotted_storage)) * 100;
+    
+    ?>
+    <p>Storage (<span id="percentage">0</span>% full)</p>
+    <?php
+    echo '<div style="width:250;background-color:grey;height:4px;border-radius:10px;overflow:hidden">';
+    echo '<div id="loadingBar" style="width: 0%; background-color: red;height:100%;border-radius:10px"></div>';
+    echo '</div>';
+    ?>
+    <p><?php echo number_format((float)getMbsValue($size), 2, '.', ''); ?> MB of <?php echo $alotted_storage; ?> MB Used
+    </p>
+    <script>
+    function loadingColor(percentage, loadingBar) {
+
+        const startColor = [0, 255, 0];
+        const endColor = [255, 0, 0];
+
+
+        const colorIncrement = [
+            (endColor[0] - startColor[0]) / 100,
+            (endColor[1] - startColor[1]) / 100,
+            (endColor[2] - startColor[2]) / 100,
+        ];
+
+
+        const loadingColors = [];
+        for (let i = 0; i <= 100; i++) {
+            const color = [
+                Math.round(startColor[0] + colorIncrement[0] * i),
+                Math.round(startColor[1] + colorIncrement[1] * i),
+                Math.round(startColor[2] + colorIncrement[2] * i),
+            ];
+
+            const hexColor = "#" + color.map(c => c.toString(16).padStart(2, "0")).join("");
+            loadingColors.push(hexColor);
+        }
+
+
+        loadingBar.style.backgroundColor = loadingColors[percentage];
+    }
+
+    window.onload = function() {
+
+        const loadingBar = document.getElementById('loadingBar');
+        const percentage = document.getElementById('percentage');
+
+
+        let width = 0;
+
+
+        const interval = setInterval(function() {
+
+            if (width >= <?php echo $percentage; ?>) {
+                clearInterval(interval);
+            } else {
+
+                width++;
+                loadingColor(width, loadingBar);
+                loadingBar.style.width = width + '%';
+                percentage.innerHTML = width;
+            }
+        }, 20);
+    }
+    </script>
+    <?php
+}
+
+?>
+    <?php
    $versionNumbers=$versions;
     require "versionTagColors.php";
     ?>
-  <div class="grid">
-    <?php
+    <div class="grid">
+        <?php
     foreach($projects as $project) {
       $libraries = explode(',', $project['libraries']);
       $libraries = array_filter($libraries);
@@ -748,16 +900,212 @@ if (isset($_GET['sort'])) {
     ?>
     </div>
     <?php
+    if(count($projects) == 0) {
+      ?>
+    <center>
+        <p>No projects found.</p>
+    </center>
+    <?php
+    }
+    function encodeScriptTags($html) {
+      
+      $html = str_replace('<script', '&lt;script', $html);
+      $html = str_replace('</script>', '&lt;/script&gt;', $html);
+    
+      return $html;
+    }
+    
    ?>
+    <?php
+if (file_exists("./libraries/libraries.json")) {
+    $librariesJson = file_get_contents("./libraries/libraries.json");
+    $librariesArray = json_decode($librariesJson, true);
+    $librariesList = array();
+    
+    
+    foreach ($librariesArray as $index => $library) {
+        $librariesList[$library['name']] = ["./libraries/".$library['file'], $index];
+    }
+    
+    
+    foreach ($librariesList as $libraryName => $libraryDetails) {
+        $libraryFilePath = $libraryDetails[0];
+        if (file_exists($libraryFilePath)) {
+            $libraryContents = file_get_contents($libraryFilePath);
+            $libraryContents = explode("\n", $libraryContents);
+            
+            
+            $libraryContents = array_filter($libraryContents, function($value) {
+                return !empty(trim($value));
+            });
+            
+            
+            foreach ($libraryContents as $key => $value) {
+                $libraryContents[$key] = encodeScriptTags($value);
+                $libraryContents[$key] = str_replace('"', "'", $libraryContents[$key]);
+            }
+            
+            
+            $librariesList[$libraryName] = [$libraryContents, $libraryDetails[1]];
+        }
+    }
+    
+    $librariesListJson = json_encode($librariesList);
+    $librariesListJson = str_replace('"', "`", $librariesListJson);
+?>
+    <input id="librariesLink" type="hidden" value="<?php echo $librariesListJson; ?>">
+    <?php } ?>
 
     </div>
+    <div class="embedModal"
+        style="padding:5px;border-radius:15px;background-color: #1e1e1e;visibility:hidden;width:50%;height:70%;border:solid grey 2px;position:fixed;top:25%;right:25%;z-index:12">
+        <span id="closeEmbedModal"
+            style="position:absolute;top:10px;right:10px;float:right;font-size:30px;cursor:pointer;z-index:999;color:white;">&times;</span>
+        <div class="instructions" style="position:absolute;top:5px;overflow-y:scroll;width:99%;height:98%;padding:20px">
+
+        </div>
+
+    </div>
+    <script>
+    const elements = document.querySelectorAll("*");
+
+    function encodeHTMLTags(html) {
+        const element = document.createElement('div');
+        element.textContent = html;
+        return element.innerHTML;
+    }
+
+    function changeTextToDiv(text) {
+        const regex = /'([^']+)'/g;
+        const newText = text.replace(regex, `<div style='display:inline-block;color: #00A67D'>"$1"</div>`);
+        return newText;
+    }
+
+    function replaceSrcWithDiv(text) {
+        return text.replace(/src/g, "<div style='display:inline-block;color:#DF3079'>src</div>");
+    }
+
+
+
+    function embedModal(active, version, scriptId, title, uid, libraries = "") {
+        let instructionAmount = 0;
+
+
+        let instructions = document.getElementsByClassName("instructions")[0];
+        let librariesLinks = document.getElementById("librariesLink").value;
+
+
+        libraries = libraries.split(",");
+        libraries = libraries.filter(Boolean);
+
+
+        librariesLinks = librariesLinks.replace(/`/g, '"');
+        librariesLinks = JSON.parse(librariesLinks);
+
+
+        let htmlLibs = "";
+        instructions.innerHTML = "";
+
+
+        if (libraries.length != 0) {
+            instructionAmount++;
+            htmlLibs += ` <div class="libraries-instruction" style="width:100%;height:fit-content;"> 
+                  <div style="position:relative;display:inline-block;top: 30px;px;padding:5px;background-color:grey;color:white;font-weight:bold;font-size:15px;width:25px;height:25px;line-height:15px;border-radius:50%"> 
+                    <center>` + instructionAmount + `</center> 
+                  </div> 
+                  <div style="display:inline-block;margin-left:40px"> 
+                    <p>Put these Libraries just before the <code>&lt;/body&gt;</code> tag of your page:</p>`;
+
+
+            for (let librariesLink in librariesLinks) {
+                for (let i = 0; i < libraries.length; i++) {
+
+                    if (libraries[i] == librariesLinks[librariesLink][1]) {
+                        htmlLibs += ` <p> ` + librariesLink + ` </p> `;
+
+
+                        for (let j = 0; j < librariesLinks[librariesLink][0].length; j++) {
+                            htmlLibs += ` <div style="width:fit-content;background-color:#40414F;height:fit-content;padding:10px;border-radius:15px"> 
+                          <code style="word-break:break-word"> ` + replaceSrcWithDiv(changeTextToDiv(encodeHTMLTags(
+                                librariesLinks[librariesLink][0][j]))) + ` </code> 
+                        </div> 
+                        </br> `;
+                        }
+                    }
+                }
+            }
+
+
+            htmlLibs += ` </div> 
+                </div> `;
+            instructions.innerHTML += htmlLibs;
+        }
+
+        const host = window.location.host;
+        const protocol = window.location.protocol;
+        const baseUrl = protocol + "//" + host;
+        active = JSON.parse(active);
+
+        if (active['codeCss'] === "active") {
+            instructionAmount++;
+            cssLink =
+                `&lt;script <div style="color:#DF3079;display:inline-block">src</div>=<div style="color:#00A67D;display:inline-block">"` +
+                baseUrl + `/webtools/?p=` + scriptId + `&u=` + uid +
+                `&lang=css"</div>&gt;&lt;/script&gt;`;
+            htmlCss = "";
+            htmlCss += ` <div class="css-instruction" style="width:100%;height:fit-content;"> 
+                  <div style="position:relative;display:inline-block;top: 30px;px;padding:5px;background-color:grey;color:white;font-weight:bold;font-size:15px;width:25px;height:25px;line-height:15px;border-radius:50%"> 
+                    <center>` + instructionAmount + `</center> 
+                  </div> 
+                  <div style="display:inline-block;margin-left:40px"> 
+                    <p>Put this code inbetween the <code>&lt;head&gt;&lt;/head&gt;</code> tag of your page:</p> 
+                    <div style="width:fit-content;background-color:#40414F;height:fit-content;padding:10px;border-radius:15px"> 
+                      <code style="word-wrap:break-word"> ` + cssLink + ` </code> 
+                    </div> 
+                    </br> 
+                  </div> 
+                </div> `;
+            instructions.innerHTML += htmlCss;
+        }
+
+        if (active['code'] === "active") {
+            instructionAmount++;
+            jsLink =
+                `&lt;script <div style="color:#DF3079;display:inline-block">src</div>=<div style="color:#00A67D;display:inline-block">"` +
+                baseUrl + `/webtools/?p=` + scriptId + `&u=` + uid +
+                `&lang=js"</div>&gt;&lt;/script&gt;`;
+            htmlJs = "";
+            htmlJs += ` <div class="js-instruction" style="width:100%;height:fit-content;"> 
+                  <div style="position:relative;display:inline-block;top: 30px;px;padding:5px;background-color:grey;color:white;font-weight:bold;font-size:15px;width:25px;height:25px;line-height:15px;border-radius:50%"> 
+                    <center>` + instructionAmount + `</center> 
+                  </div> 
+                  <div style="display:inline-block;margin-left:40px"> 
+                    <p>Put this code just before the <code>&lt;/body&gt;</code> tag of your page:</p> 
+                    <div style="width:fit-content;background-color:#40414F;height:fit-content;padding:10px;border-radius:15px"> 
+                      <code style="word-break:break-word"> ` + jsLink + ` </code> 
+                    </div> 
+                    </br> 
+                  </div> 
+                </div> `;
+            instructions.innerHTML += htmlJs;
+        }
+
+
+        document.getElementsByClassName('embedModal')[0].style.visibility = "visible";
+    }
+
+    document.getElementById("closeEmbedModal").addEventListener("click", function() {
+        document.getElementsByClassName('embedModal')[0].style.visibility = "hidden";
+    });
+    </script>
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
         integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous">
     </script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
         integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous">
     </script>
-<script src="https://cdn.jsdelivr.net/npm/browser-scss@1.0.3/dist/browser-scss.min.js"></script>   
+    <script src="https://cdn.jsdelivr.net/npm/browser-scss@1.0.3/dist/browser-scss.min.js"></script>
+
 </body>
 
 </html>

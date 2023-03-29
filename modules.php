@@ -18,6 +18,15 @@ foreach ($libraries as $key => $value) {
 
 ?>
     </div>
+    <?php
+    if ($project['tags'] != "") {
+        ?>
+            <p>Tags: <?php echo $project['tags']?></p>
+
+        <?php
+    }
+    ?>
+
     <div class="projectBtns" style="width:100%;height:fit-content;z-index:2">
     <form action="edit.php" method="get">
         <input type="hidden" value="<?php echo $project['script_id']?>" name="script_id">
@@ -26,6 +35,7 @@ foreach ($libraries as $key => $value) {
     </form>
     <form action="delete.php" method="post">
         <input type="hidden" value="<?php echo $project['script_id']?>" name="script_id">
+        <input type="hidden" name="name" value="<?php echo $project['title']?>">
         <button>Delete</button>
     </form>
 </div>
@@ -36,6 +46,14 @@ foreach ($libraries as $key => $value) {
     <div style="position:absolute;top: 10px;right:10px;z-index:2" >
       <div class="versionTags" style="background-color:<?php echo $versionNumberColors[$version]?>"><?php echo $version?></div>
     </div>
+    <div id="<?php echo $project['script_id']?>" style="position:absolute;bottom: 10px;right:10px;z-index:2;pointer:cursor" >
+<img style="width:40px" src="./assets/images/embed.png" alt="" srcset="">   
+ </div>
+ <script>
+    document.getElementById('<?php echo $project['script_id']?>').addEventListener('click', function(){
+        embedModal(`<?php echo $project['active_files']?>`,`<?php echo $project['version']?>`,`<?php echo $project['script_id']?>`,`<?php echo $project['title']?>`,`<?php echo $_SESSION['uid']?>`,`<?php echo $project['libraries']?>`);
+    })
+ </script>
     <div class="background">
       <div class="tiles">
         <div class="tile tile-1" style="background-color:rgba( <?php echo $color;?>,0.05)"></div>
