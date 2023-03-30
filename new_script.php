@@ -14,6 +14,8 @@ require "is_logged.php";
   $librariesIDE='';
   $tagsIDE='';
   $autosaveIDE = '';
+  $versionNew = '';
+  $version = '';
   $page="new";
 
 require "ide.php";

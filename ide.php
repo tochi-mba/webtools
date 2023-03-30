@@ -491,7 +491,8 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
     </script>
     <div id="ide">
         <center>
-            <h5 style="color:white;margin:0"><?php echo ucwords($_POST["title"]);?></h5>
+            <h5 style="color:white;margin:0">
+                <?php echo ucwords($_POST["title"]);?><?php echo  ($page == "edit" ? " - ".$version : "")?></h5>
             <?php
                 //api for this
                 if(isset($_POST['librariesSave'])){
@@ -563,7 +564,6 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
                     xhr.onerror = function() {
                         reject(new Error('API request failed due to a network error.'));
                     };
-                    console.log(JSON.stringify(data));
                     xhr.send(JSON.stringify(data));
                 });
             }
@@ -587,7 +587,7 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
                         data.script_id = script_idSave.value;
                     } else {
                         data.title = "<?php echo $_POST['title']?>";
-                        data.tags = '<?php echo $_POST['tags']?>'; 
+                        data.tags = '<?php echo $_POST['tags']?>';
                         data.description = "";
                         data.jsCode = editor.getValue();
                         data.cssCode = editorCss.getValue();
@@ -596,9 +596,7 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
                     }
 
                     function saveScriptId(response) {
-                        console.log(response);
-
-                        response=JSON.parse(response);
+                        response = JSON.parse(response);
                         script_idSave.value = response['script_id'];
                     }
 
@@ -617,15 +615,57 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
                         uid: "<?php echo $_SESSION['uid']?>",
                     };
 
-                    console.log(data);
+                    function saveScriptId(response) {
+                        response = JSON.parse(response);
+                        script_idSave.value = response['script_id'];
+                    }
 
                     makeApiRequest(method, url, data)
-                        .then((response) => console.log(response))
+                        .then(saveScriptId)
                         .catch((error) => console.error(error));
+                    document.getElementById("saveStatus").innerHTML = "";
+
                 }
             }
+
+            function updateScript(type, code) {
+                const autoSave = document.getElementById("autoSave");
+                if (autoSave.checked) {
+                    const data = {
+                        script_id: script_idSave.value,
+                        auto_save: autoSave.checked.toString(),
+                        api_token: "<?php echo $_SESSION['api_token']?>",
+                        uid: "<?php echo $_SESSION['uid']?>",
+                    };
+                    if (type === "js") {
+                        data.jsCode = code;
+                    } else if (type === "css") {
+                        data.cssCode = code;
+                    } else if (type === "readme") {
+                        data.readme = code;
+                    }
+                    const method = "POST";
+                    const baseUrl = window.location.protocol + "//" + window.location.hostname;
+                    const url = baseUrl + "/api/private/save_project_js/";
+
+                    function status(response) {
+                        response = JSON.parse(response);
+                        if (response['success'] === true && response['message'] === "Updated") {
+                            document.getElementById("saveStatus").innerHTML = "Saved";
+                        } else {
+                            document.getElementById("saveStatus").innerHTML = "Error";
+                        }
+                    }
+                    document.getElementById("saveStatus").innerHTML = "Saving...";
+                    makeApiRequest(method, url, data)
+                        .then(status)
+                        .catch((error) => console.error(error));
+                }
+
+            }
             </script>
-            <input value="<?php echo (isset($_GET['script_id']) ? $_GET['script_id'] : "")?>" type="hidden" id="script_idSave">
+            <input value="<?php echo (isset($_GET['script_id']) ? $_GET['script_id'] : "")?>" type="hidden"
+                id="script_idSave">
             <a href="#" data-tab="readme" id="readmeTab">README</a>
             <div id="test-button-container">
                 <button style="float:right !important;text-align:right;background:none;border:none"
@@ -635,12 +675,15 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
                 <button
                     style="float:right !important;margin-right:10px;border-radius:5px;border:solid grey 1px;color:white;background-color:#282A36;font-size:12px;font-weight:bold;width:fit-content;height:30px;padding:5px"
                     onclick="submitForm()" type="button"
-                    id="codeButton"><?php echo ($page=="edit"? "Create $version": "Create")?></button>
-                <div id="autoSaveText"></div>
+                    id="codeButton"><?php echo ($page=="edit"? "Create $versionNew": "Create")?></button>
                 <label style="float:right !important; margin-right:10px" class="switch">
                     <input <?php echo $autosaveIDE; ?> id="autoSave" onchange="autoSaveToggle()" type="checkbox">
                     <span class="slider round"></span>
                 </label>
+                <div style="float:right !important; margin-right:10px; color:white">Auto Save:</div>
+                <div style="float:right !important; margin-right:20px; color:white" id="saveStatus"></div>
+
+
             </div>
         </div>
         <div id="code-viewer">
@@ -729,6 +772,10 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
         }
     });
     editor.setSize(null, 410);
+    editor.on("keyup", function(cm) {
+        var updatedCode = cm.getValue();
+        updateScript("js", updatedCode);
+    });
 
     function handleDrop(e) {
         e.stopPropagation();
@@ -776,6 +823,10 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
         }
     });
     editorCss.setSize(null, 410);
+    editorCss.on("keyup", function(cm) {
+        var updatedCode = cm.getValue();
+        updateScript("css", updatedCode);
+    });
 
     function handleDrop(e) {
         e.stopPropagation();
@@ -817,6 +868,10 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
         }
     });
     editorReadme.setSize(null, 410);
+    editorReadme.on("keyup", function(cm) {
+        var updatedCode = cm.getValue();
+        updateScript("readme", updatedCode);
+    });
 
     function handleDrop(e) {
         e.stopPropagation();
@@ -886,7 +941,6 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
         var scriptString = editor.getValue();
         // Get the variables from the script string
         var variablesArray = scriptString.match(/\(\((.*?)\)\)/g);
-        console.log(variablesArray);
         if (variablesArray != null) {
             let i = 0;
             variablesArray.forEach(variable => {

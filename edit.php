@@ -39,6 +39,9 @@ if(isset($_GET['script_id'])){
             }
             $script_id = $_GET['script_id'];
             $version = $row['version']; 
+            $number = (float) substr($version, 1);
+            $number += 0.01;
+            $versionNew = "v" . $number;
             $autosaveIDE = $row['auto_save'];
             if ($autosaveIDE == 'true') {
                 $autosaveIDE = 'checked';
