@@ -109,6 +109,9 @@ function CallAPI($method, $url, $data = false)
                 "logs" => $logs,
                 "script_id" => $data->script_id,
             ]);
+
+            $query = "UPDATE scripts SET last_edited = NOW() WHERE script_id = '".$data->script_id."' AND uid = '".$data->uid."'";
+            $result = mysqli_query($conn, $query);
             exit;
         }
         if ($data->auto_save == "true") {

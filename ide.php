@@ -603,6 +603,17 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
                     makeApiRequest(method, url, data)
                         .then(saveScriptId)
                         .catch((error) => console.error(error)); // Removed extra semicolon
+                    
+                    if (editor.getValue() !== "") {
+                        updateScript("js", editor.getValue());
+                    }
+                    if (editorCss.getValue() !== "") {
+                        updateScript("css", editorCss.getValue());
+                    }
+
+                    if (editorReadme.getValue() !== "") {
+                        updateScript("readme", editorReadme.getValue());
+                    }
 
                 } else {
                     const method = "POST";
@@ -651,12 +662,17 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
                     function status(response) {
                         response = JSON.parse(response);
                         if (response['success'] === true && response['message'] === "Updated") {
-                            document.getElementById("saveStatus").innerHTML = "Saved";
+                            setTimeout(function() {
+                                document.getElementById("saveStatus").innerHTML = "Saved";
+                            }, 2000); 
                         } else {
-                            document.getElementById("saveStatus").innerHTML = "Error";
+                            setTimeout(function() {
+                                document.getElementById("saveStatus").innerHTML = "Error";
+                            }, 2000); 
                         }
                     }
-                    document.getElementById("saveStatus").innerHTML = "Saving...";
+                   
+                    document.getElementById("saveStatus").innerHTML = "Saving..."
                     makeApiRequest(method, url, data)
                         .then(status)
                         .catch((error) => console.error(error));
@@ -1084,7 +1100,7 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
              'tags' => $_POST["tags"],
              'libraries' => $_POST["librarySave"]
          );
-         $url=$website."/api/edit/";
+         $url=$website."/api/update/";
          // Call API
          $response = CallAPI('POST', $url, $data);
          $response=json_decode($response,true);
