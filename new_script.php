@@ -13,6 +13,7 @@ require "is_logged.php";
   $titleIDE='';
   $librariesIDE='';
   $tagsIDE='';
+  $autosaveIDE = '';
   $page="new";
 
 require "ide.php";

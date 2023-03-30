@@ -39,7 +39,12 @@ if(isset($_GET['script_id'])){
             }
             $script_id = $_GET['script_id'];
             $version = $row['version']; 
-            
+            $autosaveIDE = $row['auto_save'];
+            if ($autosaveIDE == 'true') {
+                $autosaveIDE = 'checked';
+            } else {
+                $autosaveIDE = '';
+            }
             if (file_exists('./scripts/'.$_SESSION['uid'].'/'.$_GET['script_id'].'/'.$version)) {
                 if (file_exists('./scripts/'.$_SESSION['uid'].'/'.$_GET['script_id'].'/'.$version.'/'.$_GET['script_id'].'.js')) {
                     $jsCodeIDE = file_get_contents('./scripts/'.$_SESSION['uid'].'/'.$_GET['script_id'].'/'.$version.'/'.$_GET['script_id'].'.js');

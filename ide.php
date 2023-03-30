@@ -315,7 +315,7 @@
         background-color: #ccc;
         -webkit-transition: .4s;
         transition: .4s;
-        height:20px !important;
+        height: 20px !important;
     }
 
     .slider:before {
@@ -329,9 +329,11 @@
         -webkit-transition: .4s;
         transition: .4s;
     }
-    input+.slider{
+
+    input+.slider {
         background-color: #282A36;
     }
+
     input:checked+.slider {
         background-color: #2196F3;
     }
@@ -543,20 +545,102 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
             </script> <?php
                 }
             }
-        ?> <a href="#" data-tab="readme" id="readmeTab">README</a> # <div id="test-button-container">
+        ?>
+            <script>
+            function makeApiRequest(method, url, data) {
+                return new Promise(function(resolve, reject) {
+                    const xhr = new XMLHttpRequest();
+                    xhr.open(method, url);
+                    xhr.setRequestHeader('Content-Type', 'application/json');
+                    xhr.onload = function() {
+                        if (xhr.status === 200) {
+                            resolve(xhr.response);
+                        } else {
+                            reject(new Error(
+                                `API request failed with status ${xhr.status}: ${xhr.statusText}`));
+                        }
+                    };
+                    xhr.onerror = function() {
+                        reject(new Error('API request failed due to a network error.'));
+                    };
+                    console.log(JSON.stringify(data));
+                    xhr.send(JSON.stringify(data));
+                });
+            }
+
+            function autoSaveToggle() {
+                // Use "const" instead of "var" for variables that don't need to be reassigned
+                const autoSave = document.getElementById("autoSave");
+                const script_idSave = document.getElementById("script_idSave");
+
+                if (autoSave.checked) {
+                    const method = "POST";
+                    const baseUrl = window.location.protocol + "//" + window.location.hostname;
+                    const url = baseUrl + "/api/private/save_project_js/";
+                    const data = {
+                        auto_save: "true",
+                        api_token: "<?php echo $_SESSION['api_token']?>",
+                        uid: "<?php echo $_SESSION['uid']?>",
+                    };
+
+                    if (script_idSave.value !== "") { // Check if the script ID is not empty
+                        data.script_id = script_idSave.value;
+                    } else {
+                        data.title = "<?php echo $_POST['title']?>";
+                        data.tags = '<?php echo $_POST['tags']?>'; 
+                        data.description = "";
+                        data.jsCode = editor.getValue();
+                        data.cssCode = editorCss.getValue();
+                        data.readme = editorReadme.getValue();
+                        data.libraries = '<?php echo $_POST['librariesSave']?>';
+                    }
+
+                    function saveScriptId(response) {
+                        console.log(response);
+
+                        response=JSON.parse(response);
+                        script_idSave.value = response['script_id'];
+                    }
+
+                    makeApiRequest(method, url, data)
+                        .then(saveScriptId)
+                        .catch((error) => console.error(error)); // Removed extra semicolon
+
+                } else {
+                    const method = "POST";
+                    const baseUrl = window.location.protocol + "//" + window.location.hostname;
+                    const url = baseUrl + "/api/private/save_project_js/";
+                    const data = {
+                        script_id: script_idSave.value,
+                        auto_save: "false",
+                        api_token: "<?php echo $_SESSION['api_token']?>",
+                        uid: "<?php echo $_SESSION['uid']?>",
+                    };
+
+                    console.log(data);
+
+                    makeApiRequest(method, url, data)
+                        .then((response) => console.log(response))
+                        .catch((error) => console.error(error));
+                }
+            }
+            </script>
+            <input value="<?php echo (isset($_GET['script_id']) ? $_GET['script_id'] : "")?>" type="hidden" id="script_idSave">
+            <a href="#" data-tab="readme" id="readmeTab">README</a>
+            <div id="test-button-container">
                 <button style="float:right !important;text-align:right;background:none;border:none"
                     onclick="openModal()"><img style="width:20px;padding:0px;" id="test-button"
                         src="./assets/images/play.png" alt="Play Icon" /></button>
-                      
+
                 <button
                     style="float:right !important;margin-right:10px;border-radius:5px;border:solid grey 1px;color:white;background-color:#282A36;font-size:12px;font-weight:bold;width:fit-content;height:30px;padding:5px"
                     onclick="submitForm()" type="button"
                     id="codeButton"><?php echo ($page=="edit"? "Create $version": "Create")?></button>
-                    
-                    <label style="float:right !important; margin-right:10px" class="switch">
-                        <input onchange="autoSaveToggle()" type="checkbox">
-                        <span class="slider round"></span>
-                        </label>
+                <div id="autoSaveText"></div>
+                <label style="float:right !important; margin-right:10px" class="switch">
+                    <input <?php echo $autosaveIDE; ?> id="autoSave" onchange="autoSaveToggle()" type="checkbox">
+                    <span class="slider round"></span>
+                </label>
             </div>
         </div>
         <div id="code-viewer">

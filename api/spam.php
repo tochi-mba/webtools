@@ -8,10 +8,10 @@ $contents = file_get_contents($file_name);
 // Decode the JSON object
 $data1 = json_decode($contents, true);
 
-// Check if the object has more than 100 keys
-if (count($data1) > 100) {
+// Check if the object has more than 1000 keys
+if (count($data1) > 1000) {
     // Delete the object and make the file empty
-    file_put_contents($file_name, '');
+    file_put_contents($file_name, '{}');
 }
 $api_token = $data["api_token"];
 

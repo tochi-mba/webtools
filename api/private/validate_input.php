@@ -6,7 +6,5 @@ function validateInput($data) {
     $data = htmlspecialchars($data);
     return $data;
   }
-  foreach ($_POST as $key => $value) {
-    $_POST[$key] = validateInput($value);
-}
+  
 ?>

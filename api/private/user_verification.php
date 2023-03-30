@@ -2,7 +2,7 @@
 $api_token = $data['api_token'];
 
 // Query the database
-$sql = "SELECT `uid` FROM `users` WHERE `api_token`='$api_token'";
+$sql = "SELECT `uid` FROM `users` WHERE `api_token`='$api_token' AND `uid`='".$data['uid']."'";
 
 // Execute the SQL query
 $result = mysqli_query($conn, $sql);
