@@ -794,11 +794,13 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
         if (timeout) {
             clearTimeout(timeout);
         }
-        document.getElementById("saveStatus").innerHTML = "Saving...";
-        timeout = setTimeout(function() {
-            var updatedCode = cm.getValue();
-            updateScript("js", updatedCode);
-        }, 500);
+        if (document.getElementById("autoSave").checked) {
+            document.getElementById("saveStatus").innerHTML = "Saving...";
+            timeout = setTimeout(function() {
+                var updatedCode = cm.getValue();
+                updateScript("js", updatedCode);
+            }, 500);
+        }
         
     });
 
@@ -852,11 +854,13 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
         if (timeout) {
             clearTimeout(timeout);
         }
-        document.getElementById("saveStatus").innerHTML = "Saving...";
-        timeout = setTimeout(function() {
-            var updatedCode = cm.getValue();
-            updateScript("css", updatedCode);
-        }, 500);
+        if (document.getElementById("autoSave").checked) {
+            document.getElementById("saveStatus").innerHTML = "Saving...";
+            timeout = setTimeout(function() {
+                var updatedCode = cm.getValue();
+                updateScript("css", updatedCode);
+            }, 500);
+        }
         
     });
 
@@ -904,11 +908,13 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
         if (timeout) {
             clearTimeout(timeout);
         }
-        document.getElementById("saveStatus").innerHTML = "Saving...";
-        timeout = setTimeout(function() {
-            var updatedCode = cm.getValue();
-            updateScript("readme", updatedCode);
-        }, 500);
+        if (document.getElementById("autoSave").checked) {
+            document.getElementById("saveStatus").innerHTML = "Saving...";
+            timeout = setTimeout(function() {
+                var updatedCode = cm.getValue();
+                updateScript("readme", updatedCode);
+            }, 500);
+        }
         
     });
 
