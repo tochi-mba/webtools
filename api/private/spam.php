@@ -1,6 +1,6 @@
 <?php
 
-$file_name = '../../spam_detection/spam.txt';
+$file_name = '../../../spam_detection/spam.txt';
 
 // Read the contents of the file
 $contents = file_get_contents($file_name);

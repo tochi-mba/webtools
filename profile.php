@@ -2,7 +2,6 @@
 require "head.php"; 
 require "is_logged.php";
 require "connect.php"; 
-
 function validateInput($data) {
   $data = trim($data);
   $data = stripslashes($data);
@@ -59,6 +58,7 @@ if (isset($_POST['update'])) {
     $response=CallAPI("POST",$url,$data);
     $response=json_decode($response,true);
 
+
     $_SESSION['username'] = $response['data']['username'];
     $_SESSION['api_token'] = $response['data']['api_token'];
     ?>
@@ -84,11 +84,13 @@ if (isset($_POST['update'])) {
     </script>
     <?php
 }else{
+    
     $url=$website."/api/private/get_user_info/";
     $data=array(
         "api_token" => $_SESSION['api_token'],
         "uid" => $_SESSION['uid']
     );
+    
     $response=CallAPI("POST",$url,$data);
     $response=json_decode($response,true);
     $firstname=$response['first_name'];

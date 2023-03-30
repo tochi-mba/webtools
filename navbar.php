@@ -1,4 +1,3 @@
-<script src="https://kit.fontawesome.com/ac579d55ec.js" crossorigin="anonymous"></script>
 <style>
   .nvbar {
   position: fixed;

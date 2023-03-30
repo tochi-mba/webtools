@@ -12,7 +12,7 @@ if(isset($_GET['script_id'])){
     $script_id = $_GET['script_id'];
     
     $uid = $_SESSION['uid'];
-
+    
     // Check if the script_id exists
     $query = "SELECT * FROM scripts WHERE script_id = '$script_id'";
     $result = mysqli_query($conn, $query);

@@ -33,7 +33,7 @@ if(isset($_GET['p'], $_GET['lang'], $_GET['u'])) {
             // If the parameter 'v' is set in the URL
             if(isset($_GET['v'])) {
                 // It sets the variable 'project_folder' to the folder of the script version
-                $project_folder = "../scripts/".$_GET['u']."/".$_GET['p']."/v".$_GET['v'];
+                $project_folder = "../scripts/".$_GET['u']."/".$_GET['p']."/".$_GET['v'];
                 // If the folder exists
                 if(is_dir($project_folder)) {
                     // If the language is 'js'

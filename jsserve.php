@@ -1,5 +1,5 @@
 <?php
-
+                        
                        // Define a regular expression pattern to match values between "((" and "))"
                        $pattern = '/\(\((.*?)\)\)/';
 

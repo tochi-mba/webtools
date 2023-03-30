@@ -290,6 +290,71 @@
     a:hover {
         text-decoration: none !important;
     }
+
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 20px;
+        margin-top: 5px;
+    }
+
+    .switch input {
+        opacity: 0;
+        width: fit-content;
+        height: fit-content;
+    }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: -5px;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        -webkit-transition: .4s;
+        transition: .4s;
+        height:20px !important;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 15px;
+        width: 15px;
+        bottom: 0.11em;
+        right: 32px;
+        background-color: white;
+        -webkit-transition: .4s;
+        transition: .4s;
+    }
+    input+.slider{
+        background-color: #282A36;
+    }
+    input:checked+.slider {
+        background-color: #2196F3;
+    }
+
+    input:focus+.slider {
+        box-shadow: 0 0 1px #282A36;
+    }
+
+    input:checked+.slider:before {
+        -webkit-transform: translateX(26px);
+        -ms-transform: translateX(26px);
+        transform: translateX(26px);
+    }
+
+    /* Rounded sliders */
+    .slider.round {
+        border-radius: 10px;
+        border: solid grey 1px;
+    }
+
+    .slider.round:before {
+        border-radius: 50%;
+    }
     </style>
     <div class="modal" style="height:100%" id="modalRun">
         <div style="height:100%" class="modal-content">
@@ -482,11 +547,16 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
                 <button style="float:right !important;text-align:right;background:none;border:none"
                     onclick="openModal()"><img style="width:20px;padding:0px;" id="test-button"
                         src="./assets/images/play.png" alt="Play Icon" /></button>
+                      
                 <button
-                    style="float:right !important;margin-right:10px;border-radius:5px;border:solid grey 1px;color:white;background-color:#282A36;font-size:12px;font-weight:bold;width:60px;height:30px"
+                    style="float:right !important;margin-right:10px;border-radius:5px;border:solid grey 1px;color:white;background-color:#282A36;font-size:12px;font-weight:bold;width:fit-content;height:30px;padding:5px"
                     onclick="submitForm()" type="button"
-                    id="codeButton"><?php echo ($page=="edit"? "Update": "Create")?></button>
-
+                    id="codeButton"><?php echo ($page=="edit"? "Create $version": "Create")?></button>
+                    
+                    <label style="float:right !important; margin-right:10px" class="switch">
+                        <input onchange="autoSaveToggle()" type="checkbox">
+                        <span class="slider round"></span>
+                        </label>
             </div>
         </div>
         <div id="code-viewer">
@@ -929,11 +999,11 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
     </script>
     <script src="https://cdn.korzh.com/metroui/v4.5.1/js/metro.min.js"></script>
     <script>
-        document.addEventListener('keydown', function(e) {
-            if (e.keyCode == 83 && (navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey)) {
-                e.preventDefault();
-            }
-        }, false);
+    document.addEventListener('keydown', function(e) {
+        if (e.keyCode == 83 && (navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey)) {
+            e.preventDefault();
+        }
+    }, false);
     </script>
 </body>
 

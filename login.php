@@ -372,6 +372,7 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
             $_SESSION['uid']=$row['uid'];
             $_SESSION['username'] = $username;
             $_SESSION['api_token'] = $row['api_token'];
+           
             ?>
             <script>
                 sessionStorage.setItem('uid','<?php echo $_SESSION['uid']?>');

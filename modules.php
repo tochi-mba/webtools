@@ -39,10 +39,6 @@ foreach ($libraries as $key => $value) {
         <button>Delete</button>
     </form>
 </div>
-    <!-- <p>
-      Standard chunk of Lorem Ipsum used since the 1500s is showed below
-      for those interested.
-    </p> -->
     <div style="position:absolute;top: 10px;right:10px;z-index:2" >
       <div class="versionTags" style="background-color:<?php echo $versionNumberColors[$version]?>"><?php echo $version?></div>
     </div>
@@ -51,7 +47,7 @@ foreach ($libraries as $key => $value) {
  </div>
  <script>
     document.getElementById('<?php echo $project['script_id']?>').addEventListener('click', function(){
-        embedModal(`<?php echo $project['active_files']?>`,`<?php echo $project['version']?>`,`<?php echo $project['script_id']?>`,`<?php echo $project['title']?>`,`<?php echo $_SESSION['uid']?>`,`<?php echo $project['libraries']?>`);
+        embedModal(`<?php echo $project['active_files']?>`,`<?php echo $project['version']?>`,`<?php echo $project['script_id']?>`,`<?php echo $project['title']?>`,`<?php echo $_SESSION['uid']?>`,`<?php echo $project['libraries']?>`,`<?php echo $versionNumberColors[$version]?>`);
     })
  </script>
     <div class="background">

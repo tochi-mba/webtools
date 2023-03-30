@@ -8,7 +8,6 @@ require "is_logged.php";
 
 <head>
     <title>Scripts by Title</title>
-    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
         integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <style>
@@ -89,11 +88,9 @@ require "is_logged.php";
         padding: 0.2rem;
     }
     </style>
-    <!-- Search bar -->
     <style>
 
     </style>
-    <!-- cards css -->
     <style type="text/scss">
         body {
   --background-color: #18181B;
@@ -763,7 +760,6 @@ if (isset($_GET['sort'])) {
     });
 }
   ?>
-    <!-- edit delete generate headcode. script id, title, version -->
 
     <form style="padding-top:30px" method="get">
         <center><input type="search" name="q" id="" value="<?php echo (isset($_GET['q']) ? $_GET['q'] : "")?>"></center>
@@ -960,7 +956,12 @@ if (file_exists("./libraries/libraries.json")) {
     <div class="embedModal"
         style="padding:5px;border-radius:15px;background-color: #1e1e1e;visibility:hidden;width:50%;height:70%;border:solid grey 2px;position:fixed;top:25%;right:25%;z-index:12">
         <span id="closeEmbedModal"
-            style="position:absolute;top:10px;right:10px;float:right;font-size:30px;cursor:pointer;z-index:999;color:white;">&times;</span>
+            style="position:absolute;top:0px;right:10px;float:right;font-size:30px;cursor:pointer;z-index:999;color:white;">&times;</span>
+        <div id="instructionsTitleContainer"
+            style="padding:5px;text-align:center;background-color: #1e1e1e;width:98%;position:absolute;top:2px;z-index:99;border-radius:10px">
+            <h5 style="display:inline-block;" id="instructionTitle"></h5>
+            <div id="instructionsTitleVersion" style="display:inline-block;width:fit-content"></div>
+        </div>
         <div class="instructions" style="position:absolute;top:5px;overflow-y:scroll;width:99%;height:98%;padding:20px">
 
         </div>
@@ -987,7 +988,10 @@ if (file_exists("./libraries/libraries.json")) {
 
 
 
-    function embedModal(active, version, scriptId, title, uid, libraries = "") {
+    function embedModal(active, version, scriptId, title, uid, libraries = "", version_color) {
+        document.getElementById("instructionTitle").innerText = title + "  "
+        document.getElementById("instructionsTitleVersion").innerHTML =
+            `<div style="width:fit-content;border-radius:3px;background-color:${version_color};padding:5px;">${version}</div>`;
         let instructionAmount = 0;
 
 
@@ -1050,7 +1054,7 @@ if (file_exists("./libraries/libraries.json")) {
             instructionAmount++;
             cssLink =
                 `&lt;script <div style="color:#DF3079;display:inline-block">src</div>=<div style="color:#00A67D;display:inline-block">"` +
-                baseUrl + `/webtools/?p=` + scriptId + `&u=` + uid +
+                baseUrl + `/webtools/?v=${version}&p=` + scriptId + `&u=` + uid +
                 `&lang=css"</div>&gt;&lt;/script&gt;`;
             htmlCss = "";
             htmlCss += ` <div class="css-instruction" style="width:100%;height:fit-content;"> 
@@ -1060,7 +1064,7 @@ if (file_exists("./libraries/libraries.json")) {
                   <div style="display:inline-block;margin-left:40px"> 
                     <p>Put this code inbetween the <code>&lt;head&gt;&lt;/head&gt;</code> tag of your page:</p> 
                     <div style="width:fit-content;background-color:#40414F;height:fit-content;padding:10px;border-radius:15px"> 
-                      <code style="word-wrap:break-word"> ` + cssLink + ` </code> 
+                      <code style="word-break:break-word"> ` + cssLink + ` </code> 
                     </div> 
                     </br> 
                   </div> 
@@ -1072,7 +1076,7 @@ if (file_exists("./libraries/libraries.json")) {
             instructionAmount++;
             jsLink =
                 `&lt;script <div style="color:#DF3079;display:inline-block">src</div>=<div style="color:#00A67D;display:inline-block">"` +
-                baseUrl + `/webtools/?p=` + scriptId + `&u=` + uid +
+                baseUrl + `/webtools/?v=${version}&p=` + scriptId + `&u=` + uid +
                 `&lang=js"</div>&gt;&lt;/script&gt;`;
             htmlJs = "";
             htmlJs += ` <div class="js-instruction" style="width:100%;height:fit-content;"> 
