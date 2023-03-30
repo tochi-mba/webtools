@@ -603,7 +603,7 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
                     makeApiRequest(method, url, data)
                         .then(saveScriptId)
                         .catch((error) => console.error(error)); // Removed extra semicolon
-                    
+
                     if (editor.getValue() !== "") {
                         updateScript("js", editor.getValue());
                     }
@@ -664,14 +664,14 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
                         if (response['success'] === true && response['message'] === "Updated") {
                             setTimeout(function() {
                                 document.getElementById("saveStatus").innerHTML = "Saved";
-                            }, 2000); 
+                            }, 2000);
                         } else {
                             setTimeout(function() {
                                 document.getElementById("saveStatus").innerHTML = "Error";
-                            }, 2000); 
+                            }, 2000);
                         }
                     }
-                   
+
                     document.getElementById("saveStatus").innerHTML = "Saving..."
                     makeApiRequest(method, url, data)
                         .then(status)
@@ -788,9 +788,18 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
         }
     });
     editor.setSize(null, 410);
+    let timeout = null;
+
     editor.on("keyup", function(cm) {
-        var updatedCode = cm.getValue();
-        updateScript("js", updatedCode);
+        if (timeout) {
+            clearTimeout(timeout);
+        }
+        document.getElementById("saveStatus").innerHTML = "Saving...";
+        timeout = setTimeout(function() {
+            var updatedCode = cm.getValue();
+            updateScript("js", updatedCode);
+        }, 500);
+        
     });
 
     function handleDrop(e) {
@@ -840,8 +849,15 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
     });
     editorCss.setSize(null, 410);
     editorCss.on("keyup", function(cm) {
-        var updatedCode = cm.getValue();
-        updateScript("css", updatedCode);
+        if (timeout) {
+            clearTimeout(timeout);
+        }
+        document.getElementById("saveStatus").innerHTML = "Saving...";
+        timeout = setTimeout(function() {
+            var updatedCode = cm.getValue();
+            updateScript("css", updatedCode);
+        }, 500);
+        
     });
 
     function handleDrop(e) {
@@ -885,8 +901,15 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
     });
     editorReadme.setSize(null, 410);
     editorReadme.on("keyup", function(cm) {
-        var updatedCode = cm.getValue();
-        updateScript("readme", updatedCode);
+        if (timeout) {
+            clearTimeout(timeout);
+        }
+        document.getElementById("saveStatus").innerHTML = "Saving...";
+        timeout = setTimeout(function() {
+            var updatedCode = cm.getValue();
+            updateScript("readme", updatedCode);
+        }, 500);
+        
     });
 
     function handleDrop(e) {
