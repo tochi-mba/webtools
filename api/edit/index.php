@@ -45,11 +45,9 @@ if (isset($data['api_token'])) {
                 if (isset($data['js_code'])) {
                     //Check if the js file exists
                     if (file_exists("../../scripts/".$uid."/".$script_id."/".$row['version']."/".$script_id.".js")) {
-                        //Check if the content of the file is the same as the js_code field
-                        if ($data['js_code']!=file_get_contents("../../scripts/".$uid."/".$script_id."/".$row['version']."/".$script_id.".js")) {
                             $edited=true;
                             
-                        }
+                        
                     } else {
                         //If the file does not exist, check if the js_code field is empty
                         if ($data['js_code']!="") {
@@ -61,10 +59,8 @@ if (isset($data['api_token'])) {
                 if (isset($data['css_code'])) {
                     //Check if the css file exists
                     if (file_exists("../../scripts/".$uid."/".$script_id."/".$row['version']."/".$script_id.".css")) {
-                        //Check if the content of the file is the same as the css_code field
-                        if ($data['css_code']!=file_get_contents("../../scripts/".$uid."/".$script_id."/".$row['version']."/".$script_id.".css")) {
                             $edited=true;
-                        }
+                        
                     } else {
                         //If the file does not exist, check if the css_code field is empty
                         if ($data['css_code']!="") {
@@ -76,10 +72,8 @@ if (isset($data['api_token'])) {
                 if (isset($data['readme'])) {
                     //Check if the readme file exists
                     if (file_exists("../../scripts/".$uid."/".$script_id."/".$row['version']."/README.txt")) {
-                        //Check if the content of the file is the same as the readme field
-                        if ($data['readme']!=file_get_contents("../../scripts/".$uid."/".$script_id."/".$row['version']."/README.txt")) {
                             $edited=true;
-                        }
+                        
                     } else {
                         //If the file does not exist, check if the readme field is empty
                         if ($data['readme']!="") {
@@ -129,17 +123,17 @@ if (isset($data['api_token'])) {
                     
 
                     //Add the js file to the new folder
-                    if (isset($data['js_code']) && $data['js_code']!="") {
+                    if (isset($data['js_code'])) {
                         file_put_contents("../../scripts/".$uid."/".$script_id."/".$new_version."/".$script_id.".js", $data['js_code']);
                     }
 
                     //Add the css file to the new folder
-                    if (isset($data['css_code']) && $data['css_code']!="") {
+                    if (isset($data['css_code'])) {
                         file_put_contents("../../scripts/".$uid."/".$script_id."/".$new_version."/".$script_id.".css", $data['css_code']);
                     }
 
                     //Add the readme file to the new folder
-                    if (isset($data['readme']) && $data['readme']!="") {
+                    if (isset($data['readme'])) {
                         file_put_contents("../../scripts/".$uid."/".$script_id."/".$new_version."/README.txt", $data['readme']);
                     }else{
                         file_put_contents("../../scripts/".$uid."/".$script_id."/".$new_version."/README.txt", "");
