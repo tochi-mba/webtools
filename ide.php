@@ -691,7 +691,7 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
                 <button
                     style="float:right !important;margin-right:10px;border-radius:5px;border:solid grey 1px;color:white;background-color:#282A36;font-size:12px;font-weight:bold;width:fit-content;height:30px;padding:5px"
                     onclick="submitForm()" type="button"
-                    id="codeButton"><?php echo ($page=="edit"? "Create $versionNew": "Create")?></button>
+                    id="codeButton"><?php echo ($page=="edit"? "Create $versionNew": "Create v1")?></button>
                 <label style="float:right !important; margin-right:10px" class="switch">
                     <input <?php echo $autosaveIDE; ?> id="autoSave" onchange="autoSaveToggle()" type="checkbox">
                     <span class="slider round"></span>
