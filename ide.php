@@ -425,11 +425,28 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
             <br>
             <button
                 style="border:solid grey 1px;color:white;font-weight:bold;background-color:#4C5053;border-radius:5px;width:40px;font-size:12px"
-                type="button" onclick="document.getElementById('choiceBox').submit();">Next</button>
+                type="button" onclick="next()">Next</button>
 
         </form>
     </div>
     <script>
+    function next() {
+        error = [];
+        js = document.getElementById('jsCheckbox').checked;
+        css = document.getElementById('cssCheckbox').checked;
+        title = document.getElementById('title').value;
+        if (title == "") {
+            error.push('Title is required');
+        }
+
+        if (js == false && css == false) {
+            error.push('At least one of JS or CSS must be selected');
+        }
+
+        if (error.length == 0) {
+            document.getElementById('choiceBox').submit();
+        }
+    }
     librarySelect = document.getElementById('libraries');
     libraryValue = librarySelect.options[librarySelect.selectedIndex];
     libraryShowDiv = document.getElementById('libraryShow');
@@ -491,8 +508,23 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
     </script>
     <div id="ide">
         <center>
-            <h5 style="color:white;margin:0">
+            <h5 id="fullTitle" style="color:white;margin:0">
                 <?php echo ucwords($_POST["title"]);?><?php echo  ($page == "edit" ? " - ".$version : "")?></h5>
+            <script>
+            <?php 
+                if (isset($_POST["title"])) {
+                    ?>
+            document.getElementsByTagName('title')[0].innerHTML = document.getElementById('fullTitle').innerText+" - CodeConnect Editor";
+
+            <?php                
+                } else {
+                    ?>
+            document.getElementsByTagName('title')[0].innerHTML = "<?php echo $titleIDE?> - CodeConnect Config";
+
+            <?php
+                }
+                ?>
+            </script>
             <?php
                 //api for this
                 if(isset($_POST['librariesSave'])){
@@ -627,6 +659,7 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
                     };
 
                     function saveScriptId(response) {
+
                         response = JSON.parse(response);
                         script_idSave.value = response['script_id'];
                     }
@@ -660,10 +693,17 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
                     const url = baseUrl + "/api/private/save_project_js/";
 
                     function status(response) {
+                        console.log(response)
                         response = JSON.parse(response);
-                        if (response['success'] === true && response['message'] === "Updated") {
+                        if (response['success'] === true) {
+
                             setTimeout(function() {
+                                if (response['code'] == "1") {
+                                    var codeButton = document.getElementById("codeButton");
+                                    codeButton.parentNode.removeChild(codeButton);
+                                }
                                 document.getElementById("saveStatus").innerHTML = "Saved";
+
                             }, 2000);
                         } else {
                             setTimeout(function() {
@@ -675,7 +715,7 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
                     document.getElementById("saveStatus").innerHTML = "Saving..."
                     makeApiRequest(method, url, data)
                         .then(status)
-                        .catch((error) => console.error(error));
+                        .catch((error) => console.error());
                 }
 
             }
@@ -720,6 +760,7 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
         let words = title.split(" ");
         let capitalizedWords = words.map(word => word.charAt(0).toUpperCase() + word.slice(1));
         titleShow.innerHTML = capitalizedWords.join(" ");
+        document.getElementsByTagName("title")[0].innerText = titleShow.innerHTML + " - CodeConnect Config";
     }
     window.onload = function() {
 
@@ -801,7 +842,7 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
                 updateScript("js", updatedCode);
             }, 500);
         }
-        
+
     });
 
     function handleDrop(e) {
@@ -861,7 +902,7 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
                 updateScript("css", updatedCode);
             }, 500);
         }
-        
+
     });
 
     function handleDrop(e) {
@@ -915,7 +956,7 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
                 updateScript("readme", updatedCode);
             }, 500);
         }
-        
+
     });
 
     function handleDrop(e) {
@@ -1162,7 +1203,7 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
             if ($response['success']=="true"){
                 ?>
     <script>
-    window.location.href = "scripts.php";
+    window.location.href = "./scripts.php";
     </script>
     <?php
             }

@@ -49,73 +49,100 @@ function CallAPI($method, $url, $data = false)
         
         $data=$_POST;
         require "../user_verification_js.php";
+       
+
+        
         $logs=array();
         function update(){
             global $data, $conn, $logs;
-            if (isset($data->jsCode)) {
-                $dir = '../../../scripts/'.$data->uid.'/'.$data->script_id.'/';
-    
-                $dirs = array_filter(glob($dir . '/*'), 'is_dir');
-    
-                natsort($dirs);
-    
-                $latest_dir = end($dirs);
-    
-                $latest_version = basename($latest_dir);
-    
-                $jsCode=file_put_contents($dir.$latest_version.'/'.$data->script_id.'.js', $data->jsCode);
-    
-                $logs[]="JS Code Updated";
-                    
-            }
-    
-            if (isset($data->cssCode)) {
-                $dir = '../../../scripts/'.$data->uid.'/'.$data->script_id.'/';
-    
-                $dirs = array_filter(glob($dir . '/*'), 'is_dir');
-    
-                natsort($dirs);
-    
-                $latest_dir = end($dirs);
-    
-                $latest_version = basename($latest_dir);
-    
-                $jsCode=file_put_contents($dir.$latest_version.'/'.$data->script_id.'.css', $data->cssCode);
-    
-                $logs[]="CSS Code Updated";
-                    
-            }
-    
-            if (isset($data->readme)) {
-                $dir = '../../../scripts/'.$data->uid.'/'.$data->script_id.'/';
-    
-                $dirs = array_filter(glob($dir . '/*'), 'is_dir');
-    
-                natsort($dirs);
-    
-                $latest_dir = end($dirs);
-    
-                $latest_version = basename($latest_dir);
-    
-                $jsCode=file_put_contents($dir.$latest_version.'/'.'/README.txt', $data->readme);
-    
-                $logs[]="README Updated";
-                    
-            }
-    
-            echo json_encode([
-                "success" => true,
-                "message" => "Updated",
-                "logs" => $logs,
-                "script_id" => $data->script_id,
-            ]);
+            if ($data->script_id !== null && $data->script_id !== ""){
+                if (isset($data->jsCode)&&$data->jsCode!="") {
+                    $dir = '../../../scripts/'.$data->uid.'_private/'.$data->script_id.'/';
+        
+                    $dirs = array_filter(glob($dir . '/*'), 'is_dir');
+        
+                    natsort($dirs);
+        
+                    $latest_dir = end($dirs);
+        
+                    $latest_version = basename($latest_dir);
+        
+                    $jsCode=file_put_contents($dir.$latest_version.'/'.$data->script_id.'.js', $data->jsCode);
+        
+                    $logs[]="JS Code Updated";
+                        
+                }
+        
+                if (isset($data->cssCode)&&$data->cssCode!=="") {
+                    $dir = '../../../scripts/'.$data->uid.'_private/'.$data->script_id.'/';
+        
+                    $dirs = array_filter(glob($dir . '/*'), 'is_dir');
+        
+                    natsort($dirs);
+        
+                    $latest_dir = end($dirs);
+        
+                    $latest_version = basename($latest_dir);
+        
+                    $jsCode=file_put_contents($dir.$latest_version.'/'.$data->script_id.'.css', $data->cssCode);
+        
+                    $logs[]="CSS Code Updated";
+                        
+                }
+        
+                if (isset($data->readme)) {
+                    $dir = '../../../scripts/'.$data->uid.'_private/'.$data->script_id.'/';
+        
+                    $dirs = array_filter(glob($dir . '/*'), 'is_dir');
+        
+                    natsort($dirs);
+        
+                    $latest_dir = end($dirs);
+        
+                    $latest_version = basename($latest_dir);
+        
+                    $jsCode=file_put_contents($dir.$latest_version.'/'.'/README.txt', $data->readme);
+        
+                    $logs[]="README Updated";
+                        
+                }
+        
+                echo json_encode([
+                    "success" => true,
+                    "message" => "Updated",
+                    "logs" => $logs,
+                    "script_id" => $data->script_id,
+                ]);
+                $sql = "SELECT `manifest` FROM `scripts` WHERE `uid`='".$data->uid."' AND `script_id`='".$data->script_id."'";
+                $result = mysqli_query($conn, $sql);
+                $row = mysqli_fetch_assoc($result);
+                // Assuming $row["manifest"] contains the JSON string
+                $manifest = json_decode($row["manifest"], true);
 
-            $query = "UPDATE scripts SET last_edited = NOW() WHERE script_id = '".$data->script_id."' AND uid = '".$data->uid."'";
-            $result = mysqli_query($conn, $query);
-            exit;
+                // Assuming $latest_version contains the version to be updated
+                foreach ($manifest[$latest_version] as &$version) {
+                    $version["last_edited"] = date("Y-m-d H:i:s");
+                }
+
+                // Encode the modified array back to JSON
+                $manifest = json_encode($manifest);
+                $query = "UPDATE scripts SET last_edited = NOW(), manifest = '$manifest' WHERE script_id = '".$data->script_id."' AND uid = '".$data->uid."'";
+                $result = mysqli_query($conn, $query);
+                exit;
+            }else{
+                echo json_encode([
+                    "success" => true,
+                    "message" => "New Script Created",
+                    "logs" => $logs,
+                    "script_id" => $data->script_id,
+                    "code" =>  "1"
+                ]);
+                exit;
+            }
+            
         }
         if ($data->auto_save == "true") {
-            if (!isset($data->script_id)){
+            if (!isset($data->script_id)) {
                 if (isset($data->title, $data->tags, $data->description, $data->jsCode, $data->cssCode, $data->readme, $data->libraries)){
                     $data = array(
                         'api_token' => $data->api_token,
@@ -136,7 +163,8 @@ function CallAPI($method, $url, $data = false)
                     echo json_encode([
                         "success" => true,
                         "message" => "New Script Created",
-                        "script_id" => $response->data->script_id
+                        "script_id" => $response->data->script_id,
+                        "code" =>  "1"
                     ]);
                     exit;
                 } else {
@@ -150,19 +178,20 @@ function CallAPI($method, $url, $data = false)
             }
             $query = "UPDATE scripts SET auto_save = 'true' WHERE script_id = '".$data->script_id."' AND uid = '".$data->uid."'";
             $result = mysqli_query($conn, $query);
-            update();
             if ($result) {
                 $logs[]="Auto Save Enabled";
                 
-        
+                update();
+
             } else {
+                update();
+
                 echo json_encode([
                     "success" => false,
                     "message" => "Auto Save did not update"
                 ]);
                 exit;
             }
-            update();
         }elseif ($data->auto_save == "false") {
             $query = "UPDATE scripts SET auto_save = 'false' WHERE script_id = '".$data->script_id."' AND uid = '".$data->uid."'";
             $result = mysqli_query($conn, $query);

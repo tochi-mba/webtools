@@ -41,13 +41,12 @@ if (isset($data['api_token'])) {
                     "message" => "Invalid Script ID"
                 ]);
             }else{
+                $manifest=json_decode($row['manifest'],true);
                 // Check if the js_code field is set
                 if (isset($data['js_code'])) {
                     //Check if the js file exists
-                    if (file_exists("../../scripts/".$uid."/".$script_id."/".$row['version']."/".$script_id.".js")) {
+                    if (file_exists("../../scripts/".$uid."_private/".$script_id."/".$row['version']."/".$script_id.".js")) {
                             $edited=true;
-                            
-                        
                     } else {
                         //If the file does not exist, check if the js_code field is empty
                         if ($data['js_code']!="") {
@@ -58,7 +57,7 @@ if (isset($data['api_token'])) {
                 //Check if the css_code field is set
                 if (isset($data['css_code'])) {
                     //Check if the css file exists
-                    if (file_exists("../../scripts/".$uid."/".$script_id."/".$row['version']."/".$script_id.".css")) {
+                    if (file_exists("../../scripts/".$uid."_private/".$script_id."/".$row['version']."/".$script_id.".css")) {
                             $edited=true;
                         
                     } else {
@@ -71,7 +70,7 @@ if (isset($data['api_token'])) {
                 //Check if the readme field is set
                 if (isset($data['readme'])) {
                     //Check if the readme file exists
-                    if (file_exists("../../scripts/".$uid."/".$script_id."/".$row['version']."/README.txt")) {
+                    if (file_exists("../../scripts/".$uid."_private/".$script_id."/".$row['version']."/README.txt")) {
                             $edited=true;
                         
                     } else {
@@ -93,14 +92,14 @@ if (isset($data['api_token'])) {
                         $number = (float) substr($new_version, 1);
                         $number += 0.01;
                         $new_version = "v" . $number;
-                        mkdir("../../scripts/".$uid."/".$script_id."/".$new_version);
+                        mkdir("../../scripts/".$uid."_private/".$script_id."/".$new_version, 0700, true);
                     }else{
                         if ($row['purchased']==null) {
                             $sql = "UPDATE `scripts` SET `purchased`='false' WHERE `uid`='$uid' AND `script_id`='$script_id'";
                             $result = mysqli_query($conn, $sql);
                         }
                         $new_version = $row['version'];
-                        $dir = "../../scripts/".$uid."/".$script_id."/".$new_version;
+                        $dir = "../../scripts/".$uid."_private/".$script_id."/".$new_version;
                         if (is_dir($dir)) {
                             $objects = scandir($dir);
                             foreach ($objects as $object) {
@@ -118,25 +117,25 @@ if (isset($data['api_token'])) {
                         } else {
                             $new_version = "v" . (int) $number;
                         }
-                        mkdir("../../scripts/".$uid."/".$script_id."/".$new_version);
+                        mkdir("../../scripts/".$uid."_private/".$script_id."/".$new_version, 0700, true);
                     }
                     
 
                     //Add the js file to the new folder
-                    if (isset($data['js_code'])) {
-                        file_put_contents("../../scripts/".$uid."/".$script_id."/".$new_version."/".$script_id.".js", $data['js_code']);
+                    if (isset($data['js_code']) && $data['js_code'] != '') {
+                        file_put_contents("../../scripts/".$uid."_private/".$script_id."/".$new_version."/".$script_id.".js", $data['js_code']);
                     }
 
                     //Add the css file to the new folder
-                    if (isset($data['css_code'])) {
-                        file_put_contents("../../scripts/".$uid."/".$script_id."/".$new_version."/".$script_id.".css", $data['css_code']);
+                    if (isset($data['css_code']) && $data['css_code'] != '') {
+                        file_put_contents("../../scripts/".$uid."_private/".$script_id."/".$new_version."/".$script_id.".css", $data['css_code']);
                     }
 
                     //Add the readme file to the new folder
                     if (isset($data['readme'])) {
-                        file_put_contents("../../scripts/".$uid."/".$script_id."/".$new_version."/README.txt", $data['readme']);
+                        file_put_contents("../../scripts/".$uid."_private/".$script_id."/".$new_version."/README.txt", $data['readme']);
                     }else{
-                        file_put_contents("../../scripts/".$uid."/".$script_id."/".$new_version."/README.txt", "");
+                        file_put_contents("../../scripts/".$uid."_private/".$script_id."/".$new_version."/README.txt", "");
                     }
 
                     //Update the active_files field
@@ -158,6 +157,15 @@ if (isset($data['api_token'])) {
 
                     //Update the database
                     $active_files = json_encode($active_files);
+                    $manifest[$new_version] = array([
+                        "creation_date" => date("Y-m-d H:i:s"),
+                        "libraries" => $data['libraries'],
+                        "status" => "private",
+                        "last_edited" => date("Y-m-d H:i:s"),
+                        "release_date" => "unreleased",
+                        "authorized_websites" => array()
+                    ]);
+                    $manifest = json_encode($manifest);
                     $sql = "UPDATE `scripts` SET `active_files`='$active_files', `last_edited`=NOW(), `version`='$new_version'";
                     if (isset($data['title'])) {
                         $title = $data['title'];
@@ -175,7 +183,7 @@ if (isset($data['api_token'])) {
                         $libraries = $data['libraries'];
                         $sql .= ", `libraries`='$libraries'";
                     }
-                    $sql .= " WHERE `uid`='$uid' AND `script_id`='$script_id'";
+                    $sql .= ",`manifest`='$manifest' WHERE `uid`='$uid' AND `script_id`='$script_id'";
                     mysqli_query($conn, $sql);
 
                     //Return the response
@@ -188,7 +196,7 @@ if (isset($data['api_token'])) {
                 } else {
                     //Update the active_files field
                     $active_files = json_decode($row['active_files'], true);
-                   if (isset($data['js_code'])) {
+                    if (isset($data['js_code'])) {
                         if ($data['js_code']!="") {
                             $active_files['code'] = "active";
                         }else{
@@ -205,6 +213,12 @@ if (isset($data['api_token'])) {
 
                     //Update the database
                     $active_files = json_encode($active_files);
+                    $manifest = json_decode($row["manifest"], true);
+
+                    foreach ($manifest[$row['version']] as &$version) {
+                        $version["libraries"] = $data['libraries'];
+                    }
+                    $manifest = json_encode($manifest);
                     $sql = "UPDATE `scripts` SET `active_files`='$active_files', `last_edited`=NOW()";
                     if (isset($data['title'])) {
                         $title = $data['title'];
@@ -222,7 +236,7 @@ if (isset($data['api_token'])) {
                         $libraries = $data['libraries'];
                         $sql .= ", `libraries`='$libraries'";
                     }
-                    $sql .= " WHERE `uid`='$uid' AND `script_id`='$script_id'";
+                    $sql .= ", `manifest`='$manifest' WHERE `uid`='$uid' AND `script_id`='$script_id'";
                     mysqli_query($conn, $sql);
                     //If no fields were edited, return a success message
                     echo json_encode([

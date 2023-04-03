@@ -1,4 +1,6 @@
 <?php
+    require "../head.php";
+
  // It sets the variable 'logs' to an empty string
  $logs = "";
 // This code checks if the parameters 'p', 'lang', and 'u' are set in the URL
@@ -23,17 +25,19 @@ if(isset($_GET['p'], $_GET['lang'], $_GET['u'])) {
               $_SERVER['SERVER_NAME']
             );
           }
+          
+          
         // Trims the whitespace from the beginning and end of each element in the 'authorized_websites' array
         foreach($authorized_websites as $key => $value) {
             $authorized_websites[$key] = trim($value);
         }
         // If the URL of the page is in the 'authorized_websites' array
         // Unless project is unlisted or public
-        if(in_array(url(), $authorized_websites) || in_array(url()."/", $authorized_websites) || $row['status'] == "1" || $row['status'] == "3") {
+        if(in_array(url(), $authorized_websites) || in_array(url()."/", $authorized_websites) || url() == $website) {
             // If the parameter 'v' is set in the URL
             if(isset($_GET['v'])) {
                 // It sets the variable 'project_folder' to the folder of the script version
-                $project_folder = "../scripts/".$_GET['u']."/".$_GET['p']."/".$_GET['v'];
+                $project_folder = "../scripts/".$_GET['u']."_private/".$_GET['p']."/".$_GET['v'];
                 // If the folder exists
                 if(is_dir($project_folder)) {
                     // If the language is 'js'

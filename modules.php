@@ -33,6 +33,12 @@ foreach ($libraries as $key => $value) {
         <button>Edit</button>
 
     </form>
+    <?php 
+    if (file_exists('./scripts/'.$_SESSION['uid']."_private/".$project['script_id']."/".$version."/".$project['script_id'].".js")){
+        $code=file_get_contents('./scripts/'.$_SESSION['uid']."_private/".$project['script_id']."/".$version."/".$project['script_id'].".js");
+        require "./get_params.php";
+    }
+    ?>
     <form action="delete.php" method="post">
         <input type="hidden" value="<?php echo $project['script_id']?>" name="script_id">
         <input type="hidden" name="name" value="<?php echo $project['title']?>">
@@ -47,7 +53,7 @@ foreach ($libraries as $key => $value) {
  </div>
  <script>
     document.getElementById('<?php echo $project['script_id']?>').addEventListener('click', function(){
-        embedModal(`<?php echo $project['active_files']?>`,`<?php echo $project['version']?>`,`<?php echo $project['script_id']?>`,`<?php echo $project['title']?>`,`<?php echo $_SESSION['uid']?>`,`<?php echo $project['libraries']?>`,`<?php echo $versionNumberColors[$version]?>`);
+        embedModal(`<?php echo $project['active_files']?>`,`<?php echo $project['version']?>`,`<?php echo $project['script_id']?>`,`<?php echo $project['title']?>`,`<?php echo $_SESSION['uid']?>`,`<?php echo $project['libraries']?>`,`<?php echo $versionNumberColors[$version]?>`<?php echo (isset($resultParams) ? ",`".json_encode($resultParams)."`" : ",`"."[]"."`")?>);
     })
  </script>
     <div class="background">

@@ -7,7 +7,7 @@ require "is_logged.php";
 <html>
 
 <head>
-    <title>Scripts by Title</title>
+    <title>Projects - CodeConnect</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
         integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <style>
@@ -986,9 +986,52 @@ if (file_exists("./libraries/libraries.json")) {
         return text.replace(/src/g, "<div style='display:inline-block;color:#DF3079'>src</div>");
     }
 
+    function copyToClipboard(text, button) {
+      // Create a new hidden textarea element
+      const tempInput = document.createElement('textarea');
+      tempInput.style.opacity = "0";
+      tempInput.style.position = "absolute";
+      tempInput.style.left = "-9999px";
+
+      // Set the value of the temporary textarea element to the text to be copied
+      tempInput.value = text;
+
+      // Append the temporary textarea element to the document body
+      document.body.appendChild(tempInput);
+
+      // Select the text in the temporary textarea element
+      tempInput.select();
+
+      // Copy the selected text to the clipboard
+      const copySuccessful = document.execCommand('copy');
+
+      // Remove the temporary textarea element from the document body
+      document.body.removeChild(tempInput);
+
+      // Change the button text to "code copied"
+      button.innerHTML = `<svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><polyline points="20 6 9 17 4 12"></polyline></svg> Copied!`;
+
+      // Delay changing the button text back to "copy" by 1 second
+      setTimeout(() => {
+        button.innerHTML = `<svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg> Copy`;
+      }, 2000);
+
+      // Return true if the copy was successful, false otherwise
+      return copySuccessful;
+    }
 
 
-    function embedModal(active, version, scriptId, title, uid, libraries = "", version_color) {
+
+    function embedModal(active, version, scriptId, title, uid, libraries = "", version_color, params = "{}") {
+      console.log(params)
+        params=JSON.parse(params);
+        paramsLink="";
+        if (params.length > 0) {
+          for (var i = 0; i < params.length; i++) {
+            paramsLink += params[i] + "=&lt;enter "+params[i]+"&gt;&";
+
+          }
+        }
         document.getElementById("instructionTitle").innerText = title + "  "
         document.getElementById("instructionsTitleVersion").innerHTML =
             `<div style="width:fit-content;border-radius:3px;background-color:${version_color};padding:5px;">${version}</div>`;
@@ -1011,6 +1054,10 @@ if (file_exists("./libraries/libraries.json")) {
         instructions.innerHTML = "";
 
 
+        
+
+
+
         if (libraries.length != 0) {
             instructionAmount++;
             htmlLibs += ` <div class="libraries-instruction" style="width:100%;height:fit-content;"> 
@@ -1029,8 +1076,8 @@ if (file_exists("./libraries/libraries.json")) {
 
 
                         for (let j = 0; j < librariesLinks[librariesLink][0].length; j++) {
-                            htmlLibs += ` <div style="width:fit-content;background-color:#40414F;height:fit-content;padding:10px;border-radius:15px"> 
-                          <code style="word-break:break-word"> ` + replaceSrcWithDiv(changeTextToDiv(encodeHTMLTags(
+                            htmlLibs += ` <div style="width:fit-content;background-color:#40414F;height:fit-content;padding:10px;border-radius:15px;position:relative"> 
+                            <button style="position:absolute;top:3px;right:3px;z-index:2;background:none;border:none;color:white" onclick="copyToClipboard(\``+librariesLinks[librariesLink][0][j]+`\`,this)"><svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg> Copy</button><code style="word-break:break-word"> ` + replaceSrcWithDiv(changeTextToDiv(encodeHTMLTags(
                                 librariesLinks[librariesLink][0][j]))) + ` </code> 
                         </div> 
                         </br> `;
@@ -1056,6 +1103,7 @@ if (file_exists("./libraries/libraries.json")) {
                 `&lt;script <div style="color:#DF3079;display:inline-block">src</div>=<div style="color:#00A67D;display:inline-block">"` +
                 baseUrl + `/webtools/?v=${version}&p=` + scriptId + `&u=` + uid +
                 `&lang=css"</div>&gt;&lt;/script&gt;`;
+          
             htmlCss = "";
             htmlCss += ` <div class="css-instruction" style="width:100%;height:fit-content;"> 
                   <div style="position:relative;display:inline-block;top: 30px;px;padding:5px;background-color:grey;color:white;font-weight:bold;font-size:15px;width:25px;height:25px;line-height:15px;border-radius:50%"> 
@@ -1076,7 +1124,7 @@ if (file_exists("./libraries/libraries.json")) {
             instructionAmount++;
             jsLink =
                 `&lt;script <div style="color:#DF3079;display:inline-block">src</div>=<div style="color:#00A67D;display:inline-block">"` +
-                baseUrl + `/webtools/?v=${version}&p=` + scriptId + `&u=` + uid +
+                baseUrl + `/webtools/?${paramsLink}v=${version}&p=` + scriptId + `&u=` + uid +
                 `&lang=js"</div>&gt;&lt;/script&gt;`;
             htmlJs = "";
             htmlJs += ` <div class="js-instruction" style="width:100%;height:fit-content;"> 

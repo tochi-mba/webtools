@@ -10,7 +10,7 @@ if (isset($data['api_token'])) {
     require "../../connect.php";
 
     // Query the database
-    $sql = "SELECT `uid` FROM `users` WHERE `api_token`='$api_token'";
+    $sql = "SELECT `uid`,`scripts_id` FROM `users` WHERE `api_token`='$api_token'";
 
     // Execute the SQL query
     $result = mysqli_query($conn, $sql);
@@ -84,24 +84,28 @@ if (isset($data['api_token'])) {
             $unique_id = uniqid();
 
             // Create a folder for the POST files
-            while(file_exists("../../scripts/" . $uid . "/" . $unique_id)) {
+            while(file_exists("../../scripts/" . $uid . "_private/" . $unique_id)) {
                 $unique_id = uniqid();
             }
-
+           
+            
             // Create a folder for the POST files
-            if(!is_dir("../../scripts/" . $uid)) {
-                mkdir("../../scripts/" . $uid, 0755, true);
-                mkdir("../../scripts/" . $uid . "/" . $unique_id . "/v1/", 0755, true);
-            } else {
-                mkdir("../../scripts/" . $uid . "/" . $unique_id . "/v1/", 0755, true);
-            }
-
+            mkdir("../../scripts/" . $uid . "_private/" . $unique_id . "/v1/", 0700, true);
+            $manifest['v1']= array([
+                "creation_date" => date("Y-m-d H:i:s"),
+                "libraries" => $libraries,
+                "status" => "private",
+                "last_edited" => date("Y-m-d H:i:s"),
+                "release_date" => "unreleased",
+                "authorized_websites" => array()
+            ]);
+            $manifest = json_encode($manifest);
             // Check to see if the "code" POST is active and create a .js file
             if($post_status["code"] == "active") {
                 // Create the .js file
                 $code = $js_code;
                 // Create a new file in the user's directory with the name $scriptId.js and write JavaScript code to it
-                $file = fopen("../../scripts/" . $uid . "/" . $unique_id . "/v1/" . $unique_id . ".js", "w") or die("Unable to create the .js file!");
+                $file = fopen("../../scripts/" . $uid . "_private/" . $unique_id . "/v1/" . $unique_id . ".js", "w") or die("Unable to create the .js file!");
                 fwrite($file, $code);
                 fclose($file); 
             }
@@ -109,7 +113,7 @@ if (isset($data['api_token'])) {
             // Check to see if the "codeCss" POST is active and create a .css file
             if($post_status["codeCss"] == "active") {
                 // Create the .css file
-                $css_file = fopen("../../scripts/" . $uid . "/" . $unique_id . "/v1/" . $unique_id . ".css", "w") or die("Unable to create the .css file!");
+                $css_file = fopen("../../scripts/" . $uid . "_private/" . $unique_id . "/v1/" . $unique_id . ".css", "w") or die("Unable to create the .css file!");
 
                 // Write the contents of the "codeCss" POST to the .css file
                 fwrite($css_file, $css_code);
@@ -119,7 +123,7 @@ if (isset($data['api_token'])) {
             }
 
             // Create the README file
-            $readme_file = fopen("../../scripts/" . $uid . "/" . $unique_id . "/v1/README.txt", "w") or die("Unable to create the README file!");
+            $readme_file = fopen("../../scripts/" . $uid . "_private/" . $unique_id . "/v1/README.txt", "w") or die("Unable to create the README file!");
 
             // Write the contents of the "codeReadme" POST to the README file
             fwrite($readme_file, $readme);
@@ -128,8 +132,7 @@ if (isset($data['api_token'])) {
             fclose($readme_file);
 
             $post_status = json_encode($post_status);
-            $current_timestamp = gmdate("Y-m-d H:i:s", time());
-            $sql = "INSERT INTO scripts (ID, script_id, uid, active_files, date_created, last_edited, version, title, tags, category, description, libraries) VALUES (NULL, '$unique_id', '$uid', '$post_status ', '$current_timestamp', '$current_timestamp', 'v1', '$title', '$tags', '', '$description', '$libraries');";
+            $sql = "INSERT INTO scripts (ID, script_id, uid, active_files, date_created, last_edited, version, title, tags, category, description, libraries, manifest) VALUES (NULL, '$unique_id', '$uid', '$post_status ', NOW(), NOW(), 'v1', '$title', '$tags', '', '$description', '$libraries', '$manifest');";
             if (mysqli_query($conn, $sql)) {
                 echo json_encode([
                     "success" => true,
@@ -143,8 +146,9 @@ if (isset($data['api_token'])) {
                         "css_code" => $css_code,
                         "readme" => $readme,
                         "libraries" => $libraries,
-                        "timestamp" => $current_timestamp,
-                        "version" => "v1"
+                        "version" => "v1",
+                        "date_created" => date("Y-m-d H:i:s"),
+                        "status" => "private"
                     ]
                 ]);
             } else {

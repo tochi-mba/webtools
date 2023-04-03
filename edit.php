@@ -48,21 +48,21 @@ if(isset($_GET['script_id'])){
             } else {
                 $autosaveIDE = '';
             }
-            if (file_exists('./scripts/'.$_SESSION['uid'].'/'.$_GET['script_id'].'/'.$version)) {
-                if (file_exists('./scripts/'.$_SESSION['uid'].'/'.$_GET['script_id'].'/'.$version.'/'.$_GET['script_id'].'.js')) {
-                    $jsCodeIDE = file_get_contents('./scripts/'.$_SESSION['uid'].'/'.$_GET['script_id'].'/'.$version.'/'.$_GET['script_id'].'.js');
+            if (file_exists('./scripts/'.$_SESSION['uid'].'_private/'.$_GET['script_id'].'/'.$version)) {
+                if (file_exists('./scripts/'.$_SESSION['uid'].'_private/'.$_GET['script_id'].'/'.$version.'/'.$_GET['script_id'].'.js')) {
+                    $jsCodeIDE = file_get_contents('./scripts/'.$_SESSION['uid'].'_private/'.$_GET['script_id'].'/'.$version.'/'.$_GET['script_id'].'.js');
     
                  }else{
                     $jsCodeIDE = '';
                  }
-                 if (file_exists('./scripts/'.$_SESSION['uid'].'/'.$_GET['script_id'].'/'.$version.'/'.$_GET['script_id'].'.css')) {
-                    $cssCodeIDE = file_get_contents('./scripts/'.$_SESSION['uid'].'/'.$_GET['script_id'].'/'.$version.'/'.$_GET['script_id'].'.css');
+                 if (file_exists('./scripts/'.$_SESSION['uid'].'_private/'.$_GET['script_id'].'/'.$version.'/'.$_GET['script_id'].'.css')) {
+                    $cssCodeIDE = file_get_contents('./scripts/'.$_SESSION['uid'].'_private/'.$_GET['script_id'].'/'.$version.'/'.$_GET['script_id'].'.css');
     
                  }else{
                     $cssCodeIDE = '';
                  }
-                 if (file_exists('./scripts/'.$_SESSION['uid'].'/'.$_GET['script_id'].'/'.$version.'/README.txt')) {
-                    $readmeCodeIDE = file_get_contents('./scripts/'.$_SESSION['uid'].'/'.$_GET['script_id'].'/'.$version.'/README.txt');
+                 if (file_exists('./scripts/'.$_SESSION['uid'].'_private/'.$_GET['script_id'].'/'.$version.'/README.txt')) {
+                    $readmeCodeIDE = file_get_contents('./scripts/'.$_SESSION['uid'].'_private/'.$_GET['script_id'].'/'.$version.'/README.txt');
     
                  }else{
                     $readmeCodeIDE = '';

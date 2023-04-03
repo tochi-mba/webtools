@@ -18,7 +18,8 @@
                        } 
 
                        // Remove all HTML tags from the code using a regular expression
-                       $code = preg_replace('/\(\(|\)\)/', '', $code);
+                       $code = preg_replace('/\(\((.*?)\)\)/', '$1', $code);
+
 
                        if(!empty($result)) {
                            // If $result is not empty, write JavaScript code that extracts values from the URL parameters and runs the user's code

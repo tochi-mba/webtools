@@ -29,8 +29,21 @@ require "connect.php";
         rmdir($folder);
         return true;
     }
-    
-    if (isset($_POST["script_id"])) {
+    function checkIfPurchased(){
+        require "connect.php";
+        $uid = $_SESSION["uid"];
+        $script_id = $_POST["script_id"];
+        $sql = "SELECT `purchased` FROM scripts WHERE uid='$uid' AND script_id='$script_id'";
+        $result = mysqli_query($conn,$sql);
+        $row = mysqli_fetch_assoc($result);
+        if($row["purchased"] == "true"){
+            return true;
+        } else {
+            return false;
+        }
+    }
+    if (isset($_POST["script_id"]) && !checkIfPurchased()) {
+
        // delete the sql row
        // setup the sql query variables
        $uid = $_SESSION["uid"];
@@ -41,11 +54,28 @@ require "connect.php";
        $result = mysqli_query($conn,$sql);
         
        // Check if file exists
-       if (file_exists("./scripts/$uid/$script_id")) {
+        if (file_exists("./scripts/".$uid."_private/".$script_id."/")) {
            // Delete the file
-           delete_folder("./scripts/$uid/$script_id");
-       }
+           delete_folder("./scripts/".$uid."_private/".$script_id."/");
+        }
+    
+        if (file_exists("./scripts/".$uid."_unlisted/".$script_id."/")) {
+            // Delete the file
+            delete_folder("./scripts/".$uid."_unlisted/".$script_id."/");
+        }
+
+        if (file_exists("./scripts/".$uid."_public/".$script_id."/")) {
+            // Delete the file
+            delete_folder("./scripts/".$uid."_public/".$script_id."/");
+        }
+
         
+        if (file_exists("./scripts/".$uid."_monetized/".$script_id."/")) {
+            // Delete the file
+            delete_folder("./scripts/".$uid."_monetized/".$script_id."/");
+        }
+
+
        // Check if query was successful
        if ($result) {
            // Redirect and pass success variable
