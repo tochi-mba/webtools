@@ -163,10 +163,12 @@ if (isset($data['api_token'])) {
                         "status" => "private",
                         "last_edited" => date("Y-m-d H:i:s"),
                         "release_date" => "unreleased",
-                        "authorized_websites" => array()
+                        "authorized_websites" => array(),
+                        "extraction" => $data['extraction'],
                     ]);
                     $manifest = json_encode($manifest);
-                    $sql = "UPDATE `scripts` SET `active_files`='$active_files', `last_edited`=NOW(), `version`='$new_version'";
+                    $extraction = $data['extraction'];
+                    $sql = "UPDATE `scripts` SET `automatic_variable_extraction_enabled`='$extraction', `active_files`='$active_files', `last_edited`=NOW(), `version`='$new_version'";
                     if (isset($data['title'])) {
                         $title = $data['title'];
                         $sql .= ", `title`='$title'";
@@ -219,7 +221,7 @@ if (isset($data['api_token'])) {
                         $version["libraries"] = $data['libraries'];
                     }
                     $manifest = json_encode($manifest);
-                    $sql = "UPDATE `scripts` SET `active_files`='$active_files', `last_edited`=NOW()";
+                    $sql = "UPDATE `scripts` SET `automatic_variable_extraction_enabled`='$extraction', `active_files`='$active_files', `last_edited`=NOW()";
                     if (isset($data['title'])) {
                         $title = $data['title'];
                         $sql .= ", `title`='$title'";

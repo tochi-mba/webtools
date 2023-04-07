@@ -56,6 +56,7 @@ function CallAPI($method, $url, $data = false)
         function update(){
             global $data, $conn, $logs;
             if ($data->script_id !== null && $data->script_id !== ""){
+                $code=array();
                 if (isset($data->jsCode)&&$data->jsCode!="") {
                     $dir = '../../../scripts/'.$data->uid.'_private/'.$data->script_id.'/';
         
@@ -68,9 +69,13 @@ function CallAPI($method, $url, $data = false)
                     $latest_version = basename($latest_dir);
         
                     $jsCode=file_put_contents($dir.$latest_version.'/'.$data->script_id.'.js', $data->jsCode);
-        
+                    $code['code']= "active";
                     $logs[]="JS Code Updated";
                         
+                }elseif($data->jsCode==""){
+                    $code['code'] = "empty";
+        
+                    $logs[]="JS Code Updated";
                 }
         
                 if (isset($data->cssCode)&&$data->cssCode!=="") {
@@ -85,9 +90,13 @@ function CallAPI($method, $url, $data = false)
                     $latest_version = basename($latest_dir);
         
                     $jsCode=file_put_contents($dir.$latest_version.'/'.$data->script_id.'.css', $data->cssCode);
-        
+                    $code['codeCss']= "active";
                     $logs[]="CSS Code Updated";
                         
+                }elseif($data->cssCode==""){
+                    $code['codeCss'] = "empty";
+        
+                    $logs[]="CSS Code Updated";
                 }
         
                 if (isset($data->readme)) {
@@ -106,7 +115,39 @@ function CallAPI($method, $url, $data = false)
                     $logs[]="README Updated";
                         
                 }
-        
+
+                // Set the update fields based on the available data
+                $update_fields = array();
+                if (isset($data->libraries)) {
+                    $update_fields[] = "libraries = '".$data->libraries."'";
+                    $logs[]="Libraries Updated";
+                }
+                if (isset($data->title)) {
+                    $update_fields[] = "title = '".$data->title."'";
+                    $logs[]="Title Updated";
+                }
+                if (isset($data->tags)) {
+                    $update_fields[] = "tags = '".$data->tags."'";
+                    $logs[]="Tags Updated";
+                }
+                if (isset($data->description)) {
+                    $update_fields[] = "description = '".$data->description."'";
+                    $logs[]="Description Updated";
+                }
+                if (isset($data->extraction)) {
+                    $update_fields[] = "automatic_variable_extraction_enabled = '".$data->extraction."'";
+                    $logs[]="Extraction Updated";
+                }
+
+                // Update the fields in the database
+                if (!empty($update_fields)) {
+                    $update_query = "UPDATE scripts SET " . implode(", ", $update_fields) . " WHERE script_id = '".$data->script_id."' AND uid = '".$data->uid."'";
+                    $result = mysqli_query($conn, $update_query);
+                }
+
+                $code=json_encode($code);
+
+
                 echo json_encode([
                     "success" => true,
                     "message" => "Updated",
@@ -122,11 +163,13 @@ function CallAPI($method, $url, $data = false)
                 // Assuming $latest_version contains the version to be updated
                 foreach ($manifest[$latest_version] as &$version) {
                     $version["last_edited"] = date("Y-m-d H:i:s");
+                    $version['extraction'] = $data->extraction;
+                    $version['libraries'] = $data->libraries;
                 }
 
                 // Encode the modified array back to JSON
                 $manifest = json_encode($manifest);
-                $query = "UPDATE scripts SET last_edited = NOW(), manifest = '$manifest' WHERE script_id = '".$data->script_id."' AND uid = '".$data->uid."'";
+                $query = "UPDATE scripts SET last_edited = NOW(), manifest = '$manifest', active_files = '$code' WHERE script_id = '".$data->script_id."' AND uid = '".$data->uid."'";
                 $result = mysqli_query($conn, $query);
                 exit;
             }else{
@@ -143,7 +186,7 @@ function CallAPI($method, $url, $data = false)
         }
         if ($data->auto_save == "true") {
             if (!isset($data->script_id)) {
-                if (isset($data->title, $data->tags, $data->description, $data->jsCode, $data->cssCode, $data->readme, $data->libraries)){
+                if (isset($data->title, $data->tags, $data->description, $data->jsCode, $data->cssCode, $data->readme, $data->libraries, $data->extraction)){
                     $data = array(
                         'api_token' => $data->api_token,
                         'title' => $data->title,
@@ -152,7 +195,8 @@ function CallAPI($method, $url, $data = false)
                         'js_code' => $data->jsCode,
                         'css_code' => $data->cssCode,
                         'readme' => $data->readme,
-                        'libraries' => $data->libraries
+                        'libraries' => $data->libraries,
+                        'extraction' => $data->extraction,
                     );
                     $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http";
                     $host = $_SERVER['HTTP_HOST'];
@@ -164,7 +208,7 @@ function CallAPI($method, $url, $data = false)
                         "success" => true,
                         "message" => "New Script Created",
                         "script_id" => $response->data->script_id,
-                        "code" =>  "1"
+                        "code" =>  "1",
                     ]);
                     exit;
                 } else {

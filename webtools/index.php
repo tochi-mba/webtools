@@ -8,7 +8,7 @@ if(isset($_GET['p'], $_GET['lang'], $_GET['u'])) {
     // If they are set, it requires the file 'connect.php'
     require "../connect.php";
     // It sets the variable 'query' to a SQL query that selects the 'authorized_websites' from the 'scripts' table where the 'uid' and 'script_id' match the values in the URL
-    $query = "SELECT `authorized_websites`, `status` FROM `scripts` WHERE uid = '".$_GET['u']."' AND script_id = '".$_GET['p']."'";
+    $query = "SELECT `authorized_websites`, `status`, `automatic_variable_extraction_enabled` FROM `scripts` WHERE uid = '".$_GET['u']."' AND script_id = '".$_GET['p']."'";
     // It runs the query and stores the result in the variable 'result'
     $result = mysqli_query($conn, $query);
     // If the query returns more than 0 rows
@@ -44,7 +44,9 @@ if(isset($_GET['p'], $_GET['lang'], $_GET['u'])) {
                     if($_GET['lang'] == "js") {
                         // It redirects the page to the script file
                         $code = file_get_contents($project_folder."/".$_GET['p'].".js");
-                        require "../jsServe.php";
+                        if ($row['automatic_variable_extraction_enabled'] == 1 or $row['automatic_variable_extraction_enabled'] == "1" or $row['automatic_variable_extraction_enabled'] == "true") {
+                            require "../jsServe.php";
+                        }
                         echo $code;
                         // It adds a log to the 'logs' variable
                         $logs=$logs."console.log('CodeConnect: Script loaded successfully');";

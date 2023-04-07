@@ -21,6 +21,11 @@ if(isset($_GET['script_id'])){
         $row = mysqli_fetch_assoc($result);
         $user_id = $row['uid'];
         if($user_id == $uid){
+            if ($row['automatic_variable_extraction_enabled'] == 'true' or $row['automatic_variable_extraction_enabled'] == 1) {
+                $extractIDE = 'checked';
+            } else {
+                $extractIDE = '';
+            }
             $titleIDE=$row['title'];
             $librariesIDE=$row['libraries'];
             $tagsIDE=$row['tags'];

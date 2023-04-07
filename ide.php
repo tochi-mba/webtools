@@ -357,6 +357,35 @@
     .slider.round:before {
         border-radius: 50%;
     }
+
+    /* Tooltip container */
+    .tooltip {
+        position: relative;
+        display: inline-block;
+        border-bottom: 1px dotted black;
+        /* Add a dotted bottom border */
+    }
+
+    /* Tooltip text */
+    .tooltip .tooltiptext {
+        visibility: hidden;
+        width: 120px;
+        background-color: black;
+        color: white;
+        text-align: center;
+        padding: 5px 0;
+        border-radius: 6px;
+        position: absolute;
+        z-index: 1;
+        bottom: 125%;
+        left: 50%;
+        margin-left: -60px;
+    }
+
+    /* Show the tooltip text when you hover over the tooltip container */
+    .tooltip:hover .tooltiptext {
+        visibility: visible;
+    }
     </style>
     <div class="modal" style="height:100%" id="modalRun">
         <div style="height:100%" class="modal-content">
@@ -391,6 +420,14 @@
 box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="post">
             <label style="margin-top:20px;font-size:12px;color:white" for="title">Title: </label>
             <input style="font-size:12px;width:80%" name="title" value="<?php echo $titleIDE?>" id="title" type="text">
+            <br>
+            <br>
+            <input type="hidden" name="extraction" id="extraction">
+            <input style="" type="checkbox" <?php echo $extractIDE?> id="extractionCheckbox">
+            <label style="font-size:12px;color:white;margin-left:3px" for="extractionParams1">Enable (( ))
+                extraction?</label>
+            <div id="tooltip" style="display:inline-block"><img style="width:15px;cursor:pointer"
+                    src="./assets/images/infoIcon.png" alt="" srcset=""></div>
             <br>
             <br>
             <input style="" type="checkbox" <?php echo $jsIDE?> name="js" id="jsCheckbox">
@@ -430,11 +467,48 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
         </form>
     </div>
     <script>
+    // Get the tooltip element
+    var tooltip = document.getElementById("tooltip");
+
+    // Create a new tooltip text element
+    var tooltipText = document.createElement("span");
+    tooltipText.innerHTML =
+        "Enable (( )) extraction to allow users to customize your script's behavior by passing parameters in the URL query. For example, you can use ((color)) in your script, and the user can set the color by modifying the URL. Our algorithm will extract the value and plug it into your code automatically.";
+    tooltipText.style.display = "none";
+    tooltipText.style.position = "absolute";
+    tooltipText.style.backgroundColor = "black";
+    tooltipText.style.color = "white";
+    tooltipText.style.padding = "5px";
+    tooltipText.style.borderRadius = "5px";
+    tooltipText.style.zIndex = "9999";
+    tooltipText.style.fontSize = "10px";
+    tooltipText.style.width = "100px";
+
+    // Append the tooltip text to the tooltip element
+    tooltip.appendChild(tooltipText);
+
+    // Add a mouseover event listener to show the tooltip
+    tooltip.addEventListener("mouseover", function() {
+        tooltipText.style.display = "block";
+    });
+
+    // Add a mouseout event listener to hide the tooltip
+    tooltip.addEventListener("mouseout", function() {
+        tooltipText.style.display = "none";
+    });
+
     function next() {
         error = [];
         js = document.getElementById('jsCheckbox').checked;
         css = document.getElementById('cssCheckbox').checked;
         title = document.getElementById('title').value;
+        extraction = document.getElementById('extractionCheckbox');
+        extractionVal = document.getElementById('extraction');
+        if (extraction.checked) {
+            extractionVal.value = "true";
+        } else {
+            extractionVal.value = "false";
+        }
         if (title == "") {
             error.push('Title is required');
         }
@@ -445,8 +519,10 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
 
         if (error.length == 0) {
             document.getElementById('choiceBox').submit();
+
         }
     }
+
     librarySelect = document.getElementById('libraries');
     libraryValue = librarySelect.options[librarySelect.selectedIndex];
     libraryShowDiv = document.getElementById('libraryShow');
@@ -508,13 +584,24 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
     </script>
     <div id="ide">
         <center>
+            <?php
+            if (isset($_POST["title"])) {
+?>
+            <input type="hidden" id="extractionTrue" name="extraction" value="<?php echo $_POST['extraction']?>">
+
+            <?php            } else {
+                $titleIDE = "CodeConnect Config";
+            }
+            ?>
             <h5 id="fullTitle" style="color:white;margin:0">
                 <?php echo ucwords($_POST["title"]);?><?php echo  ($page == "edit" ? " - ".$version : "")?></h5>
             <script>
             <?php 
                 if (isset($_POST["title"])) {
                     ?>
-            document.getElementsByTagName('title')[0].innerHTML = document.getElementById('fullTitle').innerText+" - CodeConnect Editor";
+
+            document.getElementsByTagName('title')[0].innerHTML = document.getElementById('fullTitle').innerText +
+                " - CodeConnect Editor";
 
             <?php                
                 } else {
@@ -617,6 +704,14 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
 
                     if (script_idSave.value !== "") { // Check if the script ID is not empty
                         data.script_id = script_idSave.value;
+                        data.title = "<?php echo $_POST['title']?>";
+                        data.tags = '<?php echo $_POST['tags']?>';
+                        data.description = "";
+                        data.jsCode = editor.getValue();
+                        data.cssCode = editorCss.getValue();
+                        data.readme = editorReadme.getValue();
+                        data.libraries = '<?php echo $_POST['librariesSave']?>';
+                        data.extraction = '<?php echo $_POST['extraction']?>';
                     } else {
                         data.title = "<?php echo $_POST['title']?>";
                         data.tags = '<?php echo $_POST['tags']?>';
@@ -625,6 +720,7 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
                         data.cssCode = editorCss.getValue();
                         data.readme = editorReadme.getValue();
                         data.libraries = '<?php echo $_POST['librariesSave']?>';
+                        data.extraction = '<?php echo $_POST['extraction']?>';
                     }
 
                     function saveScriptId(response) {
@@ -657,9 +753,16 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
                         api_token: "<?php echo $_SESSION['api_token']?>",
                         uid: "<?php echo $_SESSION['uid']?>",
                     };
+                    data.title = "<?php echo $_POST['title']?>";
+                    data.tags = '<?php echo $_POST['tags']?>';
+                    data.description = "";
+                    data.jsCode = editor.getValue();
+                    data.cssCode = editorCss.getValue();
+                    data.readme = editorReadme.getValue();
+                    data.libraries = '<?php echo $_POST['librariesSave']?>';
+                    data.extraction = '<?php echo $_POST['extraction']?>';
 
                     function saveScriptId(response) {
-
                         response = JSON.parse(response);
                         script_idSave.value = response['script_id'];
                     }
@@ -681,6 +784,14 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
                         api_token: "<?php echo $_SESSION['api_token']?>",
                         uid: "<?php echo $_SESSION['uid']?>",
                     };
+                    data.title = "<?php echo $_POST['title']?>";
+                    data.tags = '<?php echo $_POST['tags']?>';
+                    data.description = "";
+                    data.jsCode = editor.getValue();
+                    data.cssCode = editorCss.getValue();
+                    data.readme = editorReadme.getValue();
+                    data.libraries = '<?php echo $_POST['librariesSave']?>';
+                    data.extraction = '<?php echo $_POST['extraction']?>';
                     if (type === "js") {
                         data.jsCode = code;
                     } else if (type === "css") {
@@ -693,7 +804,6 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
                     const url = baseUrl + "/api/private/save_project_js/";
 
                     function status(response) {
-                        console.log(response)
                         response = JSON.parse(response);
                         if (response['success'] === true) {
 
@@ -742,6 +852,7 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
 
             </div>
         </div>
+
         <div id="code-viewer">
             <pre><form id="codeForm" method="post"><input type="hidden" value="<?php echo (isset($_POST["librariesSave"]) ? $_POST["librariesSave"] : ''); ?>" id="editorLibraries" name="librarySave"><input type="hidden" name="projectTitle" value="<?php echo $_POST["title"]?>"><input type="hidden" name="tags" value="<?php echo $_POST["tags"]?>"><div id="js-code" ondrop="handleDrop(event)" ondragover="handleDragOver(event)"><textarea id="code" placeholder="Type your code here..."><?php echo $jsCodeIDE?></textarea></div><div id="css-code" ondrop="handleDrop(event)" ondragover="handleDragOver(event)"><textarea id="codeCss" placeholder="Type your code here..."><?php echo $cssCodeIDE?></textarea></div><div id="readme" ondrop="handleDrop(event)" ondragover="handleDragOver(event)"><textarea id="codeReadme" placeholder="Type your code here..."><?php echo $readmeCodeIDE?></textarea></div></form></pre>
         </div>
@@ -749,8 +860,8 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
     </div> <?php
     if (isset($_POST["title"])) {
         ?> <script>
-    document.getElementById("ide").style.display = "block";
     document.getElementById("modal").style.display = "none";
+    document.getElementById("ide").style.display = "block";
     </script> <?php
     }
     ?> <script>
@@ -981,6 +1092,7 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
         var codeCss = editorCss.getValue();
         var codeReadme = editorReadme.getValue();
         var editorLibraries = document.getElementById("editorLibraries").value;
+        var extraction = document.getElementById("extractionTrue").value
         //Create hidden inputs
         var form = document.getElementById('codeForm');
         var hiddenInput1 = document.createElement("input");
@@ -997,6 +1109,11 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
         hiddenInput3.setAttribute("type", "hidden");
         hiddenInput3.setAttribute("name", "codeReadme");
         hiddenInput3.setAttribute("value", codeReadme);
+        form.appendChild(hiddenInput3);
+        var hiddenInput3 = document.createElement("input");
+        hiddenInput3.setAttribute("type", "hidden");
+        hiddenInput3.setAttribute("name", "extraction");
+        hiddenInput3.setAttribute("value", extraction);
         form.appendChild(hiddenInput3);
         //Submit the form
         form.submit();
@@ -1025,7 +1142,10 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
     // Open the modal
     function openModal() {
         var scriptString = editor.getValue();
-        // Get the variables from the script string
+
+        <?php
+        if (isset($_POST['extraction']) && $_POST['extraction'] == "true" or $_POST['extraction'] == "1") {
+            ?>
         var variablesArray = scriptString.match(/\(\((.*?)\)\)/g);
         if (variablesArray != null) {
             let i = 0;
@@ -1048,7 +1168,6 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
             });
         }
         iframe.src = "./test_suite/index.php";
-        var scriptString = editor.getValue();
         let regex = /\(\(([\w\s]+)\)\)/;
         scriptString = scriptString.replace(regex, "$1");
         let i = 1;
@@ -1061,6 +1180,15 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
             i++;
         }
         scriptString = string + scriptString;
+        <?php
+        }else{
+            ?>
+        iframe.src = "./test_suite/index.php";
+        var scriptString = editor.getValue();
+        <?php
+        }
+        ?>
+
 
         iframe.onload = () => {
             // Append the script tag to the iframe's innerHTML
@@ -1168,7 +1296,8 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
              'title' => $_POST["projectTitle"],
              'description' => "",
              'tags' => $_POST["tags"],
-             'libraries' => $_POST["librarySave"]
+             'libraries' => $_POST["librarySave"],
+             'extraction' => $_POST["extraction"],
          );
          $url=$website."/api/update/";
          // Call API
@@ -1195,7 +1324,8 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
                 'js_code' => $_POST["code"],
                 'css_code' => $_POST["codeCss"],
                 'readme' => $_POST["codeReadme"],
-                'libraries' => $_POST["librarySave"]
+                'libraries' => $_POST["librarySave"],
+                'extraction' => $_POST["extraction"],
             );
             $url=$website."/api/create/";
             $response=CallAPI("POST", $url, $data);
@@ -1218,6 +1348,16 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
         document.querySelector(".loadingScreen").style.display = "none";
     });
     </script>
+    <?php
+            if (isset($_POST['title'])){
+                ?>
+    <script>
+    updateScript("readme", editorReadme.getValue());
+    </script>
+
+    <?php
+            }
+            ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous">
     </script>

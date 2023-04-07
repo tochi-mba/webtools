@@ -60,6 +60,11 @@ if (isset($data['api_token'])) {
             } else {
                 $libraries = "";
             }
+            if(isset($data["extraction"])) {
+                $extraction = $data["extraction"];
+            } else {
+                $extraction = false;
+            }
 
             // Dictionary that will keep track of which POST is empty and which one is active
             $post_status = array();
@@ -97,7 +102,8 @@ if (isset($data['api_token'])) {
                 "status" => "private",
                 "last_edited" => date("Y-m-d H:i:s"),
                 "release_date" => "unreleased",
-                "authorized_websites" => array()
+                "authorized_websites" => array(),
+                "extraction" => $extraction,
             ]);
             $manifest = json_encode($manifest);
             // Check to see if the "code" POST is active and create a .js file
@@ -130,9 +136,8 @@ if (isset($data['api_token'])) {
 
             // Close the file
             fclose($readme_file);
-
             $post_status = json_encode($post_status);
-            $sql = "INSERT INTO scripts (ID, script_id, uid, active_files, date_created, last_edited, version, title, tags, category, description, libraries, manifest) VALUES (NULL, '$unique_id', '$uid', '$post_status ', NOW(), NOW(), 'v1', '$title', '$tags', '', '$description', '$libraries', '$manifest');";
+            $sql = "INSERT INTO scripts (ID, script_id, uid, active_files, date_created, last_edited, version, title, tags, category, description, libraries, manifest, automatic_variable_extraction_enabled) VALUES (NULL, '$unique_id', '$uid', '$post_status ', NOW(), NOW(), 'v1', '$title', '$tags', '', '$description', '$libraries', '$manifest', $extraction);";
             if (mysqli_query($conn, $sql)) {
                 echo json_encode([
                     "success" => true,
@@ -148,7 +153,8 @@ if (isset($data['api_token'])) {
                         "libraries" => $libraries,
                         "version" => "v1",
                         "date_created" => date("Y-m-d H:i:s"),
-                        "status" => "private"
+                        "status" => "private",
+                        "extraction" => $extraction,
                     ]
                 ]);
             } else {

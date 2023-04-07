@@ -7,7 +7,7 @@
   background: none;
   color: white;
   padding: 10px;
-  z-index: 12;
+  z-index: 200;
   font-family: 'Roboto Mono', monospace;
   margin-bottom: 10px;
 }
