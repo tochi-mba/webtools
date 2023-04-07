@@ -11,7 +11,7 @@
         font-size: 14px;
         margin: 0;
         padding: 0;
-        background: #1E1F1F !important;
+        background: #18181B !important;
     }
 
     #editor {
@@ -98,7 +98,7 @@
     #tabs {
         display: flex;
         flex-direction: row;
-        background-color: #1E1F1F;
+        background-color: #18181B;
         padding: 10px;
         padding-bottom: 0;
     }
@@ -125,7 +125,7 @@
     #code-viewer {
         flex: 1;
         padding: 10px;
-        background-color: #1E1F1F;
+        background-color: #18181B;
         overflow-y: auto;
         height: 100%;
         padding-top: 0;
@@ -249,7 +249,7 @@
 ?> <style>
     .nvbar {
         position: relative;
-        background: #1E1F1F;
+        background: #18181B;
     }
 
     #ide {
@@ -389,7 +389,7 @@
     </style>
     <div class="modal" style="height:100%" id="modalRun">
         <div style="height:100%" class="modal-content">
-            <div style="background-color:#1E1F1F;color:white">
+            <div style="background-color:#18181B;color:white">
                 <span style="cursor:pointer;font-size:30px;padding:0;width:fit-content;height:fit-content"
                     class="close-modal">&times;</span>
                 <div style="float:right; display:inline;margin:0;margin-right:20px;top:20%" id="variables"></div>
@@ -398,7 +398,7 @@
             <iframe id="iframe" width="100%" height="100%"></iframe>
 
             </script>
-            <div class="input-container" style="background-color:#1E1F1F">
+            <div class="input-container" style="background-color:#18181B">
                 <button style="border-radius:5px;width:fit-content;padding:5px;margin-top:10px;margin-bottom:10px"
                     type="button" onclick='window.open("./test_suite/edit.php", "_blank");'>Edit Test Suite</button>
                 <button style="border-radius:5px;width:fit-content;padding:5px" id="go">Go</button>

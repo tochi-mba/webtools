@@ -1,5 +1,5 @@
 <div class="card project" onmouseout="hide<?php echo $project['script_id']?>()"
-    onmouseover="show<?php echo $project['script_id']?>()" onclick="console.log('hi')"
+    onmouseover="show<?php echo $project['script_id']?>()" ondblclick="window.location.href='./versions.php?script_id=<?php echo $project['script_id']?>'"
     style="position:relative;box-shadow: 0px var(--card-box-shadow-1-y) var(--card-box-shadow-1-blur) var(--card-box-shadow-1), 0px var(--card-box-shadow-2-y) var(--card-box-shadow-2-blur) var(--card-box-shadow-2), 0 0 0 1px rgba(<?php echo $color;?>, 0.5);">
     <input class="selected" name="<?php echo $project['script_id']?>" id="select_<?php echo $project['script_id']?>" type="checkbox"
         style="display:none;position:absolute;top:15px;left:15px;z-index:99;width:15px;height:15px"
@@ -52,7 +52,7 @@ foreach ($libraries as $key => $value) {
         <div class="versionTags" style="background-color:<?php echo $versionNumberColors[$version]?>">
             <?php echo $version?></div>
     </div>
-    <div id="<?php echo $project['script_id']?>"
+    <div onclick="event.stopPropagation();" id="<?php echo $project['script_id']?>"
         style="position:absolute;bottom: 10px;right:10px;z-index:2;pointer:cursor">
         <img style="width:40px" src="./assets/images/embed.png" alt="" srcset="">
     </div>

@@ -13,7 +13,7 @@ require "is_logged.php";
         integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <style>
     body {
-        background: #1E1F1F !important;
+        background: #18181B !important;
         color: #eee;
         font-family: sans-serif;
         font-size: 1rem;
@@ -580,7 +580,45 @@ body {
     body {
         user-select: none;
     }
+
+    .search-container {
+        display: inline-block;
+        position: relative;
+    }
+
+    .search-container input[type=search] {
+        border-radius: 15px;
+        padding: 10px 15px 10px 35px;
+        border: none;
+        width: 300px;
+        height: 40px;
+        font-size: 16px;
+        background-color: #f2f2f2;
+        transition: all 0.3s;
+    }
+
+    .search-container input[type=search]:focus {
+        outline: none;
+        box-shadow: 0 0 5px #2196F3;
+        background-color: #fff;
+    }
+
+    .search-container .search-icon {
+        position: absolute;
+        top: 10%;
+        right: 0;
+        font-size: 25px !important;
+        color: #999;
+        transition: all 0.3s;
+    }
+
+    .search-container input[type=search]:focus+.search-icon {
+        color: #2196F3;
+    }
     </style>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
 </head>
 
 <body>
@@ -589,7 +627,7 @@ body {
     ?>
     <style>
     .nvbar {
-        background-color: #1e1e1e;
+        background-color: #18181B;
     }
     </style>
     <?php
@@ -811,9 +849,14 @@ if (isset($_GET['sort'])) {
 
     <form style="padding-top:30px" method="get">
         <div
-            style="background-color:#1E1F1F;padding-top:40px;padding-bottom:15px;width: 100%; z-index: 99; position: fixed; top: 50px;text-align:center">
-            <input type="search" name="q" id="" value="<?php echo (isset($_GET['q']) ? $_GET['q'] : "")?>"
-                style="display: inline-block;">
+            style="background-color:#18181B;padding-top:40px;padding-bottom:15px;width: 100%; z-index: 99; position: fixed; top: 50px;text-align:center">
+            <div class="search-container">
+                <input type="search" name="q" id="" value="<?php echo (isset($_GET['q']) ? $_GET['q'] : "")?>"
+                    placeholder="Search...">
+                <i class="w3-xxxlarge w3-padding-small w3-margin-right search-icon fa fa-search"></i>
+            </div>
+
+
             <div id="selectedProjects"
                 style="visibility:hidden;height: 40px; text-align: center; display: inline-block; justify-content: center; align-items: center;margin-left:20px">
                 <h1 id="selectedAmount" style="font-size: 16px;">1 Selected</h1>
@@ -1027,7 +1070,7 @@ if (is_dir($dir)) {
     require "versionTagColors.php";
     ?>
 
-    <div style="border-radius:15px;background-color:#2E2F2F;top:151px;height:100%;width:77%;position:fixed;right:1%">
+    <div style="border-radius:15px;background-color:#2B2B2D;top:145px;height:100%;width:77%;position:fixed;right:1%">
 
     </div>
     <div class="placeholder">
@@ -1122,11 +1165,11 @@ if (file_exists("./libraries/libraries.json")) {
 
     </div>
     <div class="embedModal"
-        style="padding:5px;border-radius:15px;background-color: #1e1e1e;visibility:hidden;width:50%;height:70%;border:solid grey 2px;position:fixed;top:25%;right:25%;z-index:101">
+        style="padding:5px;border-radius:15px;background-color: #18181B;visibility:hidden;width:50%;height:70%;border:solid grey 2px;position:fixed;top:25%;right:25%;z-index:101">
         <span id="closeEmbedModal"
             style="position:absolute;top:0px;right:10px;float:right;font-size:30px;cursor:pointer;z-index:999;color:white;">&times;</span>
         <div id="instructionsTitleContainer"
-            style="padding:5px;text-align:center;background-color: #1e1e1e;width:98%;position:absolute;top:2px;z-index:99;border-radius:10px">
+            style="padding:5px;text-align:center;background-color: #18181B;width:98%;position:absolute;top:2px;z-index:99;border-radius:10px">
             <h5 style="display:inline-block;" id="instructionTitle"></h5>
             <div id="instructionsTitleVersion" style="display:inline-block;width:fit-content"></div>
         </div>
