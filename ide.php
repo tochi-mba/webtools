@@ -147,7 +147,7 @@
     }
 
     .CodeMirror-scroll {
-        padding-bottom: 0
+        padding-bottom: 0;
     }
 
     .CodeMirror {
@@ -209,6 +209,11 @@
     #modalRun {
         width: 100vw;
         height: 100vh;
+
+    }
+
+    .slide-out {
+        animation: slideOut 1s ease forwards;
     }
     </style>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -386,13 +391,27 @@
     .tooltip:hover .tooltiptext {
         visibility: visible;
     }
+
+    @keyframes slideOut {
+        from {
+            transform: translateX(0%);
+        }
+
+        to {
+            transform: translateX(100%);
+            display: none;
+        }
+    }
     </style>
     <div class="modal" style="height:100%" id="modalRun">
         <div style="height:100%" class="modal-content">
-            <div style="background-color:#18181B;color:white">
+            <div style="background-color:#18181B;color:white;height:auto">
                 <span style="cursor:pointer;font-size:30px;padding:0;width:fit-content;height:fit-content"
                     class="close-modal">&times;</span>
-                <div style="float:right; display:inline;margin:0;margin-right:20px;top:20%" id="variables"></div>
+                <div style="float:right; display:inline;margin:0;margin-right:20px;top:20%;word-wrap: break-word;background-color:#18181B;"
+                    id="modules"></div>
+
+                <div style="float:right;margin:0;margin-right:20px;top:20%;" id="variables"></div>
 
             </div>
             <iframe id="iframe" width="100%" height="100%"></iframe>
@@ -429,11 +448,16 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
             <div id="tooltip" style="display:inline-block"><img style="width:15px;cursor:pointer"
                     src="./assets/images/infoIcon.png" alt="" srcset=""></div>
             <br>
-            <br>
-            <input style="" type="checkbox" <?php echo $jsIDE?> name="js" id="jsCheckbox">
+            <input style="" onchange="showjsTypes()" type="checkbox" <?php echo $jsIDE?> name="js" id="jsCheckbox">
             <label style="font-size:12px;color:white;margin-left:3px" for="js">Include JS?</label>
             <br>
+            <div id="typeSelect" style="display:none">
+            <input type="hidden" name="type" id="type">
+            <input name="type1" style="" type="checkbox" <?php echo $moduleIDE?> id="typeCheckbox">
+            <label style="font-size:12px;color:white;margin-left:3px" for="type1">JS Module?</label>
             <br>
+            </div>
+           
             <input style="" type="checkbox" <?php echo $cssIDE?> name="css" id="cssCheckbox">
             <label style="font-size:12px;color:white;margin-left:3px" for="css">Include CSS?</label>
             <br>
@@ -467,6 +491,15 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
         </form>
     </div>
     <script>
+    function showjsTypes(){
+        if(document.getElementById("jsCheckbox").checked){
+            document.getElementById("typeSelect").style.display = "block";
+        }else{
+            document.getElementById("typeSelect").style.display = "none";
+            document.getElementById("typeCheckbox").checked = false;
+        }
+    }
+
     // Get the tooltip element
     var tooltip = document.getElementById("tooltip");
 
@@ -496,6 +529,14 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
     tooltip.addEventListener("mouseout", function() {
         tooltipText.style.display = "none";
     });
+    document.getElementById("title").onkeyup = function() {
+        let title = document.getElementById("title").value;
+        let titleShow = document.getElementById("titleShow");
+        let words = title.split(" ");
+        let capitalizedWords = words.map(word => word.charAt(0).toUpperCase() + word.slice(1));
+        titleShow.innerHTML = capitalizedWords.join(" ");
+        document.getElementsByTagName("title")[0].innerText = titleShow.innerHTML + " - CodeConnect Config";
+    }
 
     function next() {
         error = [];
@@ -504,6 +545,13 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
         title = document.getElementById('title').value;
         extraction = document.getElementById('extractionCheckbox');
         extractionVal = document.getElementById('extraction');
+        type = document.getElementById('typeCheckbox');
+        typeVal = document.getElementById('type');
+        if (type.checked) {
+            typeVal.value = "module";
+        } else {
+            typeVal.value = "";
+        }
         if (extraction.checked) {
             extractionVal.value = "true";
         } else {
@@ -712,6 +760,7 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
                         data.readme = editorReadme.getValue();
                         data.libraries = '<?php echo $_POST['librariesSave']?>';
                         data.extraction = '<?php echo $_POST['extraction']?>';
+                        data.type = "<?php echo $_POST['type']?>";
                     } else {
                         data.title = "<?php echo $_POST['title']?>";
                         data.tags = '<?php echo $_POST['tags']?>';
@@ -721,6 +770,8 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
                         data.readme = editorReadme.getValue();
                         data.libraries = '<?php echo $_POST['librariesSave']?>';
                         data.extraction = '<?php echo $_POST['extraction']?>';
+                        data.type = "<?php echo $_POST['type']?>";
+
                     }
 
                     function saveScriptId(response) {
@@ -761,6 +812,8 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
                     data.readme = editorReadme.getValue();
                     data.libraries = '<?php echo $_POST['librariesSave']?>';
                     data.extraction = '<?php echo $_POST['extraction']?>';
+                    data.type = "<?php echo $_POST['type']?>";
+
 
                     function saveScriptId(response) {
                         response = JSON.parse(response);
@@ -792,6 +845,8 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
                     data.readme = editorReadme.getValue();
                     data.libraries = '<?php echo $_POST['librariesSave']?>';
                     data.extraction = '<?php echo $_POST['extraction']?>';
+                    data.type = "<?php echo $_POST['type']?>";
+
                     if (type === "js") {
                         data.jsCode = code;
                     } else if (type === "css") {
@@ -832,6 +887,22 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
             </script>
             <input value="<?php echo (isset($_GET['script_id']) ? $_GET['script_id'] : "")?>" type="hidden"
                 id="script_idSave">
+            <?php
+                if ($page == "edit"){
+                   if ($moduleIDE == "checked"){
+                    $moduleIDE = "true";
+                   }else{
+                    $moduleIDE = "false";
+                   }
+                }elseif($page == "new"){
+                    if ($_POST['type'] == "module"){
+                        $moduleIDE = "true";
+                       }else{
+                        $moduleIDE = "false";
+                       }
+                }
+                ?>
+
             <a href="#" data-tab="readme" id="readmeTab">README</a>
             <div id="test-button-container">
                 <button style="float:right !important;text-align:right;background:none;border:none"
@@ -853,11 +924,13 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
             </div>
         </div>
 
+
         <div id="code-viewer">
-            <pre><form id="codeForm" method="post"><input type="hidden" value="<?php echo (isset($_POST["librariesSave"]) ? $_POST["librariesSave"] : ''); ?>" id="editorLibraries" name="librarySave"><input type="hidden" name="projectTitle" value="<?php echo $_POST["title"]?>"><input type="hidden" name="tags" value="<?php echo $_POST["tags"]?>"><div id="js-code" ondrop="handleDrop(event)" ondragover="handleDragOver(event)"><textarea id="code" placeholder="Type your code here..."><?php echo $jsCodeIDE?></textarea></div><div id="css-code" ondrop="handleDrop(event)" ondragover="handleDragOver(event)"><textarea id="codeCss" placeholder="Type your code here..."><?php echo $cssCodeIDE?></textarea></div><div id="readme" ondrop="handleDrop(event)" ondragover="handleDragOver(event)"><textarea id="codeReadme" placeholder="Type your code here..."><?php echo $readmeCodeIDE?></textarea></div></form></pre>
+            <pre><form id="codeForm" method="post"><input type="hidden" value="<?php echo (isset($_POST["librariesSave"]) ? $_POST["librariesSave"] : ''); ?>" id="editorLibraries" name="librarySave"><input type="hidden" name="projectTitle" value="<?php echo $_POST["title"]?>"><input type="hidden" name="tags" value="<?php echo $_POST["tags"]?>"><div id="js-code" ><textarea id="code" placeholder="Type your code here..."><?php echo $jsCodeIDE?></textarea></div><div id="css-code"><textarea id="codeCss" placeholder="Type your code here..."><?php echo $cssCodeIDE?></textarea></div><div id="readme" ><textarea id="codeReadme" placeholder="Type your code here..."><?php echo $readmeCodeIDE?></textarea></div></form></pre>
         </div>
 
-    </div> <?php
+    </div>
+    <?php
     if (isset($_POST["title"])) {
         ?> <script>
     document.getElementById("modal").style.display = "none";
@@ -865,14 +938,80 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
     </script> <?php
     }
     ?> <script>
-    document.getElementById("title").onkeyup = function() {
-        let title = document.getElementById("title").value;
-        let titleShow = document.getElementById("titleShow");
-        let words = title.split(" ");
-        let capitalizedWords = words.map(word => word.charAt(0).toUpperCase() + word.slice(1));
-        titleShow.innerHTML = capitalizedWords.join(" ");
-        document.getElementsByTagName("title")[0].innerText = titleShow.innerHTML + " - CodeConnect Config";
+    function uploadFile(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const files = e.dataTransfer.files;
+        const formData = new FormData();
+        const scriptId = document.getElementById('script_idSave').value;
+        formData.append('file', files[0]);
+        formData.append('api_token', '<?php echo $_SESSION['api_token']; ?>');
+        formData.append('uid', '<?php echo $_SESSION['uid']; ?>');
+        formData.append('script_id', scriptId);
+        formData.append('version', '<?php echo $version ?>');
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', '/api/private/drop_file_js/', true);
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                response = JSON.parse(xhr.responseText);
+                if (response.success == true) {
+                    if (response.type == 'css') {
+                        const css = document.getElementById('cssTab');
+                        if (css) {
+
+                            location.reload();
+                        } else {
+                            <?php 
+                                if($page == "edit") {
+                                ?>
+                            window.history.back();
+                            <?php
+                                }elseif($page == "new"){
+                                    ?>
+                            window.location.href = 'edit.php?script_id='+scriptId;
+                            <?php
+                                }
+                                ?>
+                        }
+                    } else if (response.type == 'js') {
+                        const js = document.getElementById('jsTab');
+                        if (js) {
+                            location.reload();
+                        } else {
+                            <?php 
+                                if($page == "edit") {
+                                ?>
+                            window.history.back();
+                            <?php
+                                }elseif($page == "new"){
+                                    ?>
+                            window.location.href = 'edit.php?script_id='+scriptId;
+                            <?php
+                                }
+                                ?>
+                        }
+                    } else {
+                        location.reload();
+                    }
+
+
+
+                }
+                // Handle the response from the API
+            } else {
+                failedUpload(xhr.responseText);
+            }
+        };
+
+        xhr.send(formData);
     }
+
+    function dragOver(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        e.dataTransfer.dropEffect = 'upload';
+    }
+
     window.onload = function() {
 
         document.getElementById("css-code").style.display = "none";
@@ -955,23 +1094,15 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
         }
 
     });
+    editor.on("dragover", (editor, e) => {
+        dragOver(e);
+    });
 
-    function handleDrop(e) {
-        e.stopPropagation();
-        e.preventDefault();
-        var files = e.dataTransfer.files;
-        var reader = new FileReader();
-        reader.onload = function(e) {
-            document.getElementById("code").value = e.target.result;
-        }
-        reader.readAsText(files[0]);
-    }
+    editor.on("drop", (editor, e) => {
+        uploadFile(e);
 
-    function handleDragOver(e) {
-        e.stopPropagation();
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
-    }
+    });
+
     //CSS ide
     var editorCss = CodeMirror.fromTextArea(document.getElementById("codeCss"), {
         lineNumbers: true,
@@ -1016,22 +1147,14 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
 
     });
 
-    function handleDrop(e) {
-        e.stopPropagation();
-        e.preventDefault();
-        var files = e.dataTransfer.files;
-        var reader = new FileReader();
-        reader.onload = function(e) {
-            document.getElementById("codeCss").value = e.target.result;
-        }
-        reader.readAsText(files[0]);
-    }
+    editorCss.on("dragover", (editorCss, e) => {
+        dragOver(e);
+    });
 
-    function handleDragOver(e) {
-        e.stopPropagation();
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
-    }
+    editorCss.on("drop", (editorCss, e) => {
+        uploadFile(e);
+
+    });
     //readme ide
     var editorReadme = CodeMirror.fromTextArea(document.getElementById("codeReadme"), {
         lineNumbers: true,
@@ -1070,21 +1193,49 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
 
     });
 
-    function handleDrop(e) {
-        e.stopPropagation();
-        e.preventDefault();
-        var files = e.dataTransfer.files;
-        var reader = new FileReader();
-        reader.onload = function(e) {
-            document.getElementById("codeReadme").value = e.target.result;
-        }
-        reader.readAsText(files[0]);
-    }
+    editorReadme.on("dragover", (editorReadme, e) => {
+        dragOver(e);
+    });
 
-    function handleDragOver(e) {
-        e.stopPropagation();
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
+    editorReadme.on("drop", (editorReadme, e) => {
+        uploadFile(e);
+
+    });
+
+    function copyToClipboard(text, button) {
+        // Create a new hidden textarea element
+        const tempInput = document.createElement('textarea');
+        tempInput.style.opacity = "0";
+        tempInput.style.position = "absolute";
+        tempInput.style.left = "-9999px";
+
+        // Set the value of the temporary textarea element to the text to be copied
+        tempInput.value = text;
+
+        // Append the temporary textarea element to the document body
+        document.body.appendChild(tempInput);
+
+        // Select the text in the temporary textarea element
+        tempInput.select();
+
+        // Copy the selected text to the clipboard
+        const copySuccessful = document.execCommand('copy');
+
+        // Remove the temporary textarea element from the document body
+        document.body.removeChild(tempInput);
+
+        // Change the button text to "code copied"
+        button.innerHTML =
+            `<svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><polyline points="20 6 9 17 4 12"></polyline></svg> Copied!`;
+
+        // Delay changing the button text back to "copy" by 1 second
+        setTimeout(() => {
+            button.innerHTML =
+                `<svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg> Copy`;
+        }, 2000);
+
+        // Return true if the copy was successful, false otherwise
+        return copySuccessful;
     }
 
     function submitForm() {
@@ -1120,6 +1271,7 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
     }
     const modal = document.getElementById('modalRun');
     const closeModal = document.querySelector('.close-modal');
+
     const iframe = document.getElementById('iframe');
     const link = document.getElementById('link');
     const variables = document.getElementById('variables');
@@ -1141,6 +1293,7 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
     // Create the inputs for the variables
     // Open the modal
     function openModal() {
+        document.getElementById("modalRun").classList.remove('slide-out');;
         var scriptString = editor.getValue();
 
         <?php
@@ -1189,10 +1342,54 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
         }
         ?>
 
-
+        reloaded = false;
         iframe.onload = () => {
             // Append the script tag to the iframe's innerHTML
-            iframe.contentWindow.eval(scriptString);
+            //module
+
+            scriptId = document.getElementById('script_idSave').value;
+
+            moduleSelect = <?php echo $moduleIDE?>;
+
+            if (moduleSelect && scriptId != "") {
+
+                const baseUrl = window.location.protocol + "//" + window.location.hostname;
+                const url = baseUrl + "/api/private/module_handle_js/";
+                // Set the input parameters
+                const apiToken = '<?php echo $_SESSION['api_token']; ?>';
+                const uid = '<?php echo $_SESSION['uid']; ?>';
+                scriptId = scriptId;
+                const moduleOpen = true;
+                const jsCode = scriptString;
+
+                // Create the request body JSON object
+                const data = {
+                    api_token: apiToken,
+                    uid: uid,
+                    script_id: scriptId,
+                    moduleOpen: moduleOpen,
+                    jsCode: jsCode
+                };
+                makeApiRequest("POST", url, data)
+                    .then((response) => {})
+                    .catch((error) => console.error(error));
+                document.getElementById('modules').innerHTML =
+                    `<button style="z-index:2;background:none;border:none;color:white" onclick="copyToClipboard(\`` +
+                    `import {YOUR_MODULE} from '` +
+                    baseUrl +
+                    `/scripts/<?php echo $_SESSION['uid']; ?>_private/<?php echo $_SESSION['uid']; ?>_module.js'` +
+                    `\`,this)"><svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg> Copy </button>   <div style="border:solid grey 1px;display:inline-block">import {YOUR_MODULE} from '` +
+                    baseUrl +
+                    `/scripts/<?php echo $_SESSION['uid']; ?>_private/<?php echo $_SESSION['uid']; ?>_module.js'</div>`;
+                if (!reloaded) {
+                    iframe.contentWindow.location.reload();
+                    reloaded = true;
+                }
+            } else {
+                iframe.contentWindow.eval(scriptString);
+
+            }
+
             let css = document.createElement('style');
             css.innerHTML = editorCss.getValue();
             iframe.contentWindow.document.head.appendChild(css);
@@ -1201,8 +1398,26 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
     }
     // Close the modal
     closeModal.addEventListener('click', () => {
-        modal.style.display = 'none';
+        document.getElementById("modalRun").classList.add('slide-out');
         document.getElementById('variables').innerHTML = '';
+        const baseUrl = window.location.protocol + "//" + window.location.hostname;
+        const url = baseUrl + "/api/private/module_handle_js/";
+        // Set the input parameters
+        const apiToken = '<?php echo $_SESSION['api_token']; ?>';
+        const uid = '<?php echo $_SESSION['uid']; ?>';
+        scriptId = scriptId;
+        const moduleOpen = false;
+
+        // Create the request body JSON object
+        const data = {
+            api_token: apiToken,
+            uid: uid,
+            script_id: scriptId,
+            moduleOpen: moduleOpen
+        };
+        makeApiRequest("POST", url, data)
+            .then((response) => {})
+            .catch((error) => console.error(error));
     });
     window.onload = function() {
         closeModal.click();
@@ -1226,7 +1441,48 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
 
         iframe.onload = () => {
             // Append the script tag to the iframe's innerHTML
-            iframe.contentWindow.eval(scriptString);
+            //module
+
+            scriptId = document.getElementById('script_idSave').value;
+            moduleSelect = <?php echo $moduleIDE?>;
+            if (moduleSelect && scriptId != "") {
+
+                const baseUrl = window.location.protocol + "//" + window.location.hostname;
+                const url = baseUrl + "/api/private/module_handle_js/";
+                // Set the input parameters
+                const apiToken = '<?php echo $_SESSION['api_token']; ?>';
+                const uid = '<?php echo $_SESSION['uid']; ?>';
+                scriptId = scriptId;
+                const moduleOpen = true;
+                const jsCode = scriptString;
+
+                // Create the request body JSON object
+                const data = {
+                    api_token: apiToken,
+                    uid: uid,
+                    script_id: scriptId,
+                    moduleOpen: moduleOpen,
+                    jsCode: jsCode
+                };
+                makeApiRequest("POST", url, data)
+                    .then((response) => {})
+                    .catch((error) => console.error(error));
+                document.getElementById('modules').innerHTML =
+                    `<button style="z-index:2;background:none;border:none;color:white" onclick="copyToClipboard(\`` +
+                    `import {YOUR_MODULE} from '` +
+                    baseUrl +
+                    `/scripts/<?php echo $_SESSION['uid']; ?>_private/<?php echo $_SESSION['uid']; ?>_module.js'` +
+                    `\`,this)"><svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg> Copy </button>   <div style="border:solid grey 1px;display:inline-block">import {YOUR_MODULE} from '` +
+                    baseUrl +
+                    `/scripts/<?php echo $_SESSION['uid']; ?>_private/<?php echo $_SESSION['uid']; ?>_module.js'</div>`;
+                if (!reloaded) {
+                    iframe.contentWindow.location.reload();
+                    reloaded = true;
+                }
+            } else {
+                iframe.contentWindow.eval(scriptString);
+
+            }
             const css = document.createElement('style');
             css.innerHTML = editorCss.getValue();
             iframe.contentWindow.document.head.appendChild(css);
@@ -1346,6 +1602,8 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
 ?> <script>
     window.addEventListener("load", function() {
         document.querySelector(".loadingScreen").style.display = "none";
+
+        autoSaveToggle();
     });
     </script>
     <?php

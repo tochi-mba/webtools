@@ -65,6 +65,11 @@ if (isset($data['api_token'])) {
             } else {
                 $extraction = false;
             }
+            if(isset($data["type"])) {
+                $type = $data["type"];
+            } else {
+                $type = "";
+            }
 
             // Dictionary that will keep track of which POST is empty and which one is active
             $post_status = array();
@@ -137,7 +142,8 @@ if (isset($data['api_token'])) {
             // Close the file
             fclose($readme_file);
             $post_status = json_encode($post_status);
-            $sql = "INSERT INTO scripts (ID, script_id, uid, active_files, date_created, last_edited, version, title, tags, category, description, libraries, manifest, automatic_variable_extraction_enabled) VALUES (NULL, '$unique_id', '$uid', '$post_status ', NOW(), NOW(), 'v1', '$title', '$tags', '', '$description', '$libraries', '$manifest', $extraction);";
+            $sql = "INSERT INTO scripts (ID, script_id, uid, active_files, date_created, last_edited, version, title, tags, category, description, libraries, manifest, automatic_variable_extraction_enabled, type) VALUES (NULL, '$unique_id', '$uid', '$post_status ', NOW(), NOW(), 'v1', '$title', '$tags', '', '$description', '$libraries', '$manifest', '$extraction', '$type');";
+          
             if (mysqli_query($conn, $sql)) {
                 echo json_encode([
                     "success" => true,

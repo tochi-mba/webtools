@@ -13,10 +13,11 @@ require "is_logged.php";
   $titleIDE='';
   $librariesIDE='';
   $tagsIDE='';
-  $autosaveIDE = '';
+  $autosaveIDE = 'checked';
   $extractIDE = '';
   $versionNew = '';
-  $version = '';
+  $version = '1';
+  $moduleIDE = '';
   $page="new";
 
 

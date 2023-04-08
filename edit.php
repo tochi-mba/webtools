@@ -26,6 +26,12 @@ if(isset($_GET['script_id'])){
             } else {
                 $extractIDE = '';
             }
+            $moduleIDE = $row['type'];
+            if ($moduleIDE == 'module') {
+                $moduleIDE = 'checked';
+            } else {
+                $moduleIDE = '';
+            }
             $titleIDE=$row['title'];
             $librariesIDE=$row['libraries'];
             $tagsIDE=$row['tags'];

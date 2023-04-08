@@ -76,6 +76,19 @@ function CallAPI($method, $url, $data = false)
                     $code['code'] = "empty";
         
                     $logs[]="JS Code Updated";
+                    $dir = '../../../scripts/'.$data->uid.'_private/'.$data->script_id.'/';
+
+                    $dirs = array_filter(glob($dir . '/*'), 'is_dir');
+        
+                    natsort($dirs);
+        
+                    $latest_dir = end($dirs);
+        
+                    $latest_version = basename($latest_dir);
+
+                    if (file_exists("../../../scripts/".$data->uid."_private/".$data->script_id."/".$latest_version."/".$data->script_id.".js")) {
+                        unlink("../../../scripts/".$data->uid."_private/".$data->script_id."/".$latest_version."/".$data->script_id.".js");
+                    }
                 }
         
                 if (isset($data->cssCode)&&$data->cssCode!=="") {
@@ -97,6 +110,20 @@ function CallAPI($method, $url, $data = false)
                     $code['codeCss'] = "empty";
         
                     $logs[]="CSS Code Updated";
+
+                    $dir = '../../../scripts/'.$data->uid.'_private/'.$data->script_id.'/';
+
+                    $dirs = array_filter(glob($dir . '/*'), 'is_dir');
+        
+                    natsort($dirs);
+        
+                    $latest_dir = end($dirs);
+        
+                    $latest_version = basename($latest_dir);
+
+                    if (file_exists("../../../scripts/".$data->uid."_private/".$data->script_id."/".$latest_version."/".$data->script_id.".css")) {
+                        unlink("../../../scripts/".$data->uid."_private/".$data->script_id."/".$latest_version."/".$data->script_id.".css");
+                    }
                 }
         
                 if (isset($data->readme)) {
@@ -137,6 +164,11 @@ function CallAPI($method, $url, $data = false)
                 if (isset($data->extraction)) {
                     $update_fields[] = "automatic_variable_extraction_enabled = '".$data->extraction."'";
                     $logs[]="Extraction Updated";
+                }
+
+                if (isset($data->extraction)) {
+                    $update_fields[] = "type = '".$data->type."'";
+                    $logs[]="Type Updated";
                 }
 
                 // Update the fields in the database
@@ -186,7 +218,7 @@ function CallAPI($method, $url, $data = false)
         }
         if ($data->auto_save == "true") {
             if (!isset($data->script_id)) {
-                if (isset($data->title, $data->tags, $data->description, $data->jsCode, $data->cssCode, $data->readme, $data->libraries, $data->extraction)){
+                if (isset($data->title, $data->tags, $data->description, $data->jsCode, $data->cssCode, $data->readme, $data->libraries, $data->extraction, $data->type)) {
                     $data = array(
                         'api_token' => $data->api_token,
                         'title' => $data->title,
@@ -197,6 +229,7 @@ function CallAPI($method, $url, $data = false)
                         'readme' => $data->readme,
                         'libraries' => $data->libraries,
                         'extraction' => $data->extraction,
+                        'type' => $data->type,
                     );
                     $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http";
                     $host = $_SERVER['HTTP_HOST'];
@@ -204,6 +237,7 @@ function CallAPI($method, $url, $data = false)
                     $url=$base_url."/api/create/";
                     $response=CallAPI("POST", $url, $data);
                     $response=json_decode($response);
+                    
                     echo json_encode([
                         "success" => true,
                         "message" => "New Script Created",
