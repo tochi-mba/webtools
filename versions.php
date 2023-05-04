@@ -2,6 +2,24 @@
 
 require "head.php"; 
 require "is_logged.php";
+if (!isset($_GET['script_id'])){
+	header("No project id provided");
+	exit;
+}else{
+	require "connect.php";
+	require "user_verification.php";
+	$script_id = $_GET['script_id'];
+	$sql = "SELECT * FROM scripts WHERE script_id = '$script_id' AND uid = '".$_SESSION['uid']."'";
+	$result = mysqli_query($conn, $sql);
+	if (mysqli_num_rows($result) > 0) {
+		$row = mysqli_fetch_assoc($result);
+		$manifest = $row['manifest'];
+		$manifest = json_decode($manifest, true);
+	}else{
+		header("Script does not exist");
+		exit;
+	}
+}
 
 ?>
 <!DOCTYPE html>
@@ -18,7 +36,6 @@ require "is_logged.php";
   --text-color: #A1A1AA;
 
   --card-background-color: rgba(255, 255, 255, .015);
-  --card-border-color: rgba(255, 255, 255, 0.1);
   --card-box-shadow-1: rgba(0, 0, 0, 0.05);
   --card-box-shadow-1-y: 3px;
   --card-box-shadow-1-blur: 6px;
@@ -30,9 +47,9 @@ require "is_logged.php";
   --card-icon-background-color: rgba(255, 255, 255, 0.08);
   --card-icon-border-color: rgba(255, 255, 255, 0.12);
   --card-shine-opacity: .1;
-  --card-shine-gradient: conic-gradient(from 205deg at 50% 50%, rgba(16, 185, 129, 0) 0deg, #10B981 25deg, rgba(52, 211, 153, 0.18) 295deg, rgba(16, 185, 129, 0) 360deg);
+  --card-shine-gradient: conic-gradient(from 205deg at 50% 50%, rgba(255, 0, 0, 0) 0deg, #FF0000 25deg, rgba(255, 0, 0, 0.18) 295deg, rgba(255, 0, 0, 0) 360deg);
   --card-line-color: #2A2B2C;
-  --card-tile-color: rgba(16, 185, 129, 0.05);
+  --card-tile-color: rgba(255, 0, 0, 0.05);
 
   --card-hover-border-color: rgba(255, 255, 255, 0.2);
   --card-hover-box-shadow-1: rgba(0, 0, 0, 0.04);
@@ -69,10 +86,10 @@ require "is_logged.php";
     --card-tile-color: rgba(16, 185, 129, 0.08);
 
     --card-hover-border-color: rgba(24, 24, 27, 0.15);
-    --card-hover-box-shadow-1: rgba(24, 24, 27, 0.05);
+    --card-hover-box-shadow-1: rgba(255, 24, 27, 0.05);
     --card-hover-box-shadow-1-y: 3px;
     --card-hover-box-shadow-1-blur: 6px;
-    --card-hover-box-shadow-2: rgba(24, 24, 27, 0.1);
+    --card-hover-box-shadow-2: rgba(255, 24, 27, 0.1);
     --card-hover-box-shadow-2-y: 8px;
     --card-hover-box-shadow-2-blur: 15px;
     --card-hover-icon-color: #18181B;
@@ -89,12 +106,13 @@ require "is_logged.php";
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-auto-rows: minmax(0, auto);
   grid-gap: 10px;
-  position: relative;
   z-index: 1;
   width:77%;
-  margin-top:150px
+
+
 }
 
 .card {
@@ -105,7 +123,8 @@ require "is_logged.php";
   cursor: pointer;
   position: relative;
   transition: box-shadow .25s;
-
+	height:fit-content;
+	
   &::before {
     content: '';
     position: absolute;
@@ -163,37 +182,14 @@ require "is_logged.php";
     color: var(--text-color);
   }
 
-  .shine {
-    border-radius: inherit;
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    overflow: hidden;
-    opacity: 0;
-    transition: opacity .5s;
-
-    &:before {
-      content: '';
-      width: 150%;
-      padding-bottom: 150%;
-      border-radius: 50%;
-      position: absolute;
-      left: 50%;
-      bottom: 55%;
-      filter: blur(35px);
-      opacity: var(--card-shine-opacity);
-      transform: translateX(-50%);
-      background-image: var(--card-shine-gradient);
-    }
-  }
+ 
 
   .background {
     border-radius: inherit;
     position: absolute;
     inset: 0;
     overflow: hidden;
-    -webkit-mask-image: radial-gradient(circle at 60% 5%, black 0%, black 15%, transparent 60%);
-    mask-image: radial-gradient(circle at 60% 5%, black 0%, black 15%, transparent 60%);
+
 
     .tiles {
       opacity: 0;
@@ -534,7 +530,7 @@ body {
   display: flex;
   font-family: 'Inter', Arial;
   justify-content: center;
-  align-items: center;
+  padding-top:150px;
   background-color: var(--background-color);
 overflow-x: hidden !important;
   &:before {
@@ -558,27 +554,201 @@ overflow-x: hidden !important;
   }
 }
 	</style>
+    <style>
+    .versionTags {
+        width: fit-content;
+        display: flex;
+        height: fit-content;
+        padding: 3px;
+        border-radius: 3px;
+        color: white;
+
+    }
+
+    .neon {
+        display: inline-block;
+        border-radius: 5px;
+        border: solid grey 1px;
+        color: white;
+        background-color: #282A36;
+        font-size: 12px;
+        font-weight: bold;
+        width: fit-content;
+        padding: 5px;
+        line-height: 1.2;
+        text-align: center;
+        text-transform: uppercase;
+    }
+
+    #loading-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: black;
+        z-index: 999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        visibility: visible;
+        z-index: 9999;
+    }
+
+    .loading-gif {
+        max-width: 100%;
+        max-height: 100%;
+    }
+    </style>
 </head>
 
 <body>
-<?php require "connect.php";
+    <?php 
     require "navbar.php";
     ?>
-	<style>
+    <style>
     .nvbar {
         background-color: #18181B;
-		width: 100vw;
+        width: 100vw;
+		z-index:9991;
     }
     </style>
-	<h1 style="position:fixed;top:7%;z-index:999;width:100%;background-color:#18181B;text-align:center;padding-bottom:10px">versions</h1>
-	<br>
+    <div id="loading-screen">
+        <img class="loading-gif" src="./assets/images/loading.gif" alt="Loading...">
+
+
+        <p id="loading-label" style="color:white">Loading Versions for '<?php echo $row['title']?>'</p>
+
+    </div>
+	<?php
+
+$dir = './scripts/'.$_SESSION['uid']."_private/".$_GET['script_id']."/";
+function getMbsValue($value) {
+  return $value / 1048576;
+}
+function mbToBytes($mbs) {
+  return $mbs * 1024 * 1024;
+}
+if (is_dir($dir)) {
+    $size = 0;
+    $dir_iterator = new RecursiveDirectoryIterator($dir);
+    $iterator = new RecursiveIteratorIterator($dir_iterator, RecursiveIteratorIterator::SELF_FIRST);
+    foreach ($iterator as $file) {
+        $size += $file->getSize();
+    }
+    $dir="./scripts/".$_SESSION['uid']."_public/". $_GET['script_id']."/";
+	if (is_dir($dir)) {
+		$dir_iterator = new RecursiveDirectoryIterator($dir);
+		$iterator = new RecursiveIteratorIterator($dir_iterator, RecursiveIteratorIterator::SELF_FIRST);
+		foreach ($iterator as $file) {
+			$size += $file->getSize();
+		}
+	}
+    $sql = "SELECT scripts_id FROM users WHERE uid = '" . $_SESSION['uid'] . "' AND api_token = '" . $_SESSION['api_token']."'";
+    $result = $conn->query($sql);
+    $row1 = $result->fetch_assoc();
+    $dir="./scripts/".$_SESSION['uid']."_unlisted_".$row1['scripts_id']."/". $_GET['script_id']."/";
+	if (is_dir($dir)) {
+		$dir_iterator = new RecursiveDirectoryIterator($dir);
+		$iterator = new RecursiveIteratorIterator($dir_iterator, RecursiveIteratorIterator::SELF_FIRST);
+		foreach ($iterator as $file) {
+			$size += $file->getSize();
+		}
+	}
+
+    $dir="./scripts/".$_SESSION['uid']."_monetized_".$row1['scripts_id']."/". $_GET['script_id']."/";
+	if (is_dir($dir)) {
+		$dir_iterator = new RecursiveDirectoryIterator($dir);
+		$iterator = new RecursiveIteratorIterator($dir_iterator, RecursiveIteratorIterator::SELF_FIRST);
+		foreach ($iterator as $file) {
+			$size += $file->getSize();
+		}
+	}
+} 
+    ?>
+    <div
+        style="position:fixed;top:7%;z-index:999;width:100%;background-color:#18181B;text-align:center;padding-bottom:10px;color:white">
+
+        <h1 style="display:inline-block"><?php echo $row['title'];?></h1>
+		<p style="display:inline-block;border:solid grey 1px;border-radius:5px;padding:5px;font-size:14px"><?php echo count($manifest);?> <?php echo (count($manifest) == 1 ? "version" : "versions")?> found</p>
+		<p style="display:inline-block;border:solid grey 1px;border-radius:5px;padding:5px;font-size:14px">Size: <?php echo number_format((float)getMbsValue($size), 2, '.', '');?>MB</p>
+
+    </div>
+
+    <br>
     <div class="grid">
         <?php
-		for ( $i = 0; $i < 40; $i++ ) {
-	      require "versionModules.php";
+		function formatDate($inputDate) {
+			$timestamp = strtotime($inputDate);
+			$formattedDate = date('jS F Y g:ia', $timestamp);
+			return $formattedDate;
 		}
+		
+		$versionNumbers = array();
+		foreach ($manifest as $version => $details) {
+			$versionNumbers[]=$version;
+		}
+		require "versionTagColors.php";
+		$i=0;
+		$current=false;
+
+		foreach ($manifest as $version => $details) {
+			foreach ($details as $detail) {
+				if ($i == count($manifest)-1){
+					$current=true;
+					$color = $versionNumberColors[$version];
+					if($detail['status'] == 'unlisted') {
+						$colorBorder="128, 128, 128";
+					  }elseif($detail['status'] == 'private') {
+						$colorBorder="255, 0, 0";
+					  }elseif($detail['status'] == 'public') {
+						$colorBorder="0, 128, 0";
+					  }elseif($detail['status'] == 'monetized') {
+						$colorBorder="255, 215, 0";
+					  }elseif($detail['status'] == null) {
+						$colorBorder="255, 0, 0";
+					  }
+					require "versionModules.php";
+				}
+				$i++;				
+
+				
+			}
+		}
+
+		$i=0;
+		$current=false;
+
+		foreach ($manifest as $version => $details) {
+			foreach ($details as $detail) {
+				if ($i == count($manifest)-1){
+					break;
+				}
+				if($detail['status'] == 'unlisted') {
+					$colorBorder="128, 128, 128";
+				  }elseif($detail['status'] == 'private') {
+					$colorBorder="255, 0, 0";
+				  }elseif($detail['status'] == 'public') {
+					$colorBorder="0, 128, 0";
+				  }elseif($detail['status'] == 'monetized') {
+					$colorBorder="255, 215, 0";
+				  }elseif($detail['status'] == null) {
+					$colorBorder="255, 0, 0";
+				  }
+				$color = $versionNumberColors[$version];
+				require "versionModules.php";
+				$i++;
+			}
+		}
+		
 		?>
     </div>
+    <script>
+    window.addEventListener("load", function() {
+        const loader = document.querySelector("#loading-screen");
+        loader.style.visibility = "hidden";
+    });
+    </script>
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
         integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous">
     </script>

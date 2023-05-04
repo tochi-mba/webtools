@@ -711,25 +711,16 @@ if(isset($_GET['q'])&&trim($_GET['q'])!=""){
     }
     if (count($project_temp) == 0) {
       foreach($projects['data'] as $project) {
-          
           $relevance = 0;
-          
-          
-          if(strpos(strtolower($project['tags']), $search_term) !== false) {
+          if(strpos(strtolower($project['title']), $search_term) !== false) {
               $relevance += 10;
           }
-
-          
           if(strpos($project['script_id'], $search_term) !== false) {
             $relevance += 6;
           }
-        
-          
-          if(strpos(strtolower($project['title']), $search_term) !== false) {
+          if(strpos(strtolower($project['tags']), $search_term) !== false) {
               $relevance += 5;
           }
-
-          
           if($project['status'] == '1') {
             $status="unlisted";
           }elseif($project['status'] == '2') {
@@ -744,67 +735,39 @@ if(isset($_GET['q'])&&trim($_GET['q'])!=""){
           if(strpos($status, $search_term) !== false) {
             $relevance += 5;
           }
-          
-          
           if(strpos(strtolower($project['date_created']), $search_term) !== false) {
               $relevance += 3;
           }
-          
-          
           if(strpos(strtolower($project['category']), $search_term) !== false) {
               $relevance += 2;
           }
-          
-          
           if(strpos(strtolower($project['description']), $search_term) !== false) {
               $relevance += 1;
           }
-          
-          
           if(strpos(strtolower($project['version']), $search_term) !== false) {
               $relevance += 1;
           }
-          
-          
           if(strpos($project['authorized_users'], $search_term) !== false) {
               $relevance += 1;
           }
-          
-          
           if(strpos(strtolower($project['libraries']), $search_term) !== false ) {
               $relevance += 1;
           }
-          
-          
           if(strpos(strtolower($project['collaborators']), $search_term) !== false) {
               $relevance += 1;
           }
-          
-          
           if(strpos(strtolower($project['authorized_websites']), $search_term) !== false) {
               $relevance += 1;
           }
-          
-          
           $project['relevance'] = $relevance;
-          
-          
           $project_temp[] = $project;
       }
       usort($project_temp, function($a, $b) {
         return $b['relevance'] - $a['relevance'];
-      });
-
-      $project_temp = array_filter($project_temp, function($project) {
+      });$project_temp = array_filter($project_temp, function($project) {
         return $project['relevance'] != 0;
       });
-    }
-    
-   
-
-    
-    
-    $projects['data'] = $project_temp;
+    }$projects['data'] = $project_temp;
 }
 $projects=$projects['data'];
 
@@ -907,7 +870,27 @@ if (is_dir($dir)) {
     $sql = "SELECT scripts_id FROM users WHERE uid = '" . $_SESSION['uid'] . "' AND api_token = '" . $_SESSION['api_token']."'";
     $result = $conn->query($sql);
     $row = $result->fetch_assoc();
+    $dir="./scripts/".$_SESSION['uid']."_assets_".$row['scripts_id']."/";
+    $dir_iterator = new RecursiveDirectoryIterator($dir);
+    $iterator = new RecursiveIteratorIterator($dir_iterator, RecursiveIteratorIterator::SELF_FIRST);
+    foreach ($iterator as $file) {
+        $size += $file->getSize();
+    }
+
+    $sql = "SELECT scripts_id FROM users WHERE uid = '" . $_SESSION['uid'] . "' AND api_token = '" . $_SESSION['api_token']."'";
+    $result = $conn->query($sql);
+    $row = $result->fetch_assoc();
     $dir="./scripts/".$_SESSION['uid']."_unlisted_".$row['scripts_id']."/";
+    $dir_iterator = new RecursiveDirectoryIterator($dir);
+    $iterator = new RecursiveIteratorIterator($dir_iterator, RecursiveIteratorIterator::SELF_FIRST);
+    foreach ($iterator as $file) {
+        $size += $file->getSize();
+    }
+
+    $sql = "SELECT scripts_id FROM users WHERE uid = '" . $_SESSION['uid'] . "' AND api_token = '" . $_SESSION['api_token']."'";
+    $result = $conn->query($sql);
+    $row = $result->fetch_assoc();
+    $dir="./scripts/".$_SESSION['uid']."_tests_".$row['scripts_id']."/";
     $dir_iterator = new RecursiveDirectoryIterator($dir);
     $iterator = new RecursiveIteratorIterator($dir_iterator, RecursiveIteratorIterator::SELF_FIRST);
     foreach ($iterator as $file) {
@@ -934,8 +917,8 @@ if (is_dir($dir)) {
     echo '<div id="loadingBar" style="width: 0%; background-color: red;height:100%;border-radius:10px"></div>';
     echo '</div>';
     ?>
-            <p><?php echo number_format((float)getMbsValue($size), 2, '.', ''); ?> MB of <?php echo $alotted_storage; ?>
-                MB Used
+            <p><?php echo (getMbsValue($size) > 1000 ? number_format((float)(getMbsValue($size)/1000), 2, '.', '') . " GB " : number_format((float)getMbsValue($size), 2, '.', '') . " MB "); ?>of <?php echo $alotted_storage/1000; ?>
+                GB Used
             </p>
             <script>
             function loadingColor(percentage, loadingBar) {
@@ -987,13 +970,16 @@ if (is_dir($dir)) {
                         loadingBar.style.width = width + '%';
                         percentage.innerHTML = width;
                     }
-                }, 20);
+                }, 40);
             }
             </script>
             <br>
             <br>
 
             <div><span><img style="width:20px" src="./assets/images/trash.png" alt=""></span> Trash</div>
+            <br>
+            <div style="cursor:pointer" onclick="window.location.href='./user_assets'"><span><img style="width:20px" src="./assets/images/trash.png" alt=""></span> Assets</div>
+
         </div>
     </form>
     <script>

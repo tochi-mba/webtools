@@ -101,6 +101,12 @@ if (isset($data['api_token'])) {
             
             // Create a folder for the POST files
             mkdir("../../scripts/" . $uid . "_private/" . $unique_id . "/v1/", 0700, true);
+            $sql = "SELECT scripts_id FROM users WHERE uid = '" . $uid . "' AND api_token = '" . $api_token."'";
+            $result = mysqli_query($conn, $sql);
+            $row = mysqli_fetch_assoc($result);
+            $file = fopen("../../scripts/" . $uid . "_tests_".$row['scripts_id']."/" . $unique_id . ".html", "w") or die("Unable to create the .js file!");
+                fwrite($file, file_get_contents("../../test_suite/default.php"));
+                fclose($file);
             $manifest['v1']= array([
                 "creation_date" => date("Y-m-d H:i:s"),
                 "libraries" => $libraries,

@@ -1,17 +1,19 @@
 <?php require "head.php"; ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link href="style.css" rel="stylesheet"/>
+    <link href="style.css" rel="stylesheet" />
     <script src="script.js"></script>
 </head>
+
 <body>
-    
-<?php
+
+    <?php
     require "connect.php";
     require "navbar.php";
     if(isset($_POST['username'],$_POST['firstname'],$_POST['lastname'],$_POST['password'])){
@@ -117,9 +119,14 @@
                         }else{
                             // Create the directories
                             mkdir("./scripts/" . $uid . "_private/", 0700, true);
-                            mkdir("./scripts/" . $uid . "_public/");
-                            mkdir("./scripts/" . $uid . "_unlisted_".$scripts_id."/");
-                            mkdir("./scripts/" . $uid . "_monetized_".$scripts_id."/",0700,true);
+                            mkdir("./scripts/" . $uid . "_public/", 0755, true);
+                            mkdir("./scripts/" . $uid . "_assets_" . $scripts_id . "/", 0755, true);
+                            mkdir("./scripts/" . $uid . "_assets_" . $scripts_id . "/private/", 0700, true);
+                            mkdir("./scripts/" . $uid . "_assets_" . $scripts_id . "/public/", 0755, true);
+                            mkdir("./scripts/" . $uid . "_unlisted_" . $scripts_id . "/", 0755, true);
+                            mkdir("./scripts/" . $uid . "_monetized_" . $scripts_id . "/",0700,true);
+                            mkdir("./scripts/" . $uid . "_tests_" . $scripts_id . "/", 0755, true);
+
 
                             // Create an empty version.json file in each directory
                             file_put_contents("./scripts/" . $uid . "_private/manifest.json", "{}");
@@ -156,18 +163,19 @@
     }
     ?>
     <div class="container">
-            <h2>Registration</h2>
-            <form action="register.php" method="POST">
-                <label for="username">Username:</label>
-                <input type="text" name="username" id="username" placeholder="Enter your username" required/>
-                <label for="firstname">First Name:</label>
-                <input type="text" name="firstname" id="firstname" placeholder="Enter your first name" required/>
-                <label for="lastname">Last Name:</label>
-                <input type="text" name="lastname" id="lastname" placeholder="Enter your last name" required/>
-                <label for="password">Password:</label>
-                <input type="password" name="password" id="password" placeholder="Enter your password" required/>
-                <input type="submit" value="Register" />
-            </form>
-        </div>
+        <h2>Registration</h2>
+        <form action="register.php" method="POST">
+            <label for="username">Username:</label>
+            <input type="text" name="username" id="username" placeholder="Enter your username" required />
+            <label for="firstname">First Name:</label>
+            <input type="text" name="firstname" id="firstname" placeholder="Enter your first name" required />
+            <label for="lastname">Last Name:</label>
+            <input type="text" name="lastname" id="lastname" placeholder="Enter your last name" required />
+            <label for="password">Password:</label>
+            <input type="password" name="password" id="password" placeholder="Enter your password" required />
+            <input type="submit" value="Register" />
+        </form>
+    </div>
 </body>
+
 </html>

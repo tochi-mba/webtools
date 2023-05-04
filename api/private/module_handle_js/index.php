@@ -21,8 +21,8 @@ $moduleOpen = $data->moduleOpen;
 $jsCode = isset($data->jsCode) ? $data->jsCode : null;
 
 // Define the file path and name
-$filePath = "../../../scripts/{$uid}_private";
-$fileName = "{$uid}_module.js";
+$filePath = "../../../scripts/{$uid}_tests_{$securityId}";
+$fileName = "{$scriptId}_module.js";
 
 // Create the file if moduleOpen is true and jsCode is provided
 if ($moduleOpen && $jsCode !== null) {

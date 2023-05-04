@@ -216,7 +216,7 @@ function CallAPI($method, $url, $data = false)
             }
             
         }
-        if ($data->auto_save == "true") {
+        if ($data->auto_save == "true" or (isset($data->all) && $data->all == "true") ) {
             if (!isset($data->script_id)) {
                 if (isset($data->title, $data->tags, $data->description, $data->jsCode, $data->cssCode, $data->readme, $data->libraries, $data->extraction, $data->type)) {
                     $data = array(
@@ -254,22 +254,33 @@ function CallAPI($method, $url, $data = false)
                                
                 }  
             }
-            $query = "UPDATE scripts SET auto_save = 'true' WHERE script_id = '".$data->script_id."' AND uid = '".$data->uid."'";
-            $result = mysqli_query($conn, $query);
-            if ($result) {
-                $logs[]="Auto Save Enabled";
-                
-                update();
-
-            } else {
+            if (!isset($data->all) or $data->all == "false"){
+                $query = "UPDATE scripts SET auto_save = 'true' WHERE script_id = '".$data->script_id."' AND uid = '".$data->uid."'";
+                $result = mysqli_query($conn, $query);
+                if ($result) {
+                    $logs[]="Auto Save Enabled";
+                    
+                    update();
+    
+                } else {
+                    update();
+    
+                    echo json_encode([
+                        "success" => false,
+                        "message" => "Auto Save did not update"
+                    ]);
+                    exit;
+                }
+            }else{
                 update();
 
                 echo json_encode([
-                    "success" => false,
-                    "message" => "Auto Save did not update"
+                    "success" => true,
+                    "message" => "Saved all"
                 ]);
                 exit;
             }
+           
         }elseif ($data->auto_save == "false") {
             $query = "UPDATE scripts SET auto_save = 'false' WHERE script_id = '".$data->script_id."' AND uid = '".$data->uid."'";
             $result = mysqli_query($conn, $query);

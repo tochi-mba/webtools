@@ -75,6 +75,16 @@ require "connect.php";
             delete_folder("./scripts/".$uid."_monetized/".$script_id."/");
         }
 
+        $file_path = "./scripts/" . $_SESSION['uid'] . "_tests_" . $row['scripts_id'] . "/" . $_GET['script_id'] . ".html";
+
+        if (file_exists($file_path)) {
+            if (unlink($file_path)) {
+            } else {
+            }
+        } else {
+        }
+
+
 
        // Check if query was successful
        if ($result) {

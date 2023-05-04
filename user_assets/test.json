@@ -1,0 +1,17 @@
+{
+    "main":{
+        "folder1":{
+            "file1.txt":"This is the content for file1.txt",
+            "file2.txt":"This is the content for file2.txt",
+            "folder":{
+                "file6.txt":"This is the content for file6.txt",
+                "file7.txt":"This is the content for file7.txt"
+            }
+        },
+        "folder2":{
+            "file3.txt":"This is the content for file3.txt",
+            "file4.txt":"This is the content for file4.txt"
+        },
+        "file5.txt":"This is the content for file5.txt"
+    }
+}

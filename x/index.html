@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Extension Settings</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        font-size: 12px;
+        margin: 0;
+        padding: 5px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 5px;
+      }
+
+      input[type="checkbox"] {
+        margin-right: 5px;
+      }
+
+      select {
+        margin-bottom: 10px;
+      }
+
+      button {
+        display: block;
+        margin-top: 10px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h2>Goon Cave</h2>
+    <p>
+        Keyboard Shortcuts:
+        <br />
+        Press "p" to pause or play all
+        <br />
+        Press "c" to close all
+        <br />
+        Press "m" to mute all
+        <br />
+        Press "q" to quick switch
+        <br />
+        Press the up arrow key to increase volume
+        <br />
+        Press the down arrow key to decrease volume
+        <br />
+        Press the left arrow key to skip backwards
+        <br />
+        Press the right arrow key to skip forwards
+        <br />
+        Double tap on the video to focus
+      </p>
+    <form id="form">
+      <label>
+        <input
+          type="checkbox"
+          name="remove_when_ended"
+          id="remove_when_ended"
+          checked
+        />
+        Remove video when it ends
+      </label>
+
+      <label>
+        <input
+          type="checkbox"
+          name="show_seek_bar"
+          id="show_seek_bar"
+          checked
+        />
+        Show seek bar
+      </label>
+
+      <label>
+        <input type="checkbox" name="autoplay" id="autoplay" checked />
+        Autoplay video
+      </label>
+
+      <label>
+        Quick switch links:
+        <input
+          name="quick_switch_links"
+          id="quick_switch_links"
+          placeholder="https://youtube.com"
+          type="text"
+        />
+      </label>
+
+      <label>
+        Skip seconds:
+        <input
+          type="number"
+          name="skip_seconds"
+          id="skip_seconds"
+          value="10"
+          min="1"
+        />
+      </label>
+
+      <button type="submit">Save Settings</button>
+    </form>
+    <button id="beer">Buy Me a Beer</button>
+
+    <p>
+      All donations welcomee it would help me continue to improve and make
+      versions for different websites. put any recomendation or website support
+      you want in the description when you donate
+    </p>
+
+    
+    <script src="index.js"></script>
+  </body>
+</html>

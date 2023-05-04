@@ -55,3 +55,6 @@
 
 
 <div style="margin-bottom:55px" ></div> 
+<script>
+  document.head.innerHTML += '<link rel="icon" type="image/png" href="../../assets/images/logo.png">';
+</script>

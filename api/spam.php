@@ -66,6 +66,4 @@ if (isset($dataSpam[$api_token])) {
 	file_put_contents($file_name, json_encode($dataSpam));
 }
 
-// Enter desired code here
-// ...
 ?>
