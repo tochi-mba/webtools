@@ -2,13 +2,12 @@
     style="position:relative;box-shadow: 0px var(--card-box-shadow-1-y) var(--card-box-shadow-1-blur) var(--card-box-shadow-1), 0px var(--card-box-shadow-2-y) var(--card-box-shadow-2-blur) var(--card-box-shadow-2), 0 0 0 1px rgba(<?php echo $colorBorder;?>, 0.5);">
 
     <?php
-    if (!$current){
         ?>
-    <span
+    <span onclick="openOptionsMenu(`<?php echo $version?>`)"
         style="position:absolute;top:0px;right:10px;float:right;font-size:30px;cursor:pointer;z-index:999;color:white;">&#8942;</span>
 
     <?php
-    }
+    
         $libraries=$detail['libraries'];
         $libraries=explode(",",$libraries);
         $libraries=array_filter($libraries);

@@ -15,6 +15,31 @@ if (!isset($_GET['script_id'])){
 		$row = mysqli_fetch_assoc($result);
 		$manifest = $row['manifest'];
 		$manifest = json_decode($manifest, true);
+    $notifications = 0;
+    $published = 0;
+    foreach ($manifest as $version => $details) {
+      foreach ($details as $detail) {
+        if ($detail['status'] == 'public' or $detail['status'] == 'monetized') {
+          if ($row['publish_manifest'] == "" or $row['publish_manifest'] == "[]") {
+            $published++;
+            break;
+
+          }
+          if ($row['publish_image'] == "" or strpos($row['publish_image'], 'image.php') !== false){
+            $published++;
+            break;
+          }
+        }
+      }
+		}
+    if ($published > 0){
+      $notifications++;
+    }
+    $sql1 = "SELECT * FROM users WHERE uid = '".$_SESSION['uid']."' AND api_token = '".$_SESSION['api_token']."'";
+    $result1 = mysqli_query($conn, $sql1);
+    if (mysqli_num_rows($result1) > 0) {
+      $user_details = mysqli_fetch_assoc($result1);
+    }
 	}else{
 		header("Script does not exist");
 		exit;
@@ -599,10 +624,290 @@ overflow-x: hidden !important;
         max-width: 100%;
         max-height: 100%;
     }
+
+    #versionOptions {
+        display: none;
+        position: fixed;
+        z-index: 9999;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(24, 24, 27, 0.9);
+    }
+
+    #versionOptionsBox {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 50vw;
+        height: 70vh;
+        background-color: #18181B;
+        border-radius: 15px;
+        color: white;
+        padding: 20px;
+        border: solid 1px grey;
+        overflow-y: scroll;
+        overflow-x: hidden;
+    }
+
+    ::-webkit-scrollbar {
+        width: 5px;
+        height: 5px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background-color: #888;
+        border-radius: 5px;
+
+    }
+
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: #888 #eee;
+    }
+
+    .info {
+        color: grey;
+        font-size: 12px;
+    }
+
+    #statusOptions {
+        width: 100%;
+        height: 30px;
+        cursor: pointer;
+    }
+
+    .authorizedWebsite {
+        width: 93%;
+        height: 30px;
+    }
+
+    #authAdd {
+        width: 6%;
+        height: 30px;
+        cursor: pointer;
+    }
+
+    #confirmation {
+        display: none;
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0;
+        left: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 999999;
+    }
+
+    #confirmationBox {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 30vw;
+        max-height: 70vh;
+        background-color: #18181B;
+        border-radius: 15px;
+        color: white;
+        padding: 20px;
+        border: solid 1px grey;
+        overflow-y: scroll;
+        overflow-x: hidden;
+    }
+
+    .showChanges p {
+        font-size: 12px;
+        color: grey;
+    }
+
+    button {
+        cursor: pointer;
+    }
+
+    .notificationIcon {
+        display: none;
+
+        <?php if ($published > 0) {
+            echo "display: block;";
+        }
+
+        ?>
+    }
+
+    .filler {
+        visibility: hidden;
+    }
+
+    .publishEditorBox {
+        display: none;
+        position: fixed;
+        z-index: 9999;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(24, 24, 27, 0.9);
+        justify-content: center;
+        align-items: center;
+
+    }
+
+    .publishEditor {
+        width: 50vw;
+        height: 80vh;
+        background-color: #18181B;
+        border-radius: 15px;
+        color: white;
+        padding: 20px;
+        border: solid 1px grey;
+        overflow-y: scroll;
+        overflow-x: hidden;
+        display: inline-block;
+        margin: 20px;
+        position: relative;
+    }
+
+    .publishEditor h1 {
+        position: absolute;
+        top: 5%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        margin: 0;
+        padding: 0;
+        font-size: 20px;
+    }
+
+    .toolBar {
+        position: fixed;
+        top: 20%;
+        left: 60%;
+        transform: translate(-50%, -50%);
+        width: 100%;
+        z-index: 1;
+
+    }
+
+    .toolBar label {
+        background-color: #18181B;
+    }
+
+    .sectionInput,
+    .subSectionInput {
+        border-radius: 15px;
+        border: 1px solid #ccc;
+        padding: 10px;
+    }
+
+    .section {
+        margin-bottom: 10px;
+    }
+
+    .subSection {
+        margin-bottom: 10px;
+    }
+
+    .publishShowBox {
+        color: white;
+    }
+
+    .publishImageBox {
+        display: none;
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        z-index: 9999;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .publishImageShow {
+        width: 30%;
+        height: fit-content;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        border-radius: 15px;
+        background-color: #18181B;
+        border: solid 1px grey;
+        padding: 20px;
+    }
+
+    .publishImageShow input {
+        width: 100%;
+        height: 30px;
+        border-radius: 15px;
+        border: 1px solid #ccc;
+        margin-bottom: 20px;
+        padding: 10px;
+
+    }
+
+    .publishImageShow textarea {
+        width: 100%;
+        max-width: 100%;
+        min-width: 100%;
+        max-height: 40vh;
+        border-radius: 15px;
+        border: 1px solid #ccc;
+        margin-bottom: 20px;
+        padding: 10px;
+
+    }
+
+    .cards {
+        position: absolute;
+        top: 0;
+        left: 130%;
+        transform: translate(-50%, -50%);
+        display: grid !important;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)) !important;
+        margin: 9rem 5vw !important;
+        padding: 0 !important;
+        list-style-type: none !important;
+        min-width: 250px !important;
+    }
+    .code{
+      border-radius: 15px;
+      padding: 10px;
+      width: 100%;
+      background-color: #282a36;
+      word-break: break-all;
+      word-wrap: break-word;
+    }
+    .code code{
+      color: white;
+    }
     </style>
+
+    <link rel="stylesheet" href="./codemirror/lib/codemirror.css">
+    <link rel="stylesheet" href="./codemirror/addon/lint/lint.css">
+    <link rel="stylesheet" href="./codemirror/addon/dialog/dialog.css">
+    <link rel="stylesheet" href="./codemirror/addon/search/matchesonscrollbar.css">
+    <link rel="stylesheet" href="./codemirror/theme/dracula.css">
+    <script src="./codemirror/lib/codemirror.js"></script>
+    <script src="./codemirror/mode/javascript/javascript.js"></script>
+    <script src="./codemirror/mode/css/css.js"></script>
+    <script src="https://unpkg.com/jshint@2.13.2/dist/jshint.js"></script>
+    <script src="https://unpkg.com/jsonlint@1.6.3/web/jsonlint.js"></script>
+    <script src="https://unpkg.com/csslint@1.0.5/dist/csslint.js"></script>
+    <script src="./codemirror/addon/lint/lint.js"></script>
+    <script src="./codemirror/addon/lint/javascript-lint.js"></script>
+    <script src="./codemirror/addon/lint/json-lint.js"></script>
+    <script src="./codemirror/addon/lint/css-lint.js"></script>
+    <link rel="stylesheet" href="./codemirror/addon/scroll/simplescrollbars.css">
+    <script src="./codemirror/addon/scroll/simplescrollbars.js"></script>
+    <script src="./codemirror/addon/edit/closebrackets.js"></script>
+    <script src="./codemirror/mode/javascript/javascript.js"></script>
+    <link rel="stylesheet" href="./codemirror/addon/display/fullscreen.css">
+    <script src="./codemirror/addon/display/fullscreen.js"></script>
 </head>
 
 <body>
+
     <?php 
     require "navbar.php";
     ?>
@@ -610,7 +915,7 @@ overflow-x: hidden !important;
     .nvbar {
         background-color: #18181B;
         width: 100vw;
-		z-index:9991;
+        z-index: 9991;
     }
     </style>
     <div id="loading-screen">
@@ -620,7 +925,7 @@ overflow-x: hidden !important;
         <p id="loading-label" style="color:white">Loading Versions for '<?php echo $row['title']?>'</p>
 
     </div>
-	<?php
+    <?php
 
 $dir = './scripts/'.$_SESSION['uid']."_private/".$_GET['script_id']."/";
 function getMbsValue($value) {
@@ -667,15 +972,980 @@ if (is_dir($dir)) {
 } 
     ?>
     <div
-        style="position:fixed;top:7%;z-index:999;width:100%;background-color:#18181B;text-align:center;padding-bottom:10px;color:white">
+        style="position:fixed;top:7%;z-index:999;width:100%;background:none;text-align:center;padding-bottom:10px;color:white">
 
         <h1 style="display:inline-block"><?php echo $row['title'];?></h1>
-		<p style="display:inline-block;border:solid grey 1px;border-radius:5px;padding:5px;font-size:14px"><?php echo count($manifest);?> <?php echo (count($manifest) == 1 ? "version" : "versions")?> found</p>
-		<p style="display:inline-block;border:solid grey 1px;border-radius:5px;padding:5px;font-size:14px">Size: <?php echo number_format((float)getMbsValue($size), 2, '.', '');?>MB</p>
-
+        <p
+            style="background-color:#18181B;display:inline-block;border:solid grey 1px;border-radius:5px;padding:5px;font-size:14px">
+            <?php echo count($manifest);?> <?php echo (count($manifest) == 1 ? "version" : "versions")?> found</p>
+        <p
+            style="background-color:#18181B;display:inline-block;border:solid grey 1px;border-radius:5px;padding:5px;font-size:14px">
+            Size:
+            <?php echo number_format((float)getMbsValue($size), 2, '.', '');?>MB</p>
+        <button onclick="publishDetailsUpdate();"
+            style="padding:5px;display:inline-block;position:relative;background-color: #18181B;border:1px solid grey;border-radius:5px">
+            <svg style="width:12px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+                <!--! Font Awesome Pro 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
+                <path fill="white"
+                    d="M246.6 9.4c-12.5-12.5-32.8-12.5-45.3 0l-128 128c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 109.3V320c0 17.7 14.3 32 32 32s32-14.3 32-32V109.3l73.4 73.4c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3l-128-128zM64 352c0-17.7-14.3-32-32-32s-32 14.3-32 32v64c0 53 43 96 96 96H352c53 0 96-43 96-96V352c0-17.7-14.3-32-32-32s-32 14.3-32 32v64c0 17.7-14.3 32-32 32H96c-17.7 0-32-14.3-32-32V352z" />
+            </svg>
+            <div class="notificationIcon"
+                style="width:10px;height:10px;border-radius:50%;background-color:#FF69B4;position:absolute;bottom:-5px;right:-5px"
+                class="publish"></div>
+        </button>
     </div>
+    <div class="publishEditorBox">
+        <div class="publishImageBox"
+            onclick="event.stopPropagation();this.style.display='none';document.querySelector('.cards').innerHTML=''">
+            <div class="publishImageShow" onclick="event.stopPropagation()">
+                <input class="imageURL" type="link">
+                <textarea name="" class="description" cols="30" rows="10"></textarea>
+                <ul class="cards"></ul>
+            </div>
+        </div>
+        <div onclick="event.stopPropagation()" class="publishEditor">
+            <h1>Editor</h1>
+            <div class="publishCustomizationBox" style="position:relative">
+                <div class="spaceCustomization"></div>
+                <br>
+                <br>
+                <br>
+                <div class="toolBar">
+                    <button onclick="resetPublish()" type="reset">Reset</button>
+                    <label for="">New section:</label>
+                    <button onclick="addSection()">+</button>
+                    <label for="">New subsection:</label>
+                    <button onclick="addSubSection()">+</button>
+                    <button id="savePublish" onclick="savePublishResponse(this)">Save</button>
+                    <label for="">Add Image</label>
+                    <button
+                        onclick="document.querySelector('.publishImageBox').style.display='block';renderCard()">+</button>
+                </div>
+            </div>
+            <?php
+              $json = $row['publish_manifest'];
+              if (json_decode($json) === null or $json == "") {
+                $json = "[]";
+            }
+            ?>
+            <input type="text" id="publishJSON" value='<?php  echo $json ;?>'>
+        </div>
+        <div onclick="event.stopPropagation()" class="publishEditor renderedPublish">
+            <h1>Render</h1>
+            <br>
+            <br>
+            <div class="publishShowBox" style="width:100%">
+                <h2>Getting Started</h2>
+                <h3>Implementation</h3>
+                <p>JS Code</p>
+                <pre>
+  <code>
+document.addEventListener("DOMContentLoaded", function(event) {
+    var script = document.createElement('script');
+    document.body.appendChild(script);
+});
+  </code>
+</pre>
 
+            </div>
+        </div>
+    </div>
     <br>
+    <script>
+    card = `
+        <li>
+    <div  class="card">
+    <div class="card__open">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Pro 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path fill="grey" d="M32 32C14.3 32 0 46.3 0 64v96c0 17.7 14.3 32 32 32s32-14.3 32-32V96h64c17.7 0 32-14.3 32-32s-14.3-32-32-32H32zM64 352c0-17.7-14.3-32-32-32s-32 14.3-32 32v96c0 17.7 14.3 32 32 32h96c17.7 0 32-14.3 32-32s-14.3-32-32-32H64V352zM320 32c-17.7 0-32 14.3-32 32s14.3 32 32 32h64v64c0 17.7 14.3 32 32 32s32-14.3 32-32V64c0-17.7-14.3-32-32-32H320zM448 352c0-17.7-14.3-32-32-32s-32 14.3-32 32v64H320c-17.7 0-32 14.3-32 32s14.3 32 32 32h96c17.7 0 32-14.3 32-32V352z"/></svg>
+    </div>
+    <img id="card__image" onload="cardImg=this;cardImg.style.display = 'block';parent = cardImg.parentNode;parent.querySelector('div.card__image').style.display = 'none';" style="display:none;" loop src="" class="card__image" alt="" loop/>
+
+        <div class="card__image" style="background-color:grey;min-height:300px"></div>
+        <div class="card__overlay">
+            <div class="card__header">
+                <svg class="card__arc" xmlns="http://www.w3.org/2000/svg">
+                    <path />
+                </svg>
+                <img class="card__thumb" src="https://i.imgur.com/oYiTqum.jpg" alt="" />
+                <div class="card__header-text">
+                    <h3 class="card__title"><?php echo $row['title']?></h3>
+                    <a target="_blank" style="text-decoration: none;" href=""><span style="text-decoration:none" class="card__status">@<?php echo $user_details['username']?></span></a>
+                </div>
+            </div>
+            <p id="card__description" class="card__description">Pears are a type of fruit that
+                are enjoyed all over the world for their sweet and juicy flavor, as well as their many health
+                benefits. They come in a variety of colors, shapes, and sizes, and can be eaten raw, cooked, or
+                used in a variety of rsssssss
+            </p>
+        </div>
+    </div>
+</li>
+        `;
+    filler = `
+        <li>
+            <a href="" class="card filler" style="visibility:none">
+               
+            </a>
+        </li>
+        <li>
+            <a href="" class="card filler" style="visibility:none">
+              
+            </a>
+        </li>
+        <li>
+            <a href="" class="card filler" style="visibility:none">
+              
+            </a>
+        </li>
+        <li>
+            <a href="" class="card filler">
+             
+            </a>
+        </li>
+        `;
+    css = ` 
+    
+        <style>
+        :root {
+    --surface-color: rgba(43, 43, 45, 0.8) !important;
+    --curve: 15 !important;
+}
+
+* {
+    box-sizing: border-box !important;
+}
+
+body {
+  font-family: 'Roboto Mono', monospace;
+}
+
+
+
+
+.card {
+    position: relative !important;
+    display: block !important;
+    height: 100% !important;
+    border-radius: calc(var(--curve) * 1px) !important;
+    overflow: hidden !important;
+    text-decoration: none !important;
+    cursor: pointer !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.card__image {
+    width: 100% !important;
+    height: auto !important;
+}
+
+.card__overlay {
+    position: absolute !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 1 !important;
+    border-radius: calc(var(--curve) * 1px) !important;
+    background-color: var(--surface-color) !important;
+    transform: translateY(100%) !important;
+    transition: .2s ease-in-out !important;
+}
+
+.card:hover .card__overlay {
+    transform: translateY(0) !important;
+}
+
+.card:hover .card__open {
+    transform: scale(1.5) !important;
+
+}
+
+.card:hover .card__open svg path {
+    fill: #fff !important;
+
+}
+
+
+.card__header {
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 2em !important;
+    padding: 0.25em !important;
+    border-top-left-radius: calc(var(--curve) * 1px) !important;
+    border-top-right-radius: calc(var(--curve) * 1px) !important;
+    background-color: rgba(43, 43, 45, 0.5) !important;
+    transform: translateY(-100%) !important;
+    transition: .2s ease-in-out !important;
+    backdrop-filter: blur(10px) opacity(80%) !important;
+    -webkit-backdrop-filter: blur(5px) opacity(80%) !important;
+    z-index: 50 !important;
+}
+
+.card__arc {
+    width: 80px !important;
+    height: 80px !important;
+    position: absolute !important;
+    bottom: 100% !important;
+    right: 0 !important;
+    z-index: 1 !important;
+    display: none !important;
+}
+
+.card__arc path {
+    fill: var(--surface-color) !important;
+    d: path("M 40 80 c 22 0 40 -22 40 -40 v 40 Z") !important;
+    backdrop-filter: blur(10px) opacity(80%) !important;
+    -webkit-backdrop-filter: blur(5px) opacity(80%) !important;
+}
+
+
+.card:hover .card__header {
+    transform: translateY(0) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background-color: rgba(43, 43, 45, 1) !important;
+}
+
+.card__thumb {
+    flex-shrink: 0 !important;
+    width: 50px !important;
+    height: 50px !important;
+    border-radius: 15px !important;
+}
+
+.card__title {
+    font-size: 1em !important;
+    margin: 0 0 .3em !important;
+    color: white !important;
+}
+
+.card__tagline {
+    display: block !important;
+    margin: 1em 0 !important;
+    font-family: "MockFlowFont" !important;
+    font-size: .8em !important;
+    color: white !important;
+}
+
+.card__status {
+    font-size: .8em !important;
+    color: white !important;
+}
+.card__description {
+    padding: 5px !important;
+    padding-bottom: 5px !important;
+    padding-left: 5px !important;
+    margin: 0 !important;
+    color: white !important;
+    font-size: 10px !important;
+    width: 100% !important;
+    display: -webkit-box !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+    word-wrap: break-word !important;
+    hyphens: auto !important;
+    border-bottom-left-radius: calc(var(--curve) * 1px) !important;
+    border-bottom-right-radius: calc(var(--curve) * 1px) !important;
+    backdrop-filter: blur(10px) opacity(80%) !important;
+    -webkit-backdrop-filter: blur(5px) opacity(80%) !important;
+}
+
+
+.filler {
+    display: none !important;
+}
+
+.projectDetailsBox {
+    position: fixed !important;
+    width: 100% !important;
+    height: 100% !important;
+    background-color: rgba(24, 24, 27, 0.8) !important;
+    z-index: 101 !important;
+    top: 0 !important;
+    display: none !important;
+    backdrop-filter: blur(10px) !important;
+}
+
+::-webkit-scrollbar {
+    width: 10px !important;
+}
+
+::-webkit-scrollbar-track {
+    background-color: #f1f1f1 !important;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #ccc !important;
+    border-radius: 5px !important;
+}
+
+* {
+    scrollbar-width: thin !important;
+    scrollbar-color: #ccc #f1f1f1 !important;
+}
+
+*::-webkit-scrollbar-track {
+    background-color: #f1f1f1 !important;
+}
+
+*::-webkit-scrollbar-thumb {
+    background-color: #ccc !important;
+    border-radius: 5px !important;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background-color: #aaa !important;
+}
+
+.projectDetails {
+    width: 80% !important;
+    height: 80% !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    background-color: #2B2B2D !important;
+    border-radius: 10px !important;
+}
+.cardSearch {
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.topBar {
+    height: 60px;
+    width: 100vw;
+    background-color: none;
+    position: fixed;
+    top: 10px;
+    left: 0;
+    z-index: 100;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto Mono', monospace;
+
+}
+
+.tabs {
+    width: 30%;
+    background-color: none;
+    display: flex;
+    overflow-x: hidden;
+    left: 50%;
+    transform: translateX(-50%);
+    position: absolute;
+}
+
+.mainBar {
+    width: 100%;
+    background-color: none;
+    justify-content: center;
+    display: flex;
+}
+
+.tab {
+    padding: 7px;
+    width: fit-content;
+    display: inline-block;
+    border-radius: 5px;
+    background-color: #2B2B2D;
+    backdrop-filter: blur(10px) opacity(80%);
+    -webkit-backdrop-filter: blur(5px) opacity(80%);
+    color: white;
+    font-size: 13px;
+    cursor: pointer;
+    font-weight: bold;
+    margin: 5px;
+    border: solid 1px black;
+    display: flex;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+}
+
+.scroll-button {
+    position: absolute;
+    padding: 7px;
+    font-size: 17px;
+    background-color: #2B2B2D;
+    border: none;
+    cursor: pointer;
+    z-index: 100;
+    border-radius: 10px;
+    padding-left: 15px;
+    padding-right: 15px;
+    transition: transform 0.3s ease;
+    color: white;
+    border: 1px solid black;
+}
+
+.scroll-button:hover {
+    transform: scale(1.1);
+}
+
+.left {
+    left: 31.5%;
+    display: none;
+}
+
+.right {
+    right: 31.5%;
+}
+
+.tabContainer {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    background-color: none;
+    display: flex;
+    left: 50%;
+    transform: translateX(-50%);
+    position: absolute;
+    top: 110px;
+}
+
+.tab:hover {
+    background-color: #3B3B3D;
+    color: white;
+}
+
+.free {
+    background-color: rgba(0, 128, 0, 0.8);
+}
+
+.monetized {
+    background-color: rgba(255, 215, 0, 0.8);
+}
+
+.active {
+    background-color: white;
+    border: 1px solid #2B2B2D;
+    color: black;
+}
+
+div .card__image {
+    background-color: #2b2b2d;
+    animation: colorSwitch 2s ease-in-out infinite;
+}
+
+@keyframes colorSwitch {
+    0% {
+        background-color: #2b2b2d;
+    }
+
+    50% {
+        background-color: #333333;
+    }
+
+    100% {
+        background-color: #2b2b2d;
+    }
+}
+
+.card__open {
+    background-color: #2b2b2d;
+    width: 30px;
+    height: 30px;
+    border-radius: 10px;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    padding: 8px;
+    justify-content: center;
+    display: flex;
+}
+        </style>
+        `;
+
+    function renderCard() {
+        display = document.querySelector('.cards');
+        display.innerHTML = "";
+        display.innerHTML += css;
+        display.innerHTML += card;
+        display.innerHTML += filler;
+        
+        var image = document.querySelector('.imageURL').value;
+        if (isValidUrl(image) == true) {
+            var imageDisplay = document.querySelector('#card__image');
+            imageDisplay.src = image;
+        }
+        var description = document.querySelector('.description').value;
+        description = htmlEncode(description); 
+        var descriptionDisplay = document.querySelector('#card__description');
+        descriptionDisplay.innerHTML = description;
+    }
+    description = document.querySelector('.description');
+    description.addEventListener("keyup", function(event) {
+        var description = document.querySelector('.description').value;
+        description = htmlEncode(description); 
+        var descriptionDisplay = document.querySelector('#card__description');
+        descriptionDisplay.innerHTML = description;
+    });
+    imageURL = document.querySelector('.imageURL');
+    imageURL.addEventListener("keyup", function(event) {
+        var image = document.querySelector('.imageURL').value;
+        if (isValidUrl(image) == true) {
+            var imageDisplay = document.querySelector('#card__image');
+            imageDisplay.src = image;
+        }
+    });
+
+    function resetPublish() {
+        var publishJSON = document.getElementById('publishJSON');
+        publishJSON.value = "[]";
+        renderPublish();
+        savePublishResponse();
+    }
+
+    function htmlEncode1(str) {
+        var el = document.createElement("div");
+        el.innerText = el.textContent = str;
+        str = el.innerHTML;
+        return str;
+    }
+
+    function htmlDecode1(str) {
+        var el = document.createElement("div");
+        el.innerHTML = str;
+        str = el.innerText;
+        return str;
+    }
+
+    function htmlEncode(str) {
+        var el = document.createElement("div");
+        el.innerText = el.textContent = str;
+        str = el.innerHTML;
+        str = str.replace(/\{/g, '&#123;').replace(/\}/g, '&#125;'); // Replace { and } with HTML entities
+        str = str.replace(/\[/g, '&#91;').replace(/\]/g, '&#93;'); // Replace [ and ] with HTML entities
+        str = str.replace(/\'/g, '&#39;'); // Replace ' with HTML entity
+        return str;
+    }
+
+    function htmlDecode(str) {
+        var el = document.createElement("div");
+        el.innerHTML = str;
+        str = el.innerText;
+        str = str.replace(/&#123;/g, '{').replace(/&#125;/g, '}'); // Replace HTML entities with { and }
+        str = str.replace(/&#91;/g, '[').replace(/&#93;/g, ']'); // Replace HTML entities with [ and ]
+        str = str.replace(/&#39;/g, '\''); // Replace HTML entity with '
+        return str;
+    }
+
+
+    function loadPublishSettingsFromJSON() {
+
+    }
+
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                timeout = null;
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+
+    function keyup() {
+        var publishJSON = document.getElementById("publishJSON");
+        publishJSON = JSON.parse(publishJSON.value);
+        var encodedValue = htmlEncode(editor.getValue().replace(/"/g, '\"'));
+        var escapedValue = htmlEncode(encodedValue)
+
+        publishJSON[i]['subSections'][j]['info'][k]['content'] =
+            escapedValue
+        document.getElementById("publishJSON").value = JSON.stringify(publishJSON);
+        renderPublish();
+    };
+
+
+    function renderPublish() {
+
+        var publishJSON = document.getElementById("publishJSON");
+        publishJSON = JSON.parse(publishJSON.value);
+        var publishShowBox = document.querySelector(".publishShowBox");
+        publishShowBox.style.wordWrap = "break-word";
+        publishShowBox.style.overflowWrap = "break-word";
+        publishShowBox.innerHTML = "<h2>Getting Started</h2>";
+        for (var i = 0; i < publishJSON.length; i++) {
+            var section = document.createElement("div");
+            section.classList.add("sectionRendered");
+            section.innerHTML = "<h2>" + htmlDecode(publishJSON[i]['title']) + "</h2>";
+            for (var j = 0; j < publishJSON[i]['subSections'].length; j++) {
+                var subSection = document.createElement("div");
+                subSection.classList.add("subSectionRendered");
+                subSection.innerHTML = "<h3>" + htmlDecode(publishJSON[i]['subSections'][j]['title']) + "</h3>";
+                for (var k = 0; k < publishJSON[i]['subSections'][j]['info'].length; k++) {
+                    var info = document.createElement("div");
+                    info.style.width = "100%";
+                    info.style.position = "relative";
+                    info.classList.add("infoRendered");
+                    if (publishJSON[i]['subSections'][j]['info'][k]['type'] == "text") {
+                        info.innerHTML += "<p class='text'>" + htmlDecode(publishJSON[i]['subSections'][j]['info'][k]['content']) +
+                            "</p>";
+                    } else if (publishJSON[i]['subSections'][j]['info'][k]['type'] == "code") {
+                        info.innerHTML += "<pre class='code'><code>" + htmlDecode(publishJSON[i]['subSections'][j]['info'][k][
+                                'content'
+                            ]) +
+                            "</code></pre>";
+                    } else if (publishJSON[i]['subSections'][j]['info'][k]['type'] == "html") {
+                        info.innerHTML +=
+                            "<pre class='html' style=''>" +
+                            htmlDecode(htmlDecode1(publishJSON[i]['subSections'][j]['info'][k]['content'])) + "</pre>";
+                    }
+                    subSection.appendChild(info);
+                }
+                section.appendChild(subSection);
+            }
+            publishShowBox.appendChild(section);
+        }
+
+        
+        // Disable all links
+
+        var allLinks = publishShowBox.getElementsByTagName('a');
+        for (var i = 0; i < allLinks.length; i++) {
+            allLinks[i].href = '';
+        }
+
+        // Disable all forms
+        var allForms = publishShowBox.getElementsByTagName('form');
+        for (var i = 0; i < allForms.length; i++) {
+            allForms[i].addEventListener('submit', function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+            });
+        }
+
+        // Disable all buttons and input[type="submit"]
+        var allButtons = publishShowBox.getElementsByTagName('button');
+        var allInputSubmits = publishShowBox.querySelectorAll('input[type="submit"]');
+        var allSubmitters = Array.prototype.slice.call(allButtons).concat(Array.prototype.slice.call(allInputSubmits));
+
+        for (var i = 0; i < allSubmitters.length; i++) {
+            allSubmitters[i].addEventListener('click', function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+            });
+        }
+        // Get all JavaScript elements within the div
+        jsElements = publishShowBox.querySelectorAll('script');
+
+        // Loop through each JavaScript element and disable it
+        jsElements.forEach(jsElement => {
+            jsElement.disabled = true;
+        });
+        // Get all elements within the div
+        allElements = publishShowBox.getElementsByTagName('*');
+
+        // List of all trigger attributes to remove
+        triggerAttrs = [
+            'onclick', 'ondblclick', 'onmousedown', 'onmouseup', 'onmouseover', 'onmousemove',
+            'onmouseout', 'onmouseenter', 'onmouseleave', 'onkeydown', 'onkeypress', 'onkeyup',
+            'onabort', 'onerror', 'onload', 'onresize', 'onscroll', 'onunload', 'onblur',
+            'onchange', 'onfocus', 'onreset', 'onsubmit'
+        ];
+
+        // Loop through each element and remove the trigger attributes
+        for (let i = 0; i < allElements.length; i++) {
+            const element = allElements[i];
+            for (let j = 0; j < triggerAttrs.length; j++) {
+                element.removeAttribute(triggerAttrs[j]);
+            }
+        }
+        // Get all <a> tags within the div
+        allATags = publishShowBox.getElementsByTagName('a');
+
+        for (let i = 0; i < allATags.length; i++) {
+            const aTag = allATags[i];
+            const divTag = document.createElement('div');
+            divTag.innerHTML = aTag.innerHTML;
+            const computedStyle = window.getComputedStyle(aTag);
+            for (let j = 0; j < computedStyle.length; j++) {
+                const cssPropName = computedStyle[j];
+                divTag.style[cssPropName] = computedStyle.getPropertyValue(cssPropName);
+            }
+            aTag.parentNode.replaceChild(divTag, aTag);
+        }
+        styles = publishShowBox.querySelectorAll('style');
+        styles.forEach(style => {
+            publishShowBox.style.cssText += style.innerHTML;
+            style.remove();
+        });
+        links = publishShowBox.querySelectorAll('link'); // select all link elements inside the div
+
+        links.forEach(link => {
+            link.remove(); // remove the link element from the div
+        });
+
+        allowedWebsites = ['https://example.com', 'https://cdpn.io', '<?php echo $website;?>',
+            'https://codepen.io'
+        ]; // list of allowed websites
+
+        iframes = publishShowBox.querySelectorAll('iframe'); // select all iframe elements inside the div
+
+        iframes.forEach(iframe => {
+            const src = iframe.getAttribute('src');
+            if (!allowedWebsites.some(url => src.startsWith(url))) {
+                iframe.remove();
+            }
+        });
+
+
+    }
+
+    function addSection() {
+        var publishJSON = document.getElementById("publishJSON");
+        var publishCustomizationBox = document.querySelector(".publishCustomizationBox");
+        publishJSON = JSON.parse(publishJSON.value);
+        console.log(publishJSON);
+        if (publishJSON.length != 0) {
+            if (publishJSON[publishJSON.length - 1]['subSections'].length == 0) {
+                return;
+            }
+            if (publishJSON[publishJSON.length - 1]['subSections'][publishJSON[publishJSON.length - 1]['subSections']
+                    .length - 1
+                ]['info'].length == 0) {
+                return;
+            }
+        }
+        var newSection = document.createElement("div");
+        newSection.id = "section" + publishJSON.length;
+        newSection.classList.add("section");
+        newSection.innerHTML = '<label for="">Section ' + (publishJSON.length + 1) +
+            ':</label><input type="text" position="' + publishJSON.length + '" class="sectionInput" id="section' +
+            publishJSON.length + 'Input">';
+
+        publishCustomizationBox.appendChild(newSection);
+        // Get the input element
+        input = document.getElementById("section" + publishJSON.length + "Input");
+
+        // Define the event handler function
+        function handleKeyUp(event) {
+            var publishJSON = document.getElementById("publishJSON");
+            publishJSON = JSON.parse(publishJSON.value);
+            var position = event.target.getAttribute("position");
+            var encodedValue = htmlEncode(event.target.value.replace(/"/g, '\"'));
+            var escapedValue = htmlEncode(encodedValue)
+            publishJSON[position]['title'] = escapedValue;
+            document.getElementById("publishJSON").value = JSON.stringify(publishJSON);
+            renderPublish();
+        }
+
+        // Add a debounced keyup event listener to the input element
+        input.addEventListener("keyup", debounce(handleKeyUp, 1000));
+        publishJSON.push({
+            "title": "",
+            "subSections": []
+        });
+
+        publishJSON = JSON.stringify(publishJSON);
+
+        document.getElementById("publishJSON").value = publishJSON;
+
+        renderPublish();
+    }
+
+    function addSubSection() {
+        var publishJSON = document.getElementById("publishJSON");
+        var publishCustomizationBox = document.querySelector(".publishCustomizationBox");
+        publishJSON = JSON.parse(publishJSON.value);
+        console.log(publishJSON);
+        if (publishJSON[publishJSON.length - 1]['subSections'].length != 0) {
+
+            if (publishJSON[publishJSON.length - 1]['subSections'][publishJSON[publishJSON.length - 1]['subSections']
+                    .length - 1
+                ]['info'].length == 0) {
+                return;
+            }
+        }
+        var newSubSection = document.createElement("div");
+        newSubSection.id = "subSection" + publishJSON.length + publishJSON[publishJSON.length - 1]['subSections']
+            .length;
+        newSubSection.classList.add("subSection");
+        newSubSection.innerHTML = '<label for="">Subsection ' + (publishJSON[publishJSON.length - 1]['subSections']
+                .length + 1) + ':</label><input type="text" position="' + publishJSON[publishJSON.length - 1][
+                'subSections'
+            ]
+            .length + '" position1="' + publishJSON.length + '" class="subSectionInput" id="subSection' + publishJSON
+            .length + publishJSON[publishJSON.length - 1]['subSections'].length +
+            'Input"><label for="">Type:</label><select name="" id="' + "subSectionType" + publishJSON.length +
+            publishJSON[publishJSON.length - 1]['subSections']
+            .length +
+            '"><option value="text">Text</option> <option value="html">HTML</option><option value="code">Code</option></select><button style="width:30px" onclick="addInfo(`' +
+            publishJSON.length + '`,`' + publishJSON[publishJSON.length - 1]['subSections'].length +
+            '`,document.getElementById(`' + "subSectionType" + publishJSON.length + publishJSON[publishJSON.length - 1][
+                'subSections'
+            ]
+            .length +
+            '`).value);"><svg  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Pro 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path fill="black" d="M105.1 202.6c7.7-21.8 20.2-42.3 37.8-59.8c62.5-62.5 163.8-62.5 226.3 0L386.3 160H336c-17.7 0-32 14.3-32 32s14.3 32 32 32H463.5c0 0 0 0 0 0h.4c17.7 0 32-14.3 32-32V64c0-17.7-14.3-32-32-32s-32 14.3-32 32v51.2L414.4 97.6c-87.5-87.5-229.3-87.5-316.8 0C73.2 122 55.6 150.7 44.8 181.4c-5.9 16.7 2.9 34.9 19.5 40.8s34.9-2.9 40.8-19.5zM39 289.3c-5 1.5-9.8 4.2-13.7 8.2c-4 4-6.7 8.8-8.1 14c-.3 1.2-.6 2.5-.8 3.8c-.3 1.7-.4 3.4-.4 5.1V448c0 17.7 14.3 32 32 32s32-14.3 32-32V396.9l17.6 17.5 0 0c87.5 87.4 229.3 87.4 316.7 0c24.4-24.4 42.1-53.1 52.9-83.7c5.9-16.7-2.9-34.9-19.5-40.8s-34.9 2.9-40.8 19.5c-7.7 21.8-20.2 42.3-37.8 59.8c-62.5 62.5-163.8 62.5-226.3 0l-.1-.1L125.6 352H176c17.7 0 32-14.3 32-32s-14.3-32-32-32H48.4c-1.6 0-3.2 .1-4.8 .3s-3.1 .5-4.6 1z"/></svg></button>';
+
+        publishCustomizationBox.appendChild(newSubSection);
+        const publishJSONInputHandler = (event) => {
+            const publishJSONElement = document.getElementById("publishJSON");
+            const publishJSON = JSON.parse(publishJSONElement.value);
+            const position = event.target.getAttribute("position");
+            const position1 = event.target.getAttribute("position1");
+            var encodedValue = htmlEncode(event.target.value.replace(/"/g, '\"'));
+            var escapedValue = htmlEncode(encodedValue)
+            publishJSON[position1 - 1]['subSections'][position]['title'] = escapedValue;
+            publishJSONElement.value = JSON.stringify(publishJSON);
+            renderPublish();
+        };
+
+        const publishJSONInput = document.getElementById("subSection" + publishJSON.length + publishJSON[publishJSON
+            .length - 1]['subSections'].length + "Input");
+        const debouncedPublishJSONInputHandler = debounce(publishJSONInputHandler, 1000);
+
+        publishJSONInput.addEventListener("keyup", debouncedPublishJSONInputHandler);
+
+        publishJSON[publishJSON.length - 1]['subSections'].push({
+            "title": "",
+            "info": []
+        });
+        publishJSON = JSON.stringify(publishJSON);
+        document.getElementById("publishJSON").value = publishJSON;
+        renderPublish();
+    }
+
+    function addInfo(section_id, subSection_id, type) {
+        var publishJSON = document.getElementById("publishJSON");
+        var publishCustomizationBox = document.querySelector(".publishCustomizationBox");
+        publishJSON = JSON.parse(publishJSON.value);
+        console.log(publishJSON);
+        if (publishJSON[section_id - 1]['subSections'][subSection_id].length != 0) {
+
+            if (publishJSON[section_id - 1]['subSections'][subSection_id]['info'].length != 0) {
+                document.getElementById("info" + section_id + subSection_id).classList = [];
+                document.getElementById("info" + section_id + subSection_id).classList.add(type);
+                publishJSON[section_id - 1]['subSections'][subSection_id]['info'][0]['type'] = type;
+                publishJSON = JSON.stringify(publishJSON);
+                document.getElementById("publishJSON").value = publishJSON;
+                renderPublish();
+                return;
+
+            }
+        }
+
+        if (type == "text") {
+            var newInfo = document.createElement("textarea");
+            newInfo.rows = "4"
+            newInfo.cols = "40"
+            newInfo.id = "info" + section_id + subSection_id;
+            newInfo.classList.add(type);
+            parentSubSection = document.getElementById("subSection" + section_id + subSection_id);
+            parentSubSection.insertAdjacentElement("afterend", newInfo);
+
+        } else if (type == "html") {
+            var newInfo = document.createElement("textarea");
+            newInfo.rows = "4"
+            newInfo.cols = "40"
+            newInfo.id = "info" + section_id + subSection_id;
+            newInfo.classList.add(type);
+            parentSubSection = document.getElementById("subSection" + section_id + subSection_id);
+            parentSubSection.insertAdjacentElement("afterend", newInfo);
+
+        } else if (type == "code") {
+            var newInfo = document.createElement("textarea");
+            newInfo.rows = "4"
+            newInfo.cols = "40"
+            newInfo.id = "info" + section_id + subSection_id;
+            newInfo.classList.add(type);
+            parentSubSection = document.getElementById("subSection" + section_id + subSection_id);
+            parentSubSection.insertAdjacentElement("afterend", newInfo);
+
+        }
+        var editor = CodeMirror.fromTextArea(document.getElementById("info" + section_id + subSection_id), {
+            lineNumbers: true,
+            lineWrapping: true,
+            mode: "text",
+            theme: "dracula",
+            scrollbarStyle: "simple",
+            autoCloseBrackets: true,
+            extraKeys: {
+                "Alt-F": "findPersistent"
+            },
+            highlightSelectionMatches: {
+                showToken: /\w/,
+                annotateScrollbar: true
+            },
+            extraKeys: {
+                "F11": function(cm) {
+                    cm.setOption("fullScreen", !cm.getOption("fullScreen"));
+                },
+                "Esc": function(cm) {
+                    if (cm.getOption("fullScreen")) cm.setOption("fullScreen", false);
+                }
+            }
+        });
+        editor.setSize("100%", "150px");
+        publishJSON[section_id - 1]['subSections'][subSection_id]['info'].push({
+            "type": type,
+            "content": ""
+        });
+        document.getElementById("publishJSON").value = JSON.stringify(publishJSON);
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    timeout = null;
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        function keyup() {
+            var publishJSON = document.getElementById("publishJSON");
+            publishJSON = JSON.parse(publishJSON.value);
+            var encodedValue = htmlEncode(editor.getValue().replace(/"/g, '\"'));
+            var escapedValue = htmlEncode(encodedValue)
+            publishJSON[section_id - 1]['subSections'][subSection_id]['info'][0]['content'] =
+                escapedValue
+            document.getElementById("publishJSON").value = JSON.stringify(publishJSON);
+            renderPublish();
+        };
+
+        editor.on("keyup", debounce(keyup, 1000));
+
+        renderPublish();
+
+    }
+    publishEditorH1 = document.querySelector(".publishEditor h1");
+    all = '<?php echo json_encode($manifest);?>';
+    all = JSON.parse(all);
+    document.getElementsByTagName("title")[0].innerHTML =
+        "(<?php echo count($manifest);?>) '<?php echo $row['title'];?>' Versions - CodeConnect"
+    title = '<?php echo $row['title'];?>';
+    publishEditor = document.querySelector(".publishEditor");
+    publishEditorBox = document.querySelector(".publishEditorBox");
+
+    publishEditorBox.addEventListener("click", function() {
+        document.querySelector(".publishEditorBox").style.display = "none";
+        publishShowBox = document.querySelector(".publishShowBox");
+        publishShowBox.innerHTML = "";
+    })
+
+    function publishDetailsUpdate() {
+        publishEditorBox = document.querySelector(".publishEditorBox");
+
+        publishEditorBox.style.display = "flex";
+        renderPublish();
+
+    }
+    </script>
     <div class="grid">
         <?php
 		function formatDate($inputDate) {
@@ -742,20 +2012,336 @@ if (is_dir($dir)) {
 		}
 		
 		?>
+        <div class="card filler"></div>
+        <div class="card filler"></div>
+        <div class="card filler"></div>
+
     </div>
-    <script>
-    window.addEventListener("load", function() {
-        const loader = document.querySelector("#loading-screen");
-        loader.style.visibility = "hidden";
-    });
-    </script>
-    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
-        integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous">
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
-        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous">
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/browser-scss@1.0.3/dist/browser-scss.min.js"></script>
+    <div id="confirmation" onclick="this.style.display='none'">
+        <div id="confirmationBox" onclick="event.stopPropagation();">
+            <h3>Review Changes</h3>
+            <div class="showChanges"></div>
+            <button id="confirmSave">Confirm</button>
+            <button onclick="closeConfirmation()" id="cancelSave">Cancel</button>
+        </div>
+    </div>
+    <div id="versionOptions" onclick="this.style.display='none'">
+        <div id="versionOptionsBox" onclick="event.stopPropagation();">
+
+            <div class="optionsSection">
+                <h3 class="versionNumber">Version</h3>
+                <h3>Options</h3>
+                <div class="options">
+                    <p>Change Status:</p>
+                    <select id="statusOptions">
+                        <option value="unlisted">Unlisted</option>
+                        <option value="private">Private</option>
+                        <option value="public">Public</option>
+                        <option value="monetized">Monetized</option>
+                    </select>
+                    <p>Authorized Websites:</p>
+                    <input class="authorizedWebsite" style="display:inline-block" type="text"
+                        placeholder="Authorized Websites">
+                    <input type="hidden" id="authWebsites">
+                    <button id="authAdd" onclick="addAuthWebsite()" style="display:inline-block">+</button>
+                    <div class="info showAuthWebsites"></div>
+                    <p>Creation Date:</p>
+                    <p class="info creationDate"></p>
+                    <p>Last Edited:</p>
+                    <p class="info lastEditedDate"></p>
+                    <p>Release Date:</p>
+                    <p class="info releaseDate"></p>
+                    <p>Libraries:</p>
+                    <input type="text" placeholder="Libraries">
+                    <br>
+                    <button id="updateManifest">Save</button>
+
+                </div>
+                <div style="width:100%;height:30px;position:fixed;
+        top: 10px;
+        left: 10px;">
+                    <button onclick="closeOptions()"
+                        style="float:right;background:none;border:none;color:white;font-size:40px;cursor:pointer;">&times;</button>
+                </div>
+            </div>
+        </div>
+        <input type="hidden" id="selectedVersion">
+        <script>
+        window.addEventListener("load", function() {
+            const loader = document.querySelector("#loading-screen");
+            loader.style.visibility = "hidden";
+        });
+
+        function closeConfirmation() {
+            document.querySelector("#confirmation").style.display = "none";
+        }
+
+
+
+        function addAuthWebsite() {
+            var authWebsite = document.querySelector(".authorizedWebsite").value;
+            if (isValidUrl(authWebsite) == false) {
+                alert("Invalid URL");
+                return;
+            }
+
+            version = document.querySelector("#selectedVersion").value;
+            authWebsites = document.querySelector("#authWebsites").value;
+            authWebsitesArr = authWebsites.split(",");
+            if (authWebsitesArr.includes(authWebsite.trim())) {
+                alert("This website is already authorized");
+                return;
+            }
+            if (authWebsites == "") {
+                authWebsites = authWebsite;
+            } else {
+                authWebsites = authWebsites + "," + authWebsite;
+            }
+            amount = authWebsites.split(",").length;
+            document.querySelector("#authWebsites").value = authWebsites;
+            document.querySelector(".showAuthWebsites").innerHTML += "<div id='authWebsite" + amount +
+                "'><p style='display:inline-block'>" + authWebsite + "</p><button onclick='removeAuthWebsite(`" +
+                authWebsite + "`)' style='display:inline-block;cursor:pointer'>-</button></div> ";
+        }
+
+        function removeEventListeners(elem) {
+            var elemClone = elem.cloneNode(true);
+            elem.parentNode.replaceChild(elemClone, elem);
+        }
+
+        function removeAuthWebsite(authWebsite) {
+            version = document.querySelector("#selectedVersion").value;
+            authWebsites = document.querySelector("#authWebsites").value;
+            authWebsites = authWebsites.split(",");
+            allAuthSites = document.querySelector(".showAuthWebsites")
+            i = 0;
+            allAuthSites.querySelectorAll("div").forEach(function(div) {
+                if (div.querySelector("p").innerText == authWebsite) {
+                    div.remove();
+                    authWebsites.splice(i, 1);
+                    i++;
+                }
+            });
+            authWebsites = authWebsites.join(",");
+            amount = authWebsites.split(",").length;
+            document.querySelector("#authWebsites").value = authWebsites;
+        }
+
+        function closeOptions() {
+            document.getElementById("versionOptions").style.display = "none";
+        }
+
+        function isValidUrl(url) {
+            try {
+                new URL(url);
+                return true;
+            } catch (error) {
+                return false;
+            }
+        }
+
+        function makeApiRequest(method, url, data) {
+            return new Promise(function(resolve, reject) {
+                const xhr = new XMLHttpRequest();
+                xhr.open(method, url);
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.onload = function() {
+                    if (xhr.status === 200) {
+                        resolve(xhr.response);
+                    } else {
+                        reject(new Error(
+                            `API request failed with status ${xhr.status}: ${xhr.statusText}`
+                        ));
+                    }
+                };
+                xhr.onerror = function() {
+                    reject(new Error('API request failed due to a network error.'));
+                };
+                xhr.send(JSON.stringify(data));
+            });
+        }
+
+        function openOptionsMenu(version) {
+            document.getElementById("versionOptions").style.display = "block";
+            status = all[version][0]['status'];
+            authorized_websites = all[version][0]['authorized_websites'];
+            creation_date = all[version][0]['creation_date'];
+            last_edited = all[version][0]['last_edited'];
+            release_date = all[version][0]['release_date'];
+            libraries = all[version][0]['libraries'];
+            updateManifest = document.getElementById("updateManifest");
+
+            updateManifest.addEventListener("click", updateManifestFunc);
+
+            function updateManifestFunc() {
+                if (document.getElementById("authWebsites").value.trim() == "") {
+                    manifestAuthWebsites = [];
+                } else {
+                    manifestAuthWebsites = document.getElementById("authWebsites").value.trim().split(",");
+                }
+                manifestStatus = document.getElementById("statusOptions").value;
+                data = {
+                    "version": version,
+                    "authWebsites": manifestAuthWebsites,
+                    "status": manifestStatus
+                }
+                legacyManifest = {
+                    "version": version,
+                    "authWebsites": authorized_websites,
+                    "status": status
+                }
+
+                function checkChanges(data, legacyManifest) {
+                    showChanges = document.querySelector(".showChanges");
+                    showChanges.innerHTML = "";
+                    changed = false;
+                    if (data['status'] == "monetized" && legacyManifest['status'] != "monetized") {
+                        showChanges.innerHTML += "<p>Monetize '" + title + "'</p>";
+                        changed = true;
+                    } else {
+                        if (data["status"] != legacyManifest["status"]) {
+                            showChanges.innerHTML += "<p>Status changed from " + legacyManifest["status"] + " to " +
+                                data["status"] + "</p>";
+                            changed = true;
+                        }
+                    }
+
+                    if (data["authWebsites"] != legacyManifest["authWebsites"]) {
+                        for (var i = 0; i < data["authWebsites"].length; i++) {
+                            if (legacyManifest["authWebsites"].includes(data["authWebsites"][i]) == false) {
+                                showChanges.innerHTML += "<p>Added: " + data["authWebsites"][i] + "</p>";
+                                changed = true;
+                            }
+                        }
+
+                        for (var i = 0; i < legacyManifest["authWebsites"].length; i++) {
+                            if (data["authWebsites"].includes(legacyManifest["authWebsites"][i]) == false) {
+                                showChanges.innerHTML += "<p>Removed: " + legacyManifest["authWebsites"][i] + "</p>";
+                                changed = true;
+                            }
+                        }
+                    }
+
+                    if (!changed) {
+                        showChanges.innerHTML = "<p>No changes made.</p>";
+                    }
+                    document.getElementById("confirmation").style.display = "block";
+                    return changed;
+                }
+                if (checkChanges(data, legacyManifest)) {
+                    document.querySelector("#confirmSave").addEventListener("click", function() {
+                        console.log("Saving changes");
+                        method = "POST";
+                        baseUrl = window.location.protocol + "//" + window.location.hostname;
+                        url = baseUrl + "/api/private/edit_manifest_js/";
+                        data.api_token = '<?php echo $_SESSION['api_token']; ?>';
+                        data.uid = '<?php echo $_SESSION['uid']; ?>';
+                        data.script_id = '<?php echo $_GET['script_id']; ?>';
+
+                        function saveScriptId(response) {
+                            console.log(response);
+                            response = JSON.parse(response);
+                            if (response.success) {
+                                document.querySelector(".showChanges").innerHTML = "<p>Changes saved.</p>";
+                            } else {
+                                document.querySelector(".showChanges").innerHTML =
+                                    "<p>Error - Changes not saved.</p>";
+                            }
+                        }
+                        makeApiRequest(method, url, data)
+                            .then(saveScriptId)
+                            .catch((error) => console.error(error));
+                    });
+                } else {
+                    removeEventListeners(document.querySelector("#confirmSave"));
+                }
+            }
+            document.querySelector(".creationDate").innerText = creation_date;
+            document.querySelector(".showAuthWebsites").innerHTML = "";
+            for (var i = 0; i < authorized_websites.length; i++) {
+                document.querySelector(".showAuthWebsites").innerHTML +=
+                    "<div id='authWebsite" + i + "'><p style='display:inline-block'>" + authorized_websites[i] +
+                    "</p><button onclick='removeAuthWebsite(`" + authorized_websites[i] +
+                    "`)' style='display:inline-block;cursor:pointer'>-</button></div> ";
+            }
+            document.getElementById("selectedVersion").value = version;
+            document.getElementById("authWebsites").value = authorized_websites.join(",");
+            document.querySelector(".authorizedWebsite").value = "";
+            document.querySelector(".lastEditedDate").innerText = last_edited;
+            document.querySelector(".releaseDate").innerText = release_date;
+            // Get the select element and its options
+            var select = document.getElementById("statusOptions");
+            var options = select.options;
+
+            // Loop through the options and find the matching value
+            for (var i = 0; i < options.length; i++) {
+                if (options[i].value == status) {
+                    // Set the selected attribute of the matching option
+                    options[i].selected = true;
+                    break;
+                }
+            }
+            document.querySelector(".optionsSection > .versionNumber").innerText = version;
+
+        }
+
+        window.onload = function() {
+            loadPublishSettingsFromJSON();
+            document.getElementById("publishJSON").value = htmlEncode1(document.getElementById("publishJSON")
+                .value);
+            renderPublish();
+
+        }
+
+        function savePublishResponse(btn = document.getElementById("savePublish")) {
+            method = "POST";
+            baseUrl = window.location.protocol + "//" + window.location.hostname;
+            url = baseUrl + "/api/private/save_publish_manifest/";
+            publishJSON = document.getElementById("publishJSON").value;
+            publishJSON = publishJSON.replace(/\\/g, "\\\\");
+            data = {
+                "script_id": "<?php echo $_GET['script_id'];?>",
+                "publish_manifest": publishJSON,
+                "api_token": "<?php echo $_SESSION['api_token'];?>",
+                "uid": "<?php echo $_SESSION['uid'];?>"
+            };
+
+            function saveScriptId(response) {
+                console.log(response);
+                response = JSON.parse(response);
+                if (response.success) {
+                    btn.innerText = "Saved";
+                    setTimeout(() => {
+                        btn.innerText = "Save";
+                    }, 2000);
+                } else {
+                    btn.innerText = "Error";
+                    setTimeout(() => {
+                        btn.innerText = "Save";
+                    }, 2000);
+                }
+            }
+
+            makeApiRequest(method, url, data)
+                .then(saveScriptId)
+                .catch((error) => console.error(error));
+        }
+        var allowedUrl = "<?php  echo $website;?>";
+        window.addEventListener("beforeunload", function(event) {
+            var currentUrl = window.location.href;
+            if (currentUrl && !currentUrl.startsWith(allowedUrl)) {
+                event.preventDefault();
+                event.returnValue = "";
+            }
+        });
+        </script>
+        <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+            integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous">
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+            integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous">
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/browser-scss@1.0.3/dist/browser-scss.min.js"></script>
 </body>
 
 </html>

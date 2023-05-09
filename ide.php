@@ -1033,7 +1033,7 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
         }
 
         function searching(elem) {
-            if (elem.value.length == 0) {
+            if (elem.value.trim().length == 0) {
                 document.getElementById('staticAssets').style.display = 'block';
                 document.getElementById('sidebarItemsShow').innerHTML = '';
 
@@ -1420,12 +1420,14 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
                         const method = "POST";
                         const baseUrl = window.location.protocol + "//" + window.location.hostname;
                         const url = baseUrl + "/api/private/save_project_js/";
-
+                        timeoutId=null
                         function status(response) {
                             response = JSON.parse(response);
+                            clearTimeout(timeoutId);
+
                             if (response['success'] === true) {
 
-                                setTimeout(function() {
+                                timeoutId=setTimeout(function() {
                                     if (response['code'] == "1") {
                                         var codeButton = document.getElementById("codeButton");
                                         codeButton.parentNode.removeChild(codeButton);
@@ -1434,7 +1436,7 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
 
                                 }, 1000);
                             } else {
-                                setTimeout(function() {
+                                timeoutId=setTimeout(function() {
                                     document.getElementById("saveStatus").innerHTML = "Error";
                                 }, 1000);
                             }

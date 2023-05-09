@@ -1,5 +1,13 @@
 <?php
-$api_token = $data->api_token;
+require "../../../head.php";
+$api_token = $_SESSION["api_token"];
+if (!$api_token) {
+echo json_encode([
+"success" => false,
+"message" => "Must be from ".$website
+]);
+exit;
+}
 
 // Query the database
 $sql = "SELECT uid FROM users WHERE api_token='$api_token' AND uid='$data->uid'";

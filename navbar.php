@@ -33,16 +33,19 @@
 }
 </style>
 
+
 <nav class="nvbar">
         <a href="../">Home</a>
         <?php if(isset($_SESSION['uid'])) { ?>
           <a href="../new_script.php">New Project</a>
           <a href="../scripts.php">My Projects</a>
           <a href="../docs/">Docs</a>
+          <a href="../community/">Community</a>
           <a href="../profile.php" class="right">Profile</a>
           <a href="../logout.php" class="right">Logout</a>
         <?php } else { ?>
           <a href="../docs/">Docs</a>
+          <a href="../community/">Community</a>
         <a href="../login.php" class="right">Login</a>
         <a href="../register.php" class="right">Register</a>
         <?php }?>
