@@ -984,7 +984,7 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
         <style>
         .openSidebar {
             width: 20% !important;
-            height: 82vh !important;
+            height: 76vh !important;
             background: #282A36;
             position: absolute;
             overflow: scroll !important;
@@ -1705,7 +1705,7 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
             }
         }
     });
-    editorCss.setSize(null, 410);
+    editorCss.setSize("100%", "100%");
     editorCss.on("keyup", function(cm) {
         if (timeout) {
             clearTimeout(timeout);
@@ -1751,7 +1751,7 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
             }
         }
     });
-    editorReadme.setSize(null, 410);
+    editorReadme.setSize("100%", "100%");
     editorReadme.on("keyup", function(cm) {
         if (timeout) {
             clearTimeout(timeout);
@@ -2505,7 +2505,7 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
                             }
                         }
                     });
-                    editor.setSize(null, 500);
+                    editor.setSize("100%", "100%");
                 } else {}
             };
             makeApiRequest(method, url, data)

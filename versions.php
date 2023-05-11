@@ -17,6 +17,7 @@ if (!isset($_GET['script_id'])){
 		$manifest = json_decode($manifest, true);
     $notifications = 0;
     $published = 0;
+    $publishImage = 0;
     foreach ($manifest as $version => $details) {
       foreach ($details as $detail) {
         if ($detail['status'] == 'public' or $detail['status'] == 'monetized') {
@@ -26,6 +27,7 @@ if (!isset($_GET['script_id'])){
 
           }
           if ($row['publish_image'] == "" or strpos($row['publish_image'], 'image.php') !== false){
+            $publishImage++;
             $published++;
             break;
           }
@@ -782,7 +784,7 @@ overflow-x: hidden !important;
     .toolBar {
         position: fixed;
         top: 20%;
-        left: 60%;
+        left: 55%;
         transform: translate(-50%, -50%);
         width: 100%;
         z-index: 1;
@@ -791,25 +793,49 @@ overflow-x: hidden !important;
 
     .toolBar label {
         background-color: #18181B;
+        padding: 5px;
+        border-radius: 5px;
     }
 
+    .toolBar button {
+        background-color: #18181B;
+        border-radius: 5px;
+        border: solid 1px grey;
+        color: white;
+    }
+
+    .toolBar button:hover {
+        transform: scale(1.1);
+        transition: 0.2s ease-in-out;
+    }
     .sectionInput,
     .subSectionInput {
-        border-radius: 15px;
-        border: 1px solid #ccc;
-        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid grey;
+        padding: 5px;
+        background-color: #18181B;
+        color: white;
+        margin-left: 5px;
+        margin-right: 5px;
+
     }
 
     .section {
-        margin-bottom: 10px;
+        margin-bottom: 10px !important;
     }
 
     .subSection {
-        margin-bottom: 10px;
+        margin-bottom: 10px !important;
     }
 
     .publishShowBox {
         color: white;
+
+    }
+
+    .renderedPublish {
+        font-family: 'Roboto Mono', monospace;
+
     }
 
     .publishImageBox {
@@ -870,16 +896,79 @@ overflow-x: hidden !important;
         list-style-type: none !important;
         min-width: 250px !important;
     }
-    .code{
-      border-radius: 15px;
-      padding: 10px;
-      width: 100%;
-      background-color: #282a36;
-      word-break: break-all;
-      word-wrap: break-word;
+
+    .code {
+        border-radius: 15px;
+        padding: 10px;
+        width: 100%;
+        background-color: #282a36;
+        word-break: break-all;
+        word-wrap: break-word;
     }
-    .code code{
-      color: white;
+
+    .code code {
+        color: white;
+    }
+
+    .cardAlerts,
+    .cardDescriptionAlerts {
+        color: red;
+    }
+
+    label {
+        color: white;
+        font-size: 13px;
+    }
+
+    .subSection {
+        display: flex;
+        align-items: center;
+    }
+
+    .typeBtn {
+        width: 21px;
+        height: 25px;
+        border-radius: 5px;
+        border: solid 1px grey;
+        background-color: #18181B;
+        color: white;
+        margin: auto;
+        margin-left: 5px;
+    }
+
+    .typeBtn svg path {
+        fill: white;
+        width: 10px;
+    }
+
+    .subSectionType {
+        height: 25px;
+        background-color: #18181B;
+        color: white;
+        border-radius: 5px;
+        border: solid 1px grey;
+        margin-left: 5px;
+        cursor: pointer;
+
+    }
+
+    .htmlInput,
+    .codeInput,
+    .textInput{
+        padding-left: 35px;
+        background-color: #282A36;
+        color: white;
+        border:none;
+        border-radius: 15px;
+
+    }
+
+    .CodeMirror{
+        border-radius: 15px;
+    }
+
+    .code{
+        overflow-x: scroll;
     }
     </style>
 
@@ -999,8 +1088,15 @@ if (is_dir($dir)) {
             onclick="event.stopPropagation();this.style.display='none';document.querySelector('.cards').innerHTML=''">
             <div class="publishImageShow" onclick="event.stopPropagation()">
                 <input class="imageURL" type="link">
-                <textarea name="" class="description" cols="30" rows="10"></textarea>
+                <div style="position: relative;">
+                    <span style="position: absolute; top: 0; right: 10px; font-size: 12px;">0 / 250</span>
+                    <textarea name="" class="description" cols="30" rows="10"></textarea>
+                </div>
                 <ul class="cards"></ul>
+                <button onclick="updateCard()">Save</button>
+                <div class="cardAlerts"></div>
+                <div class="cardDescriptionAlerts"></div>
+
             </div>
         </div>
         <div onclick="event.stopPropagation()" class="publishEditor">
@@ -1017,9 +1113,21 @@ if (is_dir($dir)) {
                     <label for="">New subsection:</label>
                     <button onclick="addSubSection()">+</button>
                     <button id="savePublish" onclick="savePublishResponse(this)">Save</button>
-                    <label for="">Add Image</label>
-                    <button
-                        onclick="document.querySelector('.publishImageBox').style.display='block';renderCard()">+</button>
+                    <label for="">Update Card:</label>
+                    <button onclick="document.querySelector('.publishImageBox').style.display='block';renderCard()"
+                        style="position: relative;">
+                        <span>+</span>
+                        <?php
+                        if ($publishImage > 0){
+                            ?>
+                        <span
+                            style="width:10px;height:10px;border-radius:50%;background-color:#FF69B4;position:absolute;bottom:-5px;right:-5px"></span>
+                        <?php
+                        }
+                       ?>
+                    </button>
+
+
                 </div>
             </div>
             <?php
@@ -1028,7 +1136,7 @@ if (is_dir($dir)) {
                 $json = "[]";
             }
             ?>
-            <input type="text" id="publishJSON" value='<?php  echo $json ;?>'>
+            <input type="hidden" id="publishJSON" value='<?php  echo $json ;?>'>
         </div>
         <div onclick="event.stopPropagation()" class="publishEditor renderedPublish">
             <h1>Render</h1>
@@ -1052,6 +1160,48 @@ document.addEventListener("DOMContentLoaded", function(event) {
     </div>
     <br>
     <script>
+    var description = document.querySelector('.description');
+    var counter = description.parentElement.querySelector('span');
+
+    description.addEventListener('input', function() {
+        var count = this.value.length;
+        counter.textContent = count + ' / 250';
+
+        if (count > 250) {
+            counter.style.color = 'red';
+            this.style.color = 'grey';
+            document.querySelector('.cardDescriptionAlerts').innerText = `Description is too long`;
+        } else {
+            counter.style.color = '';
+            this.style.color = '';
+            document.querySelector('.cardDescriptionAlerts').innerText = ``;
+        }
+    });
+
+    function getImageSize(url) {
+        // create a new image element
+        const img = new Image();
+
+        // set the src attribute to the provided url
+        img.src = url;
+
+        // wait for the image to load
+        return new Promise((resolve, reject) => {
+            img.onload = () => {
+                // get the size of the image
+                const size = {
+                    width: img.width,
+                    height: img.height
+                };
+                // resolve the promise with the size
+                resolve(size);
+            };
+            // reject the promise if there was an error loading the image
+            img.onerror = (err) => {
+                reject(err);
+            };
+        });
+    }
     card = `
         <li>
     <div  class="card">
@@ -1470,30 +1620,112 @@ div .card__image {
         display.innerHTML += css;
         display.innerHTML += card;
         display.innerHTML += filler;
-        
+
         var image = document.querySelector('.imageURL').value;
         if (isValidUrl(image) == true) {
-            var imageDisplay = document.querySelector('#card__image');
-            imageDisplay.src = image;
+            getImageSize(image)
+                .then((size) => {
+                    errors = [];
+                    if (size['width'] == 600 && size['height'] == 500) {
+
+                    } else {
+                        errors.push('Image must be 600x500');
+                    }
+                    if (!image.includes('/user_assets/image.php?v=private%2F')) {
+
+                    } else {
+                        errors.push('Image must be public');
+                    }
+                    if (errors.length > 0) {} else {
+                        var imageDisplay = document.querySelector('#card__image');
+                        imageDisplay.src = image;
+                    }
+
+                })
+                .catch((err) => {
+                    console.error(err);
+                });
         }
         var description = document.querySelector('.description').value;
-        description = htmlEncode(description); 
+        description = htmlEncode(description);
         var descriptionDisplay = document.querySelector('#card__description');
         descriptionDisplay.innerHTML = description;
     }
     description = document.querySelector('.description');
     description.addEventListener("keyup", function(event) {
         var description = document.querySelector('.description').value;
-        description = htmlEncode(description); 
+        description = htmlEncode(description);
+        var descriptionDisplay = document.querySelector('#card__description');
+        descriptionDisplay.innerHTML = description;
+    });
+    description.addEventListener("input", function(event) {
+        var description = document.querySelector('.description').value;
+        description = htmlEncode(description);
         var descriptionDisplay = document.querySelector('#card__description');
         descriptionDisplay.innerHTML = description;
     });
     imageURL = document.querySelector('.imageURL');
+    imageURL.addEventListener("input", function(event) {
+        var image = document.querySelector('.imageURL').value;
+        image = image.replace(/\s/g, "");
+        image = image.trim();
+
+        if (isValidUrl(image) == true) {
+            getImageSize(image)
+                .then((size) => {
+                    errors = [];
+                    if (size['width'] == 600 && size['height'] == 500) {
+
+                    } else {
+                        errors.push('Image must be 600x500');
+                    }
+                    if (!image.includes('/user_assets/image.php?v=private%2F')) {
+
+                    } else {
+                        errors.push('Image must be public');
+                    }
+                    if (errors.length > 0) {
+                        document.querySelector(".cardAlerts").innerText = errors.join('\n')
+                    } else {
+                        var imageDisplay = document.querySelector('#card__image');
+                        imageDisplay.src = image;
+                    }
+
+                })
+                .catch((err) => {
+                    console.error(err);
+                });
+        }
+    });
     imageURL.addEventListener("keyup", function(event) {
         var image = document.querySelector('.imageURL').value;
+        image = image.replace(/\s/g, "");
+        image = image.trim();
         if (isValidUrl(image) == true) {
-            var imageDisplay = document.querySelector('#card__image');
-            imageDisplay.src = image;
+            getImageSize(image)
+                .then((size) => {
+                    errors = [];
+                    if (size['width'] == 600 && size['height'] == 500) {
+
+                    } else {
+                        errors.push('Image must be 600x500');
+                    }
+                    if (!image.includes('/user_assets/image.php?v=private%2F')) {
+
+                    } else {
+                        errors.push('Image must be public');
+                    }
+                    if (errors.length > 0) {
+                        document.querySelector(".cardAlerts").innerText = errors.join('\n')
+                    } else {
+                        var imageDisplay = document.querySelector('#card__image');
+                        imageDisplay.src = image;
+                    }
+
+                })
+                .catch((err) => {
+                    console.error(err);
+                });
         }
     });
 
@@ -1502,6 +1734,25 @@ div .card__image {
         publishJSON.value = "[]";
         renderPublish();
         savePublishResponse();
+        publishCustomizationBox = document.querySelector('.publishCustomizationBox');
+        publishCustomizationBox.innerHTML = `
+        <div class="spaceCustomization"></div>
+                <br>
+                <br>
+                <br>
+                <div class="toolBar">
+                    <button onclick="resetPublish()" type="reset">Reset</button>
+                    <label for="">New section:</label>
+                    <button onclick="addSection()">+</button>
+                    <label for="">New subsection:</label>
+                    <button onclick="addSubSection()">+</button>
+                    <button id="savePublish" onclick="savePublishResponse(this)">Save</button>
+                    <label for="">Update Card:</label>
+                    <button
+                        onclick="document.querySelector('.publishImageBox').style.display='block';renderCard()">+</button>
+                </div>
+        `;
+
     }
 
     function htmlEncode1(str) {
@@ -1519,28 +1770,150 @@ div .card__image {
     }
 
     function htmlEncode(str) {
-        var el = document.createElement("div");
-        el.innerText = el.textContent = str;
-        str = el.innerHTML;
-        str = str.replace(/\{/g, '&#123;').replace(/\}/g, '&#125;'); // Replace { and } with HTML entities
-        str = str.replace(/\[/g, '&#91;').replace(/\]/g, '&#93;'); // Replace [ and ] with HTML entities
-        str = str.replace(/\'/g, '&#39;'); // Replace ' with HTML entity
-        return str;
-    }
+  var el = document.createElement("div");
+  el.innerText = el.textContent = str;
+  str = el.innerHTML;
+  str = str.replace(/\{/g, '&#123;').replace(/\}/g, '&#125;'); // Replace { and } with HTML entities
+  str = str.replace(/\[/g, '&#91;').replace(/\]/g, '&#93;'); // Replace [ and ] with HTML entities
+  str = str.replace(/\'/g, '&#39;'); // Replace ' with HTML entity
+  str = str.replace(/\"/g, '&quot;'); // Replace " with HTML entity
+  return str;
+}
 
-    function htmlDecode(str) {
-        var el = document.createElement("div");
-        el.innerHTML = str;
-        str = el.innerText;
-        str = str.replace(/&#123;/g, '{').replace(/&#125;/g, '}'); // Replace HTML entities with { and }
-        str = str.replace(/&#91;/g, '[').replace(/&#93;/g, ']'); // Replace HTML entities with [ and ]
-        str = str.replace(/&#39;/g, '\''); // Replace HTML entity with '
-        return str;
-    }
+function htmlDecode(str) {
+  var el = document.createElement("div");
+  el.innerHTML = str;
+  str = el.innerText;
+  str = str.replace(/&#123;/g, '{').replace(/&#125;/g, '}'); // Replace HTML entities with { and }
+  str = str.replace(/&#91;/g, '[').replace(/&#93;/g, ']'); // Replace HTML entities with [ and ]
+  str = str.replace(/&#39;/g, '\''); // Replace HTML entity with '
+  str = str.replace(/&quot;/g, '"'); // Replace HTML entity with "
+  return str;
+}
+
 
 
     function loadPublishSettingsFromJSON() {
+        stuff = document.querySelector('.publishCustomizationBox')
+        data1 = JSON.parse(document.querySelector('#publishJSON').value);
+        for (let i = 0; i < data1.length; i++) {
+            // Define the event handler function
+            sectionInput = (event) => {
+                publishJSON = JSON.parse(document.getElementById("publishJSON").value);
+                var position = event.target.getAttribute("position");
+                var encodedValue = htmlEncode(event.target.value.replace(/"/g, '\"'));
+                var escapedValue = htmlEncode(encodedValue)
+                publishJSON[position]['title'] = escapedValue;
+                document.getElementById("publishJSON").value = JSON.stringify(publishJSON);
+                renderPublish();
+            }
+            debouncedSectionInput = debounce(sectionInput, 1000);
 
+            stuff.innerHTML += `<div class="sectionBox" style="margin-bottom:10px" id="section` + i +
+                `"><label>Section ` + (i + 1) +
+                `:</label><input  placeholder="Enter title..." class="sectionInput" oninput="debouncedSectionInput(event)" onkeyup="debouncedSectionInput(event)" value="` +
+                data1[i]['title'] + `" id="section` + i +
+                `Input" position="` +
+                i + `"/></div>`;
+
+
+            for (let j = 0; j < data1[i].subSections.length; j++) {
+                // Define publishJSONInputHandler and debouncedPublishJSONInputHandler
+                publishJSONInputHandler = (event) => {
+                    console.log("hi");
+                    publishJSONElement = document.getElementById("publishJSON");
+                    publishJSON = JSON.parse(publishJSONElement.value);
+                    position = event.target.getAttribute("position");
+                    position1 = event.target.getAttribute("position1");
+                var encodedValue = htmlEncode(event.target.value.replace(/"/g, '\"'));
+                    escapedValue = htmlEncode(encodedValue);
+                    publishJSON[position1 - 1].subSections[position].title = escapedValue;
+                    publishJSONElement.value = JSON.stringify(publishJSON);
+                    renderPublish();
+                };
+
+                debouncedPublishJSONInputHandler = debounce(publishJSONInputHandler, 1000);
+                if (data1[i].subSections[j].info[0].type == "text") {
+                    text = "selected";
+                    html = "";
+                    code = "";
+                } else if (data1[i].subSections[j].info[0].type == "html") {
+                    text = "";
+                    html = "selected";
+                    code = "";
+                } else if (data1[i].subSections[j].info[0].type == "code") {
+                    text = "";
+                    html = "";
+                    code = "selected";
+                }
+                stuff1 = `<div style="margin-bottom:10px" class="subSectionBox" id="subSection` + (i + 1) + j +
+                    `"><label>Subsection ` + (j + 1) +
+                    `:</label><input class="subSectionInput" placeholder="Enter subtitle..." oninput="debouncedPublishJSONInputHandler(event)" onkeyup="debouncedPublishJSONInputHandler(event)" value="` +
+                    htmlDecode1(data1[i].subSections[j][
+                        'title'
+                    ]) + `" id="subSection` + (i + 1) +
+                    j + `Input" position1="` + (i + 1) + `" position="` + j + `"/> 
+            <label>Type:</label>
+            <select class="subSectionType" id="subSectionType` + (i + 1) + j + `" position="` + i + `" position1="` +
+                    j + `"> 
+            <option ` + text + ` value="text">Text</option>
+            <option ` + html + ` value="html">HTML</option>
+            <option ` + code + ` value="code">Code</option>
+            </select>
+            `;
+                stuff1 += '<button class="typeBtn" style="width:30px" onclick="addInfo(`' +
+                    (i + 1) + '`,`' + j +
+                    '`,document.getElementById(`' + "subSectionType" + (i + 1) + j +
+                    '`).value);"><svg  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Pro 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path fill="black" d="M105.1 202.6c7.7-21.8 20.2-42.3 37.8-59.8c62.5-62.5 163.8-62.5 226.3 0L386.3 160H336c-17.7 0-32 14.3-32 32s14.3 32 32 32H463.5c0 0 0 0 0 0h.4c17.7 0 32-14.3 32-32V64c0-17.7-14.3-32-32-32s-32 14.3-32 32v51.2L414.4 97.6c-87.5-87.5-229.3-87.5-316.8 0C73.2 122 55.6 150.7 44.8 181.4c-5.9 16.7 2.9 34.9 19.5 40.8s34.9-2.9 40.8-19.5zM39 289.3c-5 1.5-9.8 4.2-13.7 8.2c-4 4-6.7 8.8-8.1 14c-.3 1.2-.6 2.5-.8 3.8c-.3 1.7-.4 3.4-.4 5.1V448c0 17.7 14.3 32 32 32s32-14.3 32-32V396.9l17.6 17.5 0 0c87.5 87.4 229.3 87.4 316.7 0c24.4-24.4 42.1-53.1 52.9-83.7c5.9-16.7-2.9-34.9-19.5-40.8s-34.9 2.9-40.8 19.5c-7.7 21.8-20.2 42.3-37.8 59.8c-62.5 62.5-163.8 62.5-226.3 0l-.1-.1L125.6 352H176c17.7 0 32-14.3 32-32s-14.3-32-32-32H48.4c-1.6 0-3.2 .1-4.8 .3s-3.1 .5-4.6 1z"/></svg></button></div>';
+                stuff.innerHTML += stuff1;
+                input1 = document.getElementById(`subSection${i + 1}${j}Input`);
+
+
+                for (let k = 0; k < data1[i].subSections[j].info.length; k++) {
+                    // Define publishJSONInputHandler and debouncedPublishJSONInputHandler
+                    textareaFunc = (event) => {
+                        var publishJSON = document.getElementById("publishJSON");
+                        publishJSON = JSON.parse(publishJSON.value);
+                        var encodedValue = htmlEncode(event.target.value.replace(/"/g, '\"'));
+                        var escapedValue = htmlEncode(encodedValue)
+                        var position = event.target.getAttribute("position");
+                        var position1 = event.target.getAttribute("position1");
+                        publishJSON[position]['subSections'][position1]['info'][0]['content'] =
+                            escapedValue
+                        document.getElementById("publishJSON").value = JSON.stringify(publishJSON);
+                        renderPublish();
+                    };
+
+                    debouncedTextareaFunc = debounce(textareaFunc, 1000);
+                    if (data1[i].subSections[j].info[k].type == 'html') {
+                        content = data1[i].subSections[j].info[0].content.replace(/<br>/g, '\n');
+                        content = htmlDecode1(content);
+                        stuff.innerHTML += `<textarea position1="` + j + `" position="` + i +
+                            `" oninput="debouncedTextareaFunc(event)" onkeyup="debouncedTextareaFunc(event)" class="htmlInput" id="info` +
+                            (i + 1) + j +
+                            `" style="width:100%;height:100px">` + content + `</textarea>`;
+
+                    } else if (data1[i].subSections[j].info[
+                            k].type == 'text') {
+                        content = data1[i].subSections[j].info[0].content.replace(/<br>/g, '\n');
+                        content = htmlDecode1(content);
+                        stuff.innerHTML += `<textarea position1="` + j + `" position="` + i +
+                            `" oninput="debouncedTextareaFunc(event)"  onkeyup="debouncedTextareaFunc(event)" class="textInput" id="info` +
+                            (i + 1) + j +
+                            `" style="width:100%;height:100px">` + content + `</textarea>`;
+                    } else if (data1[i].subSections[j].info[k].type == 'code') {
+                        content = data1[i].subSections[j].info[0].content.replace(/<br>/g, '\n');
+                        content = htmlDecode1(content);
+                        stuff.innerHTML += `<textarea position1="` + j + `" position="` + i +
+                            `"  oninput="debouncedTextareaFunc(event)" onkeyup="debouncedTextareaFunc(event)" class="codeInput" id="info` +
+                            (i + 1) + j +
+                            `" style="width:100%;height:100px">` + content + `</textarea>`;
+                    }
+
+
+                }
+            }
+        }
     }
 
     function debounce(func, wait) {
@@ -1591,10 +1964,14 @@ div .card__image {
                     info.style.position = "relative";
                     info.classList.add("infoRendered");
                     if (publishJSON[i]['subSections'][j]['info'][k]['type'] == "text") {
-                        info.innerHTML += "<p class='text'>" + htmlDecode(publishJSON[i]['subSections'][j]['info'][k]['content']) +
+                        info.innerHTML += "<p class='text'>" + htmlDecode(publishJSON[i]['subSections'][j]['info'][k][
+                                'content'
+                            ]) +
                             "</p>";
                     } else if (publishJSON[i]['subSections'][j]['info'][k]['type'] == "code") {
-                        info.innerHTML += "<pre class='code'><code>" + htmlDecode(publishJSON[i]['subSections'][j]['info'][k][
+                        info.innerHTML += "<pre class='code'><code>" + htmlDecode(publishJSON[i]['subSections'][j][
+                                'info'
+                            ][k][
                                 'content'
                             ]) +
                             "</code></pre>";
@@ -1610,7 +1987,54 @@ div .card__image {
             publishShowBox.appendChild(section);
         }
 
-        
+        // Get all elements with class code
+        const codeElements = document.querySelectorAll('.code');
+
+        // Loop through each code element
+        codeElements.forEach((codeElement) => {
+            // Create a button
+            const copyButton = document.createElement('button');
+            copyButton.innerHTML = '<svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4" height="1.25em" width="1.25em" xmlns="http://www.w3.org/2000/svg"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>';
+            copyButton.style.position = 'absolute';
+            copyButton.style.top = '10px';
+            copyButton.style.right = '10px';
+            copyButton.style.border = 'none';
+            copyButton.style.background = 'none';
+            copyButton.style.cursor = 'pointer';
+            copyButton.querySelector('svg').style.stroke = 'white';
+
+            // Add click event listener to button
+            copyButton.addEventListener('click', () => {
+                // Get the code content
+                const codeContent = codeElement.querySelector('code').innerText;
+
+                // Create a textarea element and set its value to the code content
+                const textarea = document.createElement('textarea');
+                textarea.value = codeContent;
+
+                // Append the textarea to the body
+                document.body.appendChild(textarea);
+
+                // Select the textarea and copy its content
+                textarea.select();
+                document.execCommand('copy');
+
+                // Remove the textarea from the body
+                document.body.removeChild(textarea);
+
+                // Change button text to "Copied" for 2 seconds
+                copyButton.innerHTML = '<svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4" height="1.25em" width="1.25em" xmlns="http://www.w3.org/2000/svg"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+                copyButton.querySelector('svg').style.stroke = 'white';
+                setTimeout(() => {
+                    copyButton.innerHTML = '<svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4" height="1.25em" width="1.25em" xmlns="http://www.w3.org/2000/svg"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>';
+                    copyButton.querySelector('svg').style.stroke = 'white';
+                }, 2000);
+            });
+
+            // Append the button to the code element
+            codeElement.appendChild(copyButton);
+        });
+
         // Disable all links
 
         var allLinks = publishShowBox.getElementsByTagName('a');
@@ -1649,12 +2073,12 @@ div .card__image {
         allElements = publishShowBox.getElementsByTagName('*');
 
         // List of all trigger attributes to remove
-        triggerAttrs = [
-            'onclick', 'ondblclick', 'onmousedown', 'onmouseup', 'onmouseover', 'onmousemove',
-            'onmouseout', 'onmouseenter', 'onmouseleave', 'onkeydown', 'onkeypress', 'onkeyup',
-            'onabort', 'onerror', 'onload', 'onresize', 'onscroll', 'onunload', 'onblur',
-            'onchange', 'onfocus', 'onreset', 'onsubmit'
+        var triggerAttrs = ['onclick', 'ondblclick', 'onmousedown', 'onmouseup', 'onmouseover', 'onmousemove',
+            'onmouseout', 'onmouseenter', 'onmouseleave', 'onkeydown', 'onkeypress', 'onkeyup', 'onabort',
+            'onerror', 'onload', 'onresize', 'onscroll', 'onunload', 'onblur', 'onchange', 'onfocus', 'onreset',
+            'onsubmit'
         ];
+
 
         // Loop through each element and remove the trigger attributes
         for (let i = 0; i < allElements.length; i++) {
@@ -1687,8 +2111,13 @@ div .card__image {
         links.forEach(link => {
             link.remove(); // remove the link element from the div
         });
-
-        allowedWebsites = ['https://example.com', 'https://cdpn.io', '<?php echo $website;?>',
+        var elements = publishShowBox.getElementsByTagName("*");
+        for (var i = 0; i < elements.length; i++) {
+            if (elements[i].style.position == "fixed") {
+                elements[i].style.position = "absolute";
+            }
+        }
+        allowedWebsites = ['https://spankbang.com', 'https://cdpn.io', '<?php echo $website;?>',
             'https://codepen.io'
         ]; // list of allowed websites
 
@@ -1723,7 +2152,8 @@ div .card__image {
         newSection.id = "section" + publishJSON.length;
         newSection.classList.add("section");
         newSection.innerHTML = '<label for="">Section ' + (publishJSON.length + 1) +
-            ':</label><input type="text" position="' + publishJSON.length + '" class="sectionInput" id="section' +
+            ':</label><input type="text" position="' + publishJSON.length +
+            '" class="sectionInput"  placeholder="Enter title..." id="section' +
             publishJSON.length + 'Input">';
 
         publishCustomizationBox.appendChild(newSection);
@@ -1738,12 +2168,15 @@ div .card__image {
             var encodedValue = htmlEncode(event.target.value.replace(/"/g, '\"'));
             var escapedValue = htmlEncode(encodedValue)
             publishJSON[position]['title'] = escapedValue;
-            document.getElementById("publishJSON").value = JSON.stringify(publishJSON);
+            publishJSON = JSON.stringify(publishJSON);
+            document.getElementById("publishJSON").value = publishJSON;
             renderPublish();
         }
 
         // Add a debounced keyup event listener to the input element
         input.addEventListener("keyup", debounce(handleKeyUp, 1000));
+        input.addEventListener("input", debounce(handleKeyUp, 1000));
+
         publishJSON.push({
             "title": "",
             "subSections": []
@@ -1777,9 +2210,11 @@ div .card__image {
                 .length + 1) + ':</label><input type="text" position="' + publishJSON[publishJSON.length - 1][
                 'subSections'
             ]
-            .length + '" position1="' + publishJSON.length + '" class="subSectionInput" id="subSection' + publishJSON
+            .length + '" position1="' + publishJSON.length +
+            '"   placeholder="Enter subtitle..." class="subSectionInput" id="subSection' + publishJSON
             .length + publishJSON[publishJSON.length - 1]['subSections'].length +
-            'Input"><label for="">Type:</label><select name="" id="' + "subSectionType" + publishJSON.length +
+            'Input"><label for="">Type:</label><select class="subSectionType" name="" id="' + "subSectionType" +
+            publishJSON.length +
             publishJSON[publishJSON.length - 1]['subSections']
             .length +
             '"><option value="text">Text</option> <option value="html">HTML</option><option value="code">Code</option></select><button style="width:30px" onclick="addInfo(`' +
@@ -1788,14 +2223,14 @@ div .card__image {
                 'subSections'
             ]
             .length +
-            '`).value);"><svg  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Pro 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path fill="black" d="M105.1 202.6c7.7-21.8 20.2-42.3 37.8-59.8c62.5-62.5 163.8-62.5 226.3 0L386.3 160H336c-17.7 0-32 14.3-32 32s14.3 32 32 32H463.5c0 0 0 0 0 0h.4c17.7 0 32-14.3 32-32V64c0-17.7-14.3-32-32-32s-32 14.3-32 32v51.2L414.4 97.6c-87.5-87.5-229.3-87.5-316.8 0C73.2 122 55.6 150.7 44.8 181.4c-5.9 16.7 2.9 34.9 19.5 40.8s34.9-2.9 40.8-19.5zM39 289.3c-5 1.5-9.8 4.2-13.7 8.2c-4 4-6.7 8.8-8.1 14c-.3 1.2-.6 2.5-.8 3.8c-.3 1.7-.4 3.4-.4 5.1V448c0 17.7 14.3 32 32 32s32-14.3 32-32V396.9l17.6 17.5 0 0c87.5 87.4 229.3 87.4 316.7 0c24.4-24.4 42.1-53.1 52.9-83.7c5.9-16.7-2.9-34.9-19.5-40.8s-34.9 2.9-40.8 19.5c-7.7 21.8-20.2 42.3-37.8 59.8c-62.5 62.5-163.8 62.5-226.3 0l-.1-.1L125.6 352H176c17.7 0 32-14.3 32-32s-14.3-32-32-32H48.4c-1.6 0-3.2 .1-4.8 .3s-3.1 .5-4.6 1z"/></svg></button>';
+            '`).value);" class="typeBtn"><svg  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Pro 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path fill="black" d="M105.1 202.6c7.7-21.8 20.2-42.3 37.8-59.8c62.5-62.5 163.8-62.5 226.3 0L386.3 160H336c-17.7 0-32 14.3-32 32s14.3 32 32 32H463.5c0 0 0 0 0 0h.4c17.7 0 32-14.3 32-32V64c0-17.7-14.3-32-32-32s-32 14.3-32 32v51.2L414.4 97.6c-87.5-87.5-229.3-87.5-316.8 0C73.2 122 55.6 150.7 44.8 181.4c-5.9 16.7 2.9 34.9 19.5 40.8s34.9-2.9 40.8-19.5zM39 289.3c-5 1.5-9.8 4.2-13.7 8.2c-4 4-6.7 8.8-8.1 14c-.3 1.2-.6 2.5-.8 3.8c-.3 1.7-.4 3.4-.4 5.1V448c0 17.7 14.3 32 32 32s32-14.3 32-32V396.9l17.6 17.5 0 0c87.5 87.4 229.3 87.4 316.7 0c24.4-24.4 42.1-53.1 52.9-83.7c5.9-16.7-2.9-34.9-19.5-40.8s-34.9 2.9-40.8 19.5c-7.7 21.8-20.2 42.3-37.8 59.8c-62.5 62.5-163.8 62.5-226.3 0l-.1-.1L125.6 352H176c17.7 0 32-14.3 32-32s-14.3-32-32-32H48.4c-1.6 0-3.2 .1-4.8 .3s-3.1 .5-4.6 1z"/></svg></button>';
 
         publishCustomizationBox.appendChild(newSubSection);
-        const publishJSONInputHandler = (event) => {
-            const publishJSONElement = document.getElementById("publishJSON");
-            const publishJSON = JSON.parse(publishJSONElement.value);
-            const position = event.target.getAttribute("position");
-            const position1 = event.target.getAttribute("position1");
+        publishJSONInputHandler = (event) => {
+            publishJSONElement = document.getElementById("publishJSON");
+            publishJSON = JSON.parse(publishJSONElement.value);
+            position = event.target.getAttribute("position");
+            position1 = event.target.getAttribute("position1");
             var encodedValue = htmlEncode(event.target.value.replace(/"/g, '\"'));
             var escapedValue = htmlEncode(encodedValue)
             publishJSON[position1 - 1]['subSections'][position]['title'] = escapedValue;
@@ -1803,11 +2238,12 @@ div .card__image {
             renderPublish();
         };
 
-        const publishJSONInput = document.getElementById("subSection" + publishJSON.length + publishJSON[publishJSON
+        publishJSONInput = document.getElementById("subSection" + publishJSON.length + publishJSON[publishJSON
             .length - 1]['subSections'].length + "Input");
-        const debouncedPublishJSONInputHandler = debounce(publishJSONInputHandler, 1000);
+        debouncedPublishJSONInputHandler = debounce(publishJSONInputHandler, 1000);
 
         publishJSONInput.addEventListener("keyup", debouncedPublishJSONInputHandler);
+        publishJSONInput.addEventListener("input", debouncedPublishJSONInputHandler);
 
         publishJSON[publishJSON.length - 1]['subSections'].push({
             "title": "",
@@ -1824,10 +2260,9 @@ div .card__image {
         publishJSON = JSON.parse(publishJSON.value);
         console.log(publishJSON);
         if (publishJSON[section_id - 1]['subSections'][subSection_id].length != 0) {
-
             if (publishJSON[section_id - 1]['subSections'][subSection_id]['info'].length != 0) {
                 document.getElementById("info" + section_id + subSection_id).classList = [];
-                document.getElementById("info" + section_id + subSection_id).classList.add(type);
+                document.getElementById("info" + section_id + subSection_id).classList.add(type + "Input");
                 publishJSON[section_id - 1]['subSections'][subSection_id]['info'][0]['type'] = type;
                 publishJSON = JSON.stringify(publishJSON);
                 document.getElementById("publishJSON").value = publishJSON;
@@ -1842,7 +2277,7 @@ div .card__image {
             newInfo.rows = "4"
             newInfo.cols = "40"
             newInfo.id = "info" + section_id + subSection_id;
-            newInfo.classList.add(type);
+            newInfo.classList.add(type + "Input");
             parentSubSection = document.getElementById("subSection" + section_id + subSection_id);
             parentSubSection.insertAdjacentElement("afterend", newInfo);
 
@@ -1851,7 +2286,7 @@ div .card__image {
             newInfo.rows = "4"
             newInfo.cols = "40"
             newInfo.id = "info" + section_id + subSection_id;
-            newInfo.classList.add(type);
+            newInfo.classList.add(type + "Input");
             parentSubSection = document.getElementById("subSection" + section_id + subSection_id);
             parentSubSection.insertAdjacentElement("afterend", newInfo);
 
@@ -1860,7 +2295,7 @@ div .card__image {
             newInfo.rows = "4"
             newInfo.cols = "40"
             newInfo.id = "info" + section_id + subSection_id;
-            newInfo.classList.add(type);
+            newInfo.classList.add(type + "Input");
             parentSubSection = document.getElementById("subSection" + section_id + subSection_id);
             parentSubSection.insertAdjacentElement("afterend", newInfo);
 
@@ -1919,6 +2354,7 @@ div .card__image {
         };
 
         editor.on("keyup", debounce(keyup, 1000));
+        editor.on("input", debounce(keyup, 1000));
 
         renderPublish();
 
@@ -1940,10 +2376,8 @@ div .card__image {
 
     function publishDetailsUpdate() {
         publishEditorBox = document.querySelector(".publishEditorBox");
-
         publishEditorBox.style.display = "flex";
         renderPublish();
-
     }
     </script>
     <div class="grid">
@@ -2294,6 +2728,7 @@ div .card__image {
         }
 
         function savePublishResponse(btn = document.getElementById("savePublish")) {
+            btn.innerText = "Saving...";
             method = "POST";
             baseUrl = window.location.protocol + "//" + window.location.hostname;
             url = baseUrl + "/api/private/save_publish_manifest/";

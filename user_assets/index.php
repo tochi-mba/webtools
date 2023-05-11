@@ -421,7 +421,7 @@ require "../connect.php";
             <div id="sBox"><input onkeyup="minires(this)" id="search_box" placeholder="Search Recent..." type="text">
             </div>
         </div>
-        <div  id="miniResults">
+        <div id="miniResults">
 
         </div>
         <script>
@@ -608,7 +608,7 @@ require "../connect.php";
         return videoExtensions.includes(extension);
     }
 
-    function removeminires(){
+    function removeminires() {
         document.getElementById("miniResults").style.display = "none";
         document.getElementById("search_box").value = "";
     }
@@ -631,7 +631,7 @@ require "../connect.php";
             document.getElementById("miniResults").innerHTML = "";
             searchPos = document.getElementById("searchPos").value;
             for (var i = 0; i < all.length; i++) {
-                if (searchPos != ""){
+                if (searchPos != "") {
                     s = searchPos.split("/");
                     s.pop();
                     s = s.join("/");
@@ -657,7 +657,7 @@ require "../connect.php";
                         privElem.pop();
                         privElem = privElem.join('/');
                         if (status == 'private') {
-                            preview = "<img src='image.php?v=" + encodeURIComponent(privElem+"/"+fileName) +
+                            preview = "<img src='image.php?v=" + encodeURIComponent(privElem + "/" + fileName) +
                                 "' />";
                         } else {
                             preview = "<img src='" + all[i] + "' />";
@@ -670,7 +670,7 @@ require "../connect.php";
                 }
                 if (fileName.toLowerCase().includes(search_term.toLowerCase())) {
                     document.getElementById("miniResults").innerHTML +=
-                        "<div class='miniResult' "+is_folder+" status='" + status + "' full_path='" + all[
+                        "<div class='miniResult' " + is_folder + " status='" + status + "' full_path='" + all[
                             i] +
                         "' onclick='loading(this);'> " + preview + fileName + "</div>";
                     amountResults++;
@@ -780,6 +780,19 @@ require "../connect.php";
 
 
     function consoleLogPath(elem) {
+        var columnContents = document.getElementById("columnContents");
+        var elements1 = columnContents.querySelectorAll("*");
+
+        for (var i = 0; i < elements1.length; i++) {
+            var listeners = getEventListeners(elements1[i]);
+
+            for (var eventType in listeners) {
+                for (var j = 0; j < listeners[eventType].length; j++) {
+                    elements1[i].removeEventListener(eventType, listeners[eventType][j].listener);
+                }
+            }
+        }
+
         status = elem.getAttribute('status');
         const show = document.getElementById('columnContents');
         const elements = document.querySelectorAll('[full_path]');
@@ -936,7 +949,9 @@ require "../connect.php";
             filePathShow.innerHTML = '';
             document.getElementById("sBox").querySelectorAll("input")[0].placeholder = "Search " + pathInf[
                 pathInf.length - 1] + "...";
-                document.getElementById("searchPos").value = "../scripts/<?php echo $_SESSION['uid']?>_assets_<?php echo $row['scripts_id']?>/" + paths[i] + "/";
+            document.getElementById("searchPos").value =
+                "../scripts/<?php echo $_SESSION['uid']?>_assets_<?php echo $row['scripts_id']?>/" + paths[i] +
+                "/";
 
 
             for (let i = 0; i < pathInf.length; i++) {
