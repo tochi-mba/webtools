@@ -917,7 +917,8 @@ if (is_dir($dir)) {
     echo '<div id="loadingBar" style="width: 0%; background-color: red;height:100%;border-radius:10px"></div>';
     echo '</div>';
     ?>
-            <p><?php echo (getMbsValue($size) > 1000 ? number_format((float)(getMbsValue($size)/1000), 2, '.', '') . " GB " : number_format((float)getMbsValue($size), 2, '.', '') . " MB "); ?>of <?php echo $alotted_storage/1000; ?>
+            <p><?php echo (getMbsValue($size) > 1000 ? number_format((float)(getMbsValue($size)/1000), 2, '.', '') . " GB " : number_format((float)getMbsValue($size), 2, '.', '') . " MB "); ?>of
+                <?php echo $alotted_storage/1000; ?>
                 GB Used
             </p>
             <script>
@@ -978,7 +979,10 @@ if (is_dir($dir)) {
 
             <div><span><img style="width:20px" src="./assets/images/trash.png" alt=""></span> Trash</div>
             <br>
-            <div style="cursor:pointer" onclick="window.location.href='./user_assets'"><span><img style="width:20px" src="./assets/images/trash.png" alt=""></span> Assets</div>
+            <div style="cursor:pointer" onclick="window.location.href='./library'"><span><img style="width:20px" src="./assets/images/trash.png" alt=""></span> Library</div>
+            <br>
+            <div style="cursor:pointer" onclick="window.location.href='./user_assets'"><span><img style="width:20px"
+                        src="./assets/images/trash.png" alt=""></span> Assets</div>
 
         </div>
     </form>

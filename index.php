@@ -100,10 +100,10 @@ body{
     <div >
         <div id="webtools">
            <center>
-           <h1 style="padding:0px;margin:10px;font-size:4rem">Webtools <span id="developer">Developer</span></h1>
+           <h1 style="padding:0px;margin:10px;font-size:4rem">CodeConnect <span id="developer">Developer</span></h1>
            </center> 
            <center>
-           <div id="subtext">We know the power of good development. That is why we created Webtools, an open source platform for developers made by developers.</div>
+           <div id="subtext">We know the power of good development. That is why we created CodeConnect, an open source platform for developers made by developers.</div>
            </center>
 
     </div>

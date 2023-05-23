@@ -797,17 +797,20 @@ overflow-x: hidden !important;
         border-radius: 5px;
     }
 
-    .toolBar button {
+    .toolBar button,
+    .saveCardBtn {
         background-color: #18181B;
         border-radius: 5px;
         border: solid 1px grey;
         color: white;
     }
 
-    .toolBar button:hover {
+    .toolBar button:hover,
+    .saveCardBtn:hover {
         transform: scale(1.1);
         transition: 0.2s ease-in-out;
     }
+
     .sectionInput,
     .subSectionInput {
         border-radius: 5px;
@@ -954,21 +957,35 @@ overflow-x: hidden !important;
 
     .htmlInput,
     .codeInput,
-    .textInput{
+    .textInput {
         padding-left: 35px;
         background-color: #282A36;
         color: white;
-        border:none;
+        border: none;
         border-radius: 15px;
 
     }
 
-    .CodeMirror{
+    .CodeMirror {
         border-radius: 15px;
     }
 
-    .code{
+    .code {
         overflow-x: scroll;
+    }
+
+    .description {
+        border-radius: 10px !important;
+        border: solid 1px grey !important;
+        background-color: #181818 !important;
+        color: white !important;
+    }
+
+    .imageURL {
+        border-radius: 10px !important;
+        border: solid 1px grey !important;
+        background-color: #181818 !important;
+        color: white !important;
     }
     </style>
 
@@ -1016,22 +1033,30 @@ overflow-x: hidden !important;
     </div>
     <?php
 
-$dir = './scripts/'.$_SESSION['uid']."_private/".$_GET['script_id']."/";
 function getMbsValue($value) {
   return $value / 1048576;
 }
 function mbToBytes($mbs) {
   return $mbs * 1024 * 1024;
 }
-if (is_dir($dir)) {
     $size = 0;
+    $dir = './scripts/'.$_SESSION['uid']."_private/".$_GET['script_id']."/";
+
+    if (is_dir($dir)) {
+
     $dir_iterator = new RecursiveDirectoryIterator($dir);
     $iterator = new RecursiveIteratorIterator($dir_iterator, RecursiveIteratorIterator::SELF_FIRST);
     foreach ($iterator as $file) {
         $size += $file->getSize();
     }
+}
     $dir="./scripts/".$_SESSION['uid']."_public/". $_GET['script_id']."/";
 	if (is_dir($dir)) {
+        ?>
+        <script>
+            console.log("public")
+        </script>
+        <?php
 		$dir_iterator = new RecursiveDirectoryIterator($dir);
 		$iterator = new RecursiveIteratorIterator($dir_iterator, RecursiveIteratorIterator::SELF_FIRST);
 		foreach ($iterator as $file) {
@@ -1058,7 +1083,7 @@ if (is_dir($dir)) {
 			$size += $file->getSize();
 		}
 	}
-} 
+
     ?>
     <div
         style="position:fixed;top:7%;z-index:999;width:100%;background:none;text-align:center;padding-bottom:10px;color:white">
@@ -1089,11 +1114,12 @@ if (is_dir($dir)) {
             <div class="publishImageShow" onclick="event.stopPropagation()">
                 <input class="imageURL" type="link">
                 <div style="position: relative;">
-                    <span style="position: absolute; top: 0; right: 10px; font-size: 12px;">0 / 250</span>
+                    <span class="counter" style="position: absolute; top: 0; right: 10px; font-size: 12px;color:white">0
+                        / 250</span>
                     <textarea name="" class="description" cols="30" rows="10"></textarea>
                 </div>
                 <ul class="cards"></ul>
-                <button onclick="updateCard()">Save</button>
+                <button class="saveCardBtn" onclick="updateCard()">Save</button>
                 <div class="cardAlerts"></div>
                 <div class="cardDescriptionAlerts"></div>
 
@@ -1160,8 +1186,75 @@ document.addEventListener("DOMContentLoaded", function(event) {
     </div>
     <br>
     <script>
+    function updateCard() {
+        var data = {};
+        console.log("Saving changes");
+        method = "POST";
+        baseUrl = window.location.protocol + "//" + window.location.hostname;
+        url = baseUrl + "/api/private/update_card/";
+        data.uid = '<?php echo $_SESSION['uid']; ?>';
+        data.script_id = '<?php echo $_GET['script_id']; ?>';
+        data.description = document.querySelector('.description').value;
+        data.image = document.querySelector('.imageURL').value;
+
+        function saveScriptId(response) {
+            console.log(response);
+            
+            if (!JSON.parse(response)){
+                document.querySelector(".cardAlerts").innerHTML =
+                    "<p style='color:red;font-size:13px'>Error</p>";
+                setTimeout(() => {
+                    document.querySelector(".cardAlerts").innerHTML = "";
+                }, 2000);
+                saveCardBtn = document.querySelector(".saveCardBtn");
+
+                previousText = saveCardBtn.innerText;
+
+                saveCardBtn.innerText = "Error...";
+
+                setTimeout(() => {
+                    saveCardBtn.innerText = previousText;
+                }, 2000);
+            }else{
+                response = JSON.parse(response);
+            }
+            if (response.success) {
+                document.querySelector(".cardAlerts").innerHTML = "<p style='color:white;font-size:13px'>Changes saved.</p>";
+                setTimeout(() => {
+                    document.querySelector(".cardAlerts").innerHTML = "";
+                }, 2000);
+                saveCardBtn = document.querySelector(".saveCardBtn");
+
+                previousText = saveCardBtn.innerText;
+
+                saveCardBtn.innerText = "Saved";
+
+                setTimeout(() => {
+                    saveCardBtn.innerText = previousText;
+                }, 2000);
+            } else {
+                document.querySelector(".cardAlerts").innerHTML =
+                    "<p style='color:red;font-size:13px'>"+response.message+"</p>";
+                setTimeout(() => {
+                    document.querySelector(".cardAlerts").innerHTML = "";
+                }, 2000);
+                saveCardBtn = document.querySelector(".saveCardBtn");
+
+                previousText = saveCardBtn.innerText;
+
+                saveCardBtn.innerText = "Error...";
+
+                setTimeout(() => {
+                    saveCardBtn.innerText = previousText;
+                }, 2000);
+            }
+        }
+        makeApiRequest(method, url, data)
+            .then(saveScriptId)
+            .catch((error) => console.error(error));
+    }
     var description = document.querySelector('.description');
-    var counter = description.parentElement.querySelector('span');
+    var counter = description.parentElement.querySelector('.counter');
 
     description.addEventListener('input', function() {
         var count = this.value.length;
@@ -1172,8 +1265,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
             this.style.color = 'grey';
             document.querySelector('.cardDescriptionAlerts').innerText = `Description is too long`;
         } else {
-            counter.style.color = '';
-            this.style.color = '';
+            counter.style.color = 'white';
+            this.style.color = 'white';
             document.querySelector('.cardDescriptionAlerts').innerText = ``;
         }
     });
@@ -1216,7 +1309,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 <svg class="card__arc" xmlns="http://www.w3.org/2000/svg">
                     <path />
                 </svg>
-                <img class="card__thumb" src="https://i.imgur.com/oYiTqum.jpg" alt="" />
+                <img class="card__thumb" src="dp.php?u=<?php echo $user_details['username']?>" alt="" />
                 <div class="card__header-text">
                     <h3 class="card__title"><?php echo $row['title']?></h3>
                     <a target="_blank" style="text-decoration: none;" href=""><span style="text-decoration:none" class="card__status">@<?php echo $user_details['username']?></span></a>
@@ -1620,6 +1713,7 @@ div .card__image {
         display.innerHTML += css;
         display.innerHTML += card;
         display.innerHTML += filler;
+        document.querySelector(".cardAlerts").innerHTML = ""
 
         var image = document.querySelector('.imageURL').value;
         if (isValidUrl(image) == true) {
@@ -1640,6 +1734,7 @@ div .card__image {
                         var imageDisplay = document.querySelector('#card__image');
                         imageDisplay.src = image;
                     }
+
 
                 })
                 .catch((err) => {
@@ -1666,9 +1761,10 @@ div .card__image {
     });
     imageURL = document.querySelector('.imageURL');
     imageURL.addEventListener("input", function(event) {
+        document.querySelector(".cardAlerts").innerHTML = ""
         var image = document.querySelector('.imageURL').value;
-        image = image.replace(/\s/g, "");
-        image = image.trim();
+        image1 = image.replace(/\s/g, "");
+        image1 = image.trim();
 
         if (isValidUrl(image) == true) {
             getImageSize(image)
@@ -1679,7 +1775,7 @@ div .card__image {
                     } else {
                         errors.push('Image must be 600x500');
                     }
-                    if (!image.includes('/user_assets/image.php?v=private%2F')) {
+                    if (!image1.includes('/user_assets/image.php?v=private%2F')) {
 
                     } else {
                         errors.push('Image must be public');
@@ -1698,9 +1794,10 @@ div .card__image {
         }
     });
     imageURL.addEventListener("keyup", function(event) {
+        document.querySelector(".cardAlerts").innerHTML = ""
         var image = document.querySelector('.imageURL').value;
-        image = image.replace(/\s/g, "");
-        image = image.trim();
+        image1 = image.replace(/\s/g, "");
+        image1 = image.trim();
         if (isValidUrl(image) == true) {
             getImageSize(image)
                 .then((size) => {
@@ -1710,7 +1807,7 @@ div .card__image {
                     } else {
                         errors.push('Image must be 600x500');
                     }
-                    if (!image.includes('/user_assets/image.php?v=private%2F')) {
+                    if (!image1.includes('/user_assets/image.php?v=private%2F')) {
 
                     } else {
                         errors.push('Image must be public');
@@ -1770,26 +1867,26 @@ div .card__image {
     }
 
     function htmlEncode(str) {
-  var el = document.createElement("div");
-  el.innerText = el.textContent = str;
-  str = el.innerHTML;
-  str = str.replace(/\{/g, '&#123;').replace(/\}/g, '&#125;'); // Replace { and } with HTML entities
-  str = str.replace(/\[/g, '&#91;').replace(/\]/g, '&#93;'); // Replace [ and ] with HTML entities
-  str = str.replace(/\'/g, '&#39;'); // Replace ' with HTML entity
-  str = str.replace(/\"/g, '&quot;'); // Replace " with HTML entity
-  return str;
-}
+        var el = document.createElement("div");
+        el.innerText = el.textContent = str;
+        str = el.innerHTML;
+        str = str.replace(/\{/g, '&#123;').replace(/\}/g, '&#125;'); // Replace { and } with HTML entities
+        str = str.replace(/\[/g, '&#91;').replace(/\]/g, '&#93;'); // Replace [ and ] with HTML entities
+        str = str.replace(/\'/g, '&#39;'); // Replace ' with HTML entity
+        str = str.replace(/\"/g, '&quot;'); // Replace " with HTML entity
+        return str;
+    }
 
-function htmlDecode(str) {
-  var el = document.createElement("div");
-  el.innerHTML = str;
-  str = el.innerText;
-  str = str.replace(/&#123;/g, '{').replace(/&#125;/g, '}'); // Replace HTML entities with { and }
-  str = str.replace(/&#91;/g, '[').replace(/&#93;/g, ']'); // Replace HTML entities with [ and ]
-  str = str.replace(/&#39;/g, '\''); // Replace HTML entity with '
-  str = str.replace(/&quot;/g, '"'); // Replace HTML entity with "
-  return str;
-}
+    function htmlDecode(str) {
+        var el = document.createElement("div");
+        el.innerHTML = str;
+        str = el.innerText;
+        str = str.replace(/&#123;/g, '{').replace(/&#125;/g, '}'); // Replace HTML entities with { and }
+        str = str.replace(/&#91;/g, '[').replace(/&#93;/g, ']'); // Replace HTML entities with [ and ]
+        str = str.replace(/&#39;/g, '\''); // Replace HTML entity with '
+        str = str.replace(/&quot;/g, '"'); // Replace HTML entity with "
+        return str;
+    }
 
 
 
@@ -1825,7 +1922,7 @@ function htmlDecode(str) {
                     publishJSON = JSON.parse(publishJSONElement.value);
                     position = event.target.getAttribute("position");
                     position1 = event.target.getAttribute("position1");
-                var encodedValue = htmlEncode(event.target.value.replace(/"/g, '\"'));
+                    var encodedValue = htmlEncode(event.target.value.replace(/"/g, '\"'));
                     escapedValue = htmlEncode(encodedValue);
                     publishJSON[position1 - 1].subSections[position].title = escapedValue;
                     publishJSONElement.value = JSON.stringify(publishJSON);
@@ -1994,7 +2091,8 @@ function htmlDecode(str) {
         codeElements.forEach((codeElement) => {
             // Create a button
             const copyButton = document.createElement('button');
-            copyButton.innerHTML = '<svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4" height="1.25em" width="1.25em" xmlns="http://www.w3.org/2000/svg"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>';
+            copyButton.innerHTML =
+                '<svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4" height="1.25em" width="1.25em" xmlns="http://www.w3.org/2000/svg"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>';
             copyButton.style.position = 'absolute';
             copyButton.style.top = '10px';
             copyButton.style.right = '10px';
@@ -2023,10 +2121,12 @@ function htmlDecode(str) {
                 document.body.removeChild(textarea);
 
                 // Change button text to "Copied" for 2 seconds
-                copyButton.innerHTML = '<svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4" height="1.25em" width="1.25em" xmlns="http://www.w3.org/2000/svg"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+                copyButton.innerHTML =
+                    '<svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4" height="1.25em" width="1.25em" xmlns="http://www.w3.org/2000/svg"><polyline points="20 6 9 17 4 12"></polyline></svg>';
                 copyButton.querySelector('svg').style.stroke = 'white';
                 setTimeout(() => {
-                    copyButton.innerHTML = '<svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4" height="1.25em" width="1.25em" xmlns="http://www.w3.org/2000/svg"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>';
+                    copyButton.innerHTML =
+                        '<svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4" height="1.25em" width="1.25em" xmlns="http://www.w3.org/2000/svg"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>';
                     copyButton.querySelector('svg').style.stroke = 'white';
                 }, 2000);
             });
@@ -2671,6 +2771,7 @@ function htmlDecode(str) {
                         data.api_token = '<?php echo $_SESSION['api_token']; ?>';
                         data.uid = '<?php echo $_SESSION['uid']; ?>';
                         data.script_id = '<?php echo $_GET['script_id']; ?>';
+                        data.oldStatus = status;
 
                         function saveScriptId(response) {
                             console.log(response);
@@ -2720,6 +2821,11 @@ function htmlDecode(str) {
         }
 
         window.onload = function() {
+            document.querySelector('.imageURL').value = "<?php echo $row['publish_image']; ?>";
+            document.querySelector('.description').value = htmlDecode("<?php echo $row['publish_description']; ?>");
+            description = document.querySelector('.description').value;
+            counter = document.querySelector('.counter');
+            counter.innerText = description.length + "/ 250";
             loadPublishSettingsFromJSON();
             document.getElementById("publishJSON").value = htmlEncode1(document.getElementById("publishJSON")
                 .value);

@@ -1,4 +1,3 @@
-window.onload = () => {
     const defaultConfig = {
       remove_when_ended: true,
       show_seek_bar: true,
@@ -596,7 +595,7 @@ window.onload = () => {
     } catch (error) {
       console.log(error);
     }
-  };
+
   
   document.addEventListener("keydown", (event) => {
     if (event.key === "p") {

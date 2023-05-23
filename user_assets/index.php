@@ -1,6 +1,11 @@
 <?php
 require "../head.php";
 require "../connect.php";
+
+if (isset($_SESSION['uid'])) {
+} else {
+    header("Location: ../login.php");
+}
 ?>
 
 <!DOCTYPE html>
@@ -369,6 +374,15 @@ require "../connect.php";
     .miniResult img {
         width: 15% !important;
     }
+
+   .ambilight{
+    z-index: 9999;
+    position:relative;
+   }
+
+   #columnContents canvas{
+    z-index:1 !important;
+   }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/codemirror.css">
 
@@ -581,7 +595,9 @@ require "../connect.php";
     }
 
     function isImage(url) {
-        const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
+        const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg', 'PNG', 'JPG', 'JPEG', 'GIF', 'BMP',
+            'WEBP', 'SVG'
+        ];
 
         // Get the last part of the URL
         const parts = url.split('/');
@@ -775,7 +791,9 @@ require "../connect.php";
 
         img.onload = function() {
             consoleLogPath(elem);
+
         };
+
     }
 
 
@@ -829,6 +847,8 @@ require "../connect.php";
                 `/" onclick="event.stopPropagation();loading(this)" class="filePathShow">` + pathInf[i] + `   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" height="70%">
                 <path d="M310.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-192 192c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L242.7 256 73.4 86.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l192 192z" fill="#fff"/></svg></button>
 `;
+
+
         }
 
         function renderFiles(folder, mainDirectory, fileName, path, recent = false) {
@@ -852,7 +872,8 @@ require "../connect.php";
             ];
 
             const imageExtensions = [
-                'jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'tif', 'webp', 'ico', 'svg'
+                'jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'tif', 'webp', 'ico', 'svg', 'JPG', 'JPEG', 'PNG',
+                'GIF', 'BMP', 'TIFF', 'TIF', 'WEBP', 'ICO', 'SVG'
             ];
 
             const videoExtensions = [
@@ -922,9 +943,14 @@ require "../connect.php";
         fullUrl = fullUrl.slice(2);
         fullUrl = fullUrl.replace(/\/+/g, '/');
         fullUrl = baseUrl + fullUrl;
-
         if (status == 'public') {
             filePathShow.addEventListener('click', function(e) {
+                parts = fullUrl.split('/public/');
+                if (parts.length > 1) {
+                    prefix = parts[0] + '/public/';
+                    suffix = encodeURIComponent(parts[1]);
+                    fullUrl = prefix + suffix;
+                }
                 e.target.innerHTML = "<input readonly id='pathCopy' value='" + fullUrl +
                     "' style='width:100%;height:100%'/>";
 
@@ -1069,7 +1095,7 @@ require "../connect.php";
 
         } else if (isVideo(elemPath)) {
             if (elem.getAttribute('status') == 'private') {
-                document.getElementById('columnContents').innerHTML = `<video style="width:100%;height:100%;" controls>
+                document.getElementById('columnContents').innerHTML = `<video class="ambilight" style="width:100%;height:100%;" controls>
     <source src="./video.php?v=` + encodeURIComponent(privElem) + `" type="video/mp4">
 </video>
 `;
@@ -1096,9 +1122,10 @@ require "../connect.php";
                         .value.length);
                 });
             } else if (elem.getAttribute('status') == 'public') {
-                document.getElementById('columnContents').innerHTML = `<video style="width:100%;height:100%;" controls>
+                document.getElementById('columnContents').innerHTML = `<video class="ambilight" style="width:100%;height:100%;" controls>
     <source src="` + fullUrl + `" type="video/mp4">
-</video>`;
+</video>
+`;
                 document.getElementById('columnContents').style.overflowY = 'hidden';
 
             }
@@ -1324,6 +1351,7 @@ require "../connect.php";
                     `<button is_folder="true" full_path="" onclick="event.stopPropagation();" class="filePathShow">recent <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" height="70%">
                 <path d="M310.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-192 192c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L242.7 256 73.4 86.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l192 192z" fill="#fff"/></svg></button>
 `;
+
                 renderFiles(folder, mainDirectory, fileName, recents[i]['path'], true);
                 document.getElementById("searchPos").value = "";
 
@@ -1406,9 +1434,37 @@ require "../connect.php";
 
     // });
     </script>
-    <script>
 
-    </script>
+<script type="module">
+import Ambilight from 'http://webtoolsv2/scripts/0HAXkUrU_public/6467391dc4e8b/v1.04/6467391dc4e8b.js';
+
+const videoList = document.querySelectorAll(".ambilight");
+
+videoList.forEach(function(video) {
+    newAmbilight = new Ambilight(video, 100, 50);
+});
+
+// Create a new MutationObserver instance
+const observer = new MutationObserver(function(mutationsList) {
+    mutationsList.forEach(function(mutation) {
+        if (mutation.type === 'childList') {
+            const addedNodes = mutation.addedNodes;
+            for (let i = 0; i < addedNodes.length; i++) {
+                const addedNode = addedNodes[i];
+                if (addedNode.classList && addedNode.classList.contains('ambilight')) {
+                    const newVideoAmbilight = new Ambilight(addedNode, 100, 70);
+                }
+            }
+        }
+    });
+});
+
+// Start observing changes in the document's body
+observer.observe(document.body, { childList: true, subtree: true });
+</script>
+
+
 </body>
+
 
 </html>

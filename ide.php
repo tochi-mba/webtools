@@ -1420,14 +1420,15 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
                         const method = "POST";
                         const baseUrl = window.location.protocol + "//" + window.location.hostname;
                         const url = baseUrl + "/api/private/save_project_js/";
-                        timeoutId=null
+                        timeoutId = null
+
                         function status(response) {
                             response = JSON.parse(response);
                             clearTimeout(timeoutId);
 
                             if (response['success'] === true) {
 
-                                timeoutId=setTimeout(function() {
+                                timeoutId = setTimeout(function() {
                                     if (response['code'] == "1") {
                                         var codeButton = document.getElementById("codeButton");
                                         codeButton.parentNode.removeChild(codeButton);
@@ -1436,7 +1437,7 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
 
                                 }, 1000);
                             } else {
-                                timeoutId=setTimeout(function() {
+                                timeoutId = setTimeout(function() {
                                     document.getElementById("saveStatus").innerHTML = "Error";
                                 }, 1000);
                             }
@@ -1705,7 +1706,7 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
             }
         }
     });
-    editorCss.setSize("100%", "100%");
+    editorCss.setSize("100%", 400);
     editorCss.on("keyup", function(cm) {
         if (timeout) {
             clearTimeout(timeout);
@@ -1751,7 +1752,7 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
             }
         }
     });
-    editorReadme.setSize("100%", "100%");
+    editorReadme.setSize("100%", 400);
     editorReadme.on("keyup", function(cm) {
         if (timeout) {
             clearTimeout(timeout);
@@ -1850,6 +1851,18 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
     const variables = document.getElementById('variables');
     const go = document.getElementById('go');
     const libraries = document.getElementById('editorLibraries').value;
+
+    function getIframeColor(iframe, iframeDiv1 = iframeDiv) {
+        // Access the document inside the iframe
+        var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+
+        // Get the computed style of the body element inside the iframe
+        var bodyStyle = iframeDocument.body.style;
+        var backgroundColor = bodyStyle.backgroundColor;
+
+        iframeDiv1.style.backgroundColor = backgroundColor;
+    };
+    
     let splitValues = [];
     // Split the comma separated list
     let list1 = libraries.split(",");
@@ -1922,6 +1935,7 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
 
         reloaded = false;
         iframe.onload = () => {
+
             // Append the script tag to the iframe's innerHTML
             //module
             scriptId = document.getElementById('script_idSave').value;
@@ -1949,24 +1963,27 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
                     .catch((error) => console.error(error));
                 document.getElementById('modules').innerHTML =
                     `<button style="z-index:2;background:none;border:none;color:white" onclick="copyToClipboard(\`` +
-                    `import {YOUR_MODULE} from '` +
+                    `import <> from '` +
                     baseUrl +
                     `/scripts/<?php echo $_SESSION['uid']; ?>_private/<?php echo $script_id; ?>/<?php echo $version?>/<?php echo $script_id; ?>.js'` +
-                    `\`,this)"><svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg> Copy </button>   <div style="border:solid grey 1px;display:inline-block">import {YOUR_MODULE} from '` +
+                    `\`,this)"><svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg> Copy </button>   <div style="border:solid grey 1px;display:inline-block">import <> from '` +
                     baseUrl +
                     `/scripts/<?php echo $_SESSION['uid']; ?>_private/<?php echo $script_id; ?>/<?php echo $version?>/<?php echo $script_id; ?>.js'</div>`;
-                if (!reloaded) {
-                    iframe.contentWindow.location.reload();
-                    reloaded = true;
-                }
-            } else {
-                iframe.contentWindow.eval(scriptString);
+                script = document.createElement("script");
+                script.type = "module";
+                script.textContent = scriptString;
+                iframe.contentDocument.body.appendChild(script);
 
+            } else {
+                script = document.createElement("script");
+                script.textContent = scriptString;
+                iframe.contentDocument.body.appendChild(script);
             }
 
             let css = document.createElement('style');
             css.innerHTML = editorCss.getValue();
             iframe.contentWindow.document.head.appendChild(css);
+            getIframeColor(iframe)
         };
         modal.style.display = 'flex';
     }
@@ -2048,23 +2065,26 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
 
                     document.getElementById('modules').innerHTML =
                         `<button style="z-index:2;background:none;border:none;color:white" onclick="copyToClipboard(\`` +
-                        `import {YOUR_MODULE} from '` +
+                        `import <> from '` +
                         baseUrl +
                         `/scripts/<?php echo $_SESSION['uid']; ?>_private/<?php echo $script_id; ?>/<?php echo $version?>/<?php echo $script_id; ?>.js'` +
-                        `\`,this)"><svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg> Copy </button>   <div style="border:solid grey 1px;display:inline-block">import {YOUR_MODULE} from '` +
+                        `\`,this)"><svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg> Copy </button>   <div style="border:solid grey 1px;display:inline-block">import <> from '` +
                         baseUrl +
                         `/scripts/<?php echo $_SESSION['uid']; ?>_private/<?php echo $script_id; ?>/<?php echo $version?>/<?php echo $script_id; ?>.js'</div>`;
-                    if (!reloaded) {
-                        iframe.contentWindow.location.reload();
-                        reloaded = true;
-                    }
-                } else {
-                    iframe.contentWindow.eval(scriptString);
 
+                    script = document.createElement("script");
+                    script.type = "module";
+                    script.textContent = scriptString;
+                    iframe.contentDocument.body.appendChild(script);
+                } else {
+                    script = document.createElement("script");
+                    script.textContent = scriptString;
+                    iframe.contentDocument.body.appendChild(script);
                 }
                 const css = document.createElement('style');
                 css.innerHTML = editorCss.getValue();
                 iframe.contentWindow.document.head.appendChild(css);
+                getIframeColor(iframe)
             };
         }, 1000);
     });
@@ -2505,7 +2525,7 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
                             }
                         }
                     });
-                    editor.setSize("100%", "100%");
+                    editor.setSize("100%", 400);
                 } else {}
             };
             makeApiRequest(method, url, data)
