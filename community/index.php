@@ -635,14 +635,14 @@
 
     .miniModal {
         background-color: #282828;
-        border-radius: 15px;
+        border-radius: 10px;
 
     }
 
     .miniModal p {
         color: white;
         padding: 10px;
-        margin: 10px;
+        margin: 5px;
         cursor: pointer;
         font-size: 20px;
     }
@@ -663,6 +663,7 @@
         left: 50%;
         transform: translate(-50%, -50%);
         display: none;
+        max-height: 95%;
     }
 
     .miniModalDetails::-webkit-scrollbar {
@@ -678,8 +679,12 @@
     .miniModalDetails .body {
         margin-top: 10px;
         width: 100%;
-        max-height: 150px;
+        max-height: 220px;
         overflow-y: scroll;
+    }
+
+    .miniModalDetails .body::-webkit-scrollbar {
+        display: none;
     }
 
     .miniModalDetails .bottomBar {
@@ -752,7 +757,23 @@
         height: 30px;
     }
 
+    #versionShowSelect {
+        width: 30%;
+        background: none;
+        color: white;
+        border: none;
+        border-bottom: 1px solid white;
+        height: 30px;
+        float: right;
+    }
+
     #versionCluster option {
+        background-color: #282828;
+        color: white;
+        border: none;
+    }
+
+    #versionShowSelect option {
         background-color: #282828;
         color: white;
         border: none;
@@ -823,12 +844,18 @@
 
     .websitesCluster {
         user-select: none;
+        margin-left: 10px;
     }
 
     .clusterChoice,
     .clusterChoiceName,
     .clusterChoiceStatus {
         margin-right: 10px;
+    }
+
+    .clusterChoice {
+        height: 27px;
+        width: 30px;
     }
 
     .clusterChoice input {
@@ -838,8 +865,9 @@
         appearance: none;
         width: 20px;
         height: 20px;
-        border: solid 3px white;
+        border: solid 2px white;
         background: transparent !important;
+        cursor: pointer;
     }
 
     .clusterChoice input:checked::before {
@@ -866,6 +894,146 @@
     .clusterChoiceStatus {
         float: right;
     }
+
+    #versionShowSelect,
+    .topTitle {
+        display: inline-block;
+    }
+
+    .cluster_container {
+        cursor: pointer;
+    }
+
+    .notifyBox {
+
+        height: 50px;
+        background-color: white;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        /* Center vertically */
+        padding: 10px;
+        width: fit-content;
+        margin-top: 15px;
+        transition: transform 0.5s ease-in-out;
+
+    }
+
+    .slideIn {
+        transform: translateX(0);
+    }
+
+    .slideOut {
+        transform: translateX(-105%);
+    }
+
+    .notifyBoxContainer {
+        z-index: 200;
+        position: fixed;
+        bottom: 10px;
+        left: 10px;
+
+    }
+
+    .versionSelectBox {
+        width: fit-content;
+        display: inline-block;
+        margin: 0;
+        padding: 0;
+        font-size: 20px;
+        float: right;
+    }
+
+    .code button{
+        background-color: #282A36 !important;
+        border-radius: 5px;
+        z-index:999;
+    }
+
+    /* Extra Small Devices (Phones) */
+    @media only screen and (max-width: 576px) {
+        .miniModalDetails {
+            width: 90% !important;
+        }
+
+        .body {
+            max-height: 400px !important;
+        }
+
+        .tabs {
+            width: 70%;
+
+        }
+
+        .left {
+            left: 5%;
+        }
+
+        .right {
+            right: 5%;
+        }
+
+        .project_code{
+            width:90% !important;
+        }
+    }
+
+    /* Small Devices (Tablets) */
+    @media only screen and (min-width: 577px) and (max-width: 768px) {
+        
+        .project_code{
+            width:90% !important;
+        }
+        .miniModalDetails {
+            width: 50% !important;
+        }
+
+        .body {
+            max-height: 200px !important;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin: 9rem 5vw;
+            padding: 0;
+            list-style-type: none;
+            min-width: 200px;
+            margin-left: 0;
+            /* add this */
+        }
+
+        .tabs {
+            width: 80%;
+
+        }
+
+        .left {
+            left: 5%;
+        }
+
+        .right {
+            right: 5%;
+        }
+    }
+
+    /* Medium Devices (Laptops and Desktops) */
+    @media only screen and (min-width: 769px) and (max-width: 992px) {
+        .miniModalDetails {
+            width: 50% !important;
+        }
+    }
+
+    /* Large Devices (Large Laptops and Desktops) */
+    @media only screen and (min-width: 993px) and (max-width: 1200px) {
+        /* CSS rules for large devices */
+    }
+
+    /* Extra Large Devices (Large Desktops and High-resolution Displays) */
+    @media only screen and (min-width: 1201px) {
+        /* CSS rules for extra large devices */
+    }
     </style>
 
 </head>
@@ -875,23 +1043,24 @@
     <div onclick="document.querySelector('.miniModalBox').style.display='none';" class="miniModalBox">
         <div onclick="event.stopPropagation();" class="miniModal">
             <p
-                onclick="document.querySelector('.miniModalDetails').style.display = 'block';document.querySelector('.miniModal').style.display = 'none';defaultCluster()">
-                + Add</p>
+                onclick="document.querySelector('.miniModalDetails').style.display = 'block';document.querySelector('.miniModal').style.display = 'none';defaultCluster();">
+                Cluster Options +</p>
         </div>
         <div onclick="event.stopPropagation();" class="miniModalDetails">
-            <p class="topTitle">Add To...</p>
+            <div>
+                <p class="topTitle" style="display: inline-block;">Add To...</p>
+                <select onchange="getClusters();" id="versionShowSelect" style="display: inline-block;"></select>
+                <label class="versionSelectBox" style="display: inline-block;">Version: </label>
+            </div>
+
+
+            <script>
+
+            </script>
             <div class="body">
-                <div style="display: flex; align-items: center;">
-                    <div class="clusterChoice" style="display: inline;">
-                        <input type="checkbox" name="" id="">
-                    </div>
-                    <div class="clusterChoiceName" style="display: inline;">
-                        <p>Brooooooooooooooooooooo</p>
-                    </div>
-                    <div class="clusterChoiceStatus" style="display: inline;">
-                    <svg viewBox="0 0 18 18" preserveAspectRatio="xMidYMid meet" focusable="false" class="style-scope yt-icon" style="pointer-events: none; display: block; width: 20px"><g class="style-scope yt-icon"><path fill="white" d="M13,5c0-2.21-1.79-4-4-4C6.79,1,5,2.79,5,5v1H3v11h12V6h-2V5z M6,5c0-1.65,1.35-3,3-3c1.65,0,3,1.35,3,3v1H6V5z M14,7v9H4 V7H14z M7,11c0-1.1,0.9-2,2-2s2,0.9,2,2c0,1.1-0.9,2-2,2S7,12.1,7,11z" class="style-scope yt-icon"></path></g></svg>
-                    </div>
-                </div>
+
+
+
             </div>
             <div class="bottomMiniModal">
                 <p onclick="newCluster();" class="bottomBar">Create New Cluster +</p>
@@ -903,22 +1072,184 @@
             bottomMiniModal.innerHTML = `<p onclick="newCluster();" class="bottomBar">Create New Cluster +</p>`;
         }
 
+        function updateCluster(versionShowSelect, id, current_project, current_project_uid, cluster_name, element) {
+            baseUrl = window.location.protocol + "//" + window.location.hostname;
+            var method = 'POST';
+            var url = '/api/private/update_cluster/';
+            var data = {
+                "uid": "<?php echo $_SESSION['uid']?>",
+                "project_id": current_project,
+                "cluster_id": id,
+                "author_uid": current_project_uid,
+                "version": versionShowSelect,
+                "cluster_name": cluster_name,
+                "add": element.querySelector('.clusterChoice > input').checked,
+            };
+            url = baseUrl + url;
+
+            function updatedCluster(response) {
+                response = JSON.parse(response)
+                addToNotifications(response.message)
+                if (response.success) {} else {
+                    element.querySelector('.clusterChoice > input').checked = !element.querySelector(
+                        '.clusterChoice > input').checked
+                }
+            }
+            makeApiRequest(method, url, data)
+                .then(updatedCluster)
+                .catch((error) => console.error(error));
+        }
+
+        function addToNotifications(message) {
+            const notifyBoxContainer = document.querySelector(".notifyBoxContainer");
+            const notifyBox = document.createElement("div");
+            notifyBox.className = "notifyBox";
+            notifyBox.innerHTML = message;
+            notifyBoxContainer.appendChild(notifyBox);
+
+            // Slide in animation
+            setTimeout(function() {
+                notifyBox.classList.add("slideIn");
+            }, 100);
+
+            // Slide out animation and removal
+            setTimeout(function() {
+                notifyBox.classList.remove("slideIn");
+                notifyBox.classList.add("slideOut");
+                setTimeout(function() {
+                    notifyBoxContainer.removeChild(notifyBox);
+                }, 1000);
+            }, 5000);
+        }
+
+
+
+
+
         function getClusters() {
+            document.querySelector(".body").innerHTML =
+                "<center><img src='../assets/images/modernLoader.gif' height='200px'/></center>";
+
+            function generateClusterHTML(name, status, id, content) {
+                if (document.querySelector(".body > center > img")) {
+                    document.querySelector(".body").innerHTML = "";
+                }
+                current_project = document.getElementById('current_project').getAttribute('project_id');
+                current_project_uid = document.getElementById('current_project').getAttribute('uid');
+                versionShowSelect = document.getElementById('versionShowSelect').value
+                content = JSON.parse(content);
+                checked = "";
+
+                for (let i = 0; i < content.length; i++) {
+                    if (content[i].project_id === current_project && content[i].author_id === current_project_uid &&
+                        content[i].version === versionShowSelect) {
+                        checked = "checked";
+                        break;
+                    }
+                }
+
+                private =
+                    `
+            <!--private-->
+                <div onclick="this.querySelector('.clusterChoice > input').checked = !this.querySelector('.clusterChoice > input').checked;updateCluster('` +
+                    versionShowSelect + `','` + id + `','` + current_project + `','` + current_project_uid + `','` +
+                    name + `',this);" class="cluster_container" style="display: flex; align-items: center;">
+                    <div class="clusterChoice" style="display: inline;">
+                        <input onclick = "event.stopPropagation();updateCluster('` + versionShowSelect + `','` + id +
+                    `','` + current_project + `','` + current_project_uid + `','` + name +
+                    `',this.parentNode.parentNode);" type="checkbox" name="" id="` + id +
+                    `" ` + checked + `>
+                    </div>
+                    <div class="clusterChoiceName" style="display: inline;">
+                        <p>` + name + `</p>
+                    </div>
+                    <div class="clusterChoiceStatus" style="display: inline;">
+                        <svg viewBox="0 0 18 18" preserveAspectRatio="xMidYMid meet" focusable="false"
+                            class="style-scope yt-icon" style="pointer-events: none; display: block; width: 20px">
+                            <g class="style-scope yt-icon">
+                                <path fill="white"
+                                    d="M13,5c0-2.21-1.79-4-4-4C6.79,1,5,2.79,5,5v1H3v11h12V6h-2V5z M6,5c0-1.65,1.35-3,3-3c1.65,0,3,1.35,3,3v1H6V5z M14,7v9H4 V7H14z M7,11c0-1.1,0.9-2,2-2s2,0.9,2,2c0,1.1-0.9,2-2,2S7,12.1,7,11z"
+                                    class="style-scope yt-icon"></path>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+
+
+                
+            `;
+
+                public =
+                    `
+            
+            <!--public-->
+                <div onclick="this.querySelector('.clusterChoice > input').checked = !this.querySelector('.clusterChoice > input').checked;updateCluster('` +
+                    versionShowSelect + `','` + id + `','` + current_project + `','` + current_project_uid + `','` +
+                    name + `',this)" class="cluster_container" style="display: flex; align-items: center;">
+                    <div class="clusterChoice" style="display: inline;">
+                        <input onclick = "event.stopPropagation();updateCluster('` + versionShowSelect + `','` + id +
+                    `','` + current_project + `','` + current_project_uid + `','` + name +
+                    `',this.parentNode.parentNode);" type="checkbox" name="" id="` + id +
+                    `" ` + checked + `>
+                    </div>
+                    <div class="clusterChoiceName" style="display: inline;">
+                        <p>` + name + `</p>
+                    </div>
+                    <div class="clusterChoiceStatus" style="display: inline;">
+                    <svg viewBox="0 0 18 18" preserveAspectRatio="xMidYMid meet" focusable="false" class="style-scope yt-icon" style="pointer-events: none; display: block; width: 20px"><g class="style-scope yt-icon"><path fill="white" d="M9,1C4.58,1,1,4.58,1,9s3.58,8,8,8s8-3.58,8-8S13.42,1,9,1z M16,9c0,1.31-0.37,2.54-1,3.59V11h-2c-0.55,0-1-0.45-1-1   c0-1.1-0.9-2-2-2H8.73C8.9,7.71,9,7.36,9,7V5h1c1.1,0,2-0.9,2-2V2.69C14.36,3.81,16,6.21,16,9z M2.02,9.45L7,12.77V13   c0,1.1,0.9,2,2,2v1C5.29,16,2.26,13.1,2.02,9.45z M10,15.92V14H9c-0.55,0-1-0.45-1-1v-0.77L2.04,8.26C2.41,4.75,5.39,2,9,2   c0.7,0,1.37,0.11,2,0.29V3c0,0.55-0.45,1-1,1H8v3c0,0.55-0.45,1-1,1H5.5v1H10c0.55,0,1,0.45,1,1c0,1.1,0.9,2,2,2h1v1.89   C12.95,14.96,11.56,15.7,10,15.92z" class="style-scope yt-icon"></path></g></svg>
+                    </div>
+                </div>
+            `;
+
+                unlisted =
+                    `
+            <!--unlisted-->
+                <div onclick="this.querySelector('.clusterChoice > input').checked = !this.querySelector('.clusterChoice > input').checked;updateCluster('` +
+                    versionShowSelect + `','` + id + `','` + current_project + `','` + current_project_uid + `','` +
+                    name + `',this)" class="cluster_container" style="display: flex; align-items: center;">
+                    <div class="clusterChoice" style="display: inline;">
+                        <input onclick = "event.stopPropagation();updateCluster('` + versionShowSelect + `','` + id +
+                    `','` + current_project + `','` + current_project_uid + `','` + name +
+                    `',this.parentNode.parentNode);" type="checkbox" name="" id="` + id +
+                    `" ` + checked + `>
+                    </div>
+                    <div class="clusterChoiceName" style="display: inline;">
+                        <p>` + name + `</p>
+                    </div>
+                    <div class="clusterChoiceStatus" style="display: inline;">
+                    <svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="style-scope yt-icon" style="pointer-events: none; display: block; width: 20px"><g class="style-scope yt-icon"><path  fill="white" d="M17.78,16H13v-1h4.78c1.8,0,3.26-1.57,3.26-3.5S19.58,8,17.78,8H13V7h4.78c2.35,0,4.26,2.02,4.26,4.5S20.13,16,17.78,16z M11,15H6.19c-1.8,0-3.26-1.57-3.26-3.5S4.39,8,6.19,8H11V7H6.19c-2.35,0-4.26,2.02-4.26,4.5S3.84,16,6.19,16H11V15z M16,11H8v1h8 V11z" class="style-scope yt-icon"></path></g></svg>
+                    </div>
+                </div>
+            `;
+                if (status == "private") {
+                    document.querySelector(".body").innerHTML += private;
+                } else if (status == "public") {
+                    document.querySelector(".body").innerHTML += public;
+                } else if (status == "unlisted") {
+                    document.querySelector(".body").innerHTML += unlisted;
+                }
+            }
             baseUrl = window.location.protocol + "//" + window.location.hostname;
             var method = 'POST';
             var url = '/api/private/get_clusters/';
             var data = {
-                "uid": "<?php echo $_SESSION['uid']?>"
+                "uid": "<?php echo $_SESSION['uid']?>",
+                "amount": 50,
+                "mode": 1,
             };
             url = baseUrl + url;
 
             function handleClusters(response) {
-                console.log(response);
-                if (response.success) {
-
-                } else {
-                    console.log(response);
+                if (document.querySelector(".body > center > img")) {
+                    document.querySelector(".body").innerHTML = "";
                 }
+                response = JSON.parse(response)
+
+                if (response.data) {
+                    response.data.forEach(cluster => {
+                        generateClusterHTML(cluster.name, cluster.status, cluster.id, cluster.content)
+                    });
+                } else {}
             }
             makeApiRequest(method, url, data)
                 .then(handleClusters)
@@ -930,10 +1261,10 @@
             clusterStatus = document.getElementById('clusterStatus').value;
             current_project = document.getElementById('current_project').getAttribute('project_id');
             current_project_uid = document.getElementById('current_project').getAttribute('uid');
-            versionCluster = document.getElementById('versionCluster').value;
+            versionCluster = document.getElementById('versionShowSelect').value;
             if (clusterName.trim().length > 0) {
                 clusterName = clusterName.trim();
-                createClusterBtn = document.querySelector(".createClusterBtn").remove()
+
                 baseUrl = window.location.protocol + "//" + window.location.hostname;
                 var method = 'POST';
                 var url = '/api/private/create_cluster/';
@@ -949,11 +1280,11 @@
                 url = baseUrl + url;
 
                 function saveScriptId(response) {
-                    console.log(response);
                     response = JSON.parse(response);
                     if (response.success) {
-                        defaultCluster();
+                        createClusterBtn = document.querySelector(".createClusterBtn").remove()
                         getClusters();
+                        defaultCluster();
                     }
                 }
                 makeApiRequest(method, url, data).then(saveScriptId).catch((error) => console.error(error));
@@ -982,12 +1313,10 @@
 
         function addSite() {
             var siteInput = document.querySelector(".siteInput").value;
-            document.querySelector(".siteInput").value = "";
             var clusterAuthWebsitesSave = document.querySelector("#clusterAuthWebsitesSave");
             var current_sites = clusterAuthWebsitesSave.value;
             current_sites = current_sites ? JSON.parse(current_sites) :
         []; // Initialize as an empty array if null or undefined
-            console.log(current_sites);
             if (current_sites.includes(siteInput)) {
                 // Display an error message if the siteInput already exists in current_sites
                 alert("This website is already added.");
@@ -995,6 +1324,12 @@
                 // Validate siteInput and add a new div to div.showWebsitesCluster
                 if (siteInput.startsWith("http://") || siteInput.startsWith("https://")) {
                     // Remove "http://" or "https://" from siteInput
+                    var miniModalDetails = document.querySelector(".miniModalDetails");
+                    setTimeout(function() {
+                        miniModalDetails.scrollTop = miniModalDetails.scrollHeight;
+                    }, 100);
+
+                    document.querySelector(".siteInput").value = "";
                     var formattedSiteInput = siteInput.replace(/^https?:\/\//, "");
                     var newDiv = document.createElement("div");
                     newDiv.classList.add("websitesCluster");
@@ -1064,19 +1399,10 @@
                 </div>
                 </div>
                 </p>
-                <br>
-                <p class="clusterVersionLabel">Version<br>
-                <select name="version" id="versionCluster" >
-                </select>
-                </p>
+                
                 <p onclick="createCluster();" class="createClusterBtn">Create +</p>`;
 
-            versionCluster = document.getElementById("versionCluster");
-            console.log(publicVersions)
-            for (var i = publicVersions.length - 1; i >= 0; i--) {
-                versionCluster.innerHTML += "<option value='" + publicVersions[i] + "'> " + publicVersions[i] +
-                    " </option>";
-            }
+
 
             var input = document.getElementById('clusterName');
             var counter = document.querySelector('.clusterTitleLabelCount');
@@ -1096,8 +1422,12 @@
         }
         </script>
     </div>
+    <div class="notifyBoxContainer">
+    </div>
+
     <div onclick="this.style.display='none';document.querySelector('.projectDetails').innerHTML='';"
         class="projectDetailsBox">
+
         <div onclick='event.stopPropagation()' class="projectDetails">
 
         </div>
@@ -1168,7 +1498,6 @@
 
     <script>
     function miniModal(type, project_id, uid) {
-        console.log("hi")
         var modal = document.querySelector(".miniModal");
         var modalBox = document.querySelector(".miniModalBox");
         var modalDetails = document.querySelector(".miniModalDetails");
@@ -1186,6 +1515,15 @@
         modal.style.display = "block";
         modalDetails.style.display = "none";
         modalBox.style.display = "flex";
+        publicVersions = document.getElementById('current_project').getAttribute("publicVersions");
+        publicVersions = JSON.parse(publicVersions);
+        versionCluster = document.getElementById("versionShowSelect");
+        versionCluster.innerHTML = "";
+        for (var i = publicVersions.length - 1; i >= 0; i--) {
+            versionCluster.innerHTML += "<option value='" + publicVersions[i] + "'> " + publicVersions[i] +
+                " </option>";
+        }
+
     }
 
     function renderPublish(info, publicVersions, uid, project_id, type) {
@@ -1202,6 +1540,7 @@
         miniModalBtn = document.querySelector(".miniModalBtn");
         miniModalBtn.addEventListener("click", function() {
             miniModal(type, project_id, uid);
+            getClusters();
         })
         for (var i = 0; i < publishJSON.length; i++) {
             var section = document.createElement("div");
@@ -1231,11 +1570,9 @@
                     } else if (publishJSON[i]['subSections'][j]['info'][k]['type'] == "html") {
                         htmlString = publishJSON[i]['subSections'][j]['info'][k]['content'].replace(/\//g, '&#x2F;')
                             .replace(/:/g, '&#x3A;');
-                        console.log(htmlString)
                         let textarea = document.createElement('textarea');
                         textarea.innerHTML = htmlString;
                         let decodedStr = textarea.value;
-                        console.log(decodedStr);
                         info.innerHTML = decodedStr;
                     }
                     subSection.appendChild(info);
@@ -1258,7 +1595,6 @@
             copyButton.style.top = '10px';
             copyButton.style.right = '10px';
             copyButton.style.border = 'none';
-            copyButton.style.background = 'none';
             copyButton.style.cursor = 'pointer';
             copyButton.querySelector('svg').style.stroke = 'white';
 
@@ -1620,11 +1956,9 @@
         current_project.setAttribute("project_id", project_id);
         current_project.setAttribute("uid", uid);
         publicVersions = publicVersions.replace(/'/g, '"')
-        console.log(publicVersions)
         current_project = document.getElementById("current_project");
         current_project.setAttribute("publicVersions", publicVersions);
         info = project_manifest.replace(/'/g, '"')
-        console.log(info)
         renderPublish(info, publicVersions, uid, project_id, type)
         detailsBox = document.querySelector(".projectDetailsBox");
         detailsBox.style.display = "block";
@@ -1770,8 +2104,6 @@
         data.tab_name = tab;
 
         function saveScriptId(response) {
-            console.log(response);
-
             if (!JSON.parse(response)) {} else {
                 response = JSON.parse(response);
             }
@@ -1797,7 +2129,6 @@
                             for (let i = 0; i < value.length; i++) {
                                 if (value[i].status === "public") {
                                     publicVersions.push(key);
-                                    console.log(key);
                                 } else if (value[i].status === "private") {
                                     privateVersions.push(key);
                                 }

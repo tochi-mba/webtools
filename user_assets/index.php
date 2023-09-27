@@ -375,14 +375,126 @@ if (isset($_SESSION['uid'])) {
         width: 15% !important;
     }
 
-   .ambilight{
-    z-index: 9999;
-    position:relative;
-   }
+    .ambilight {
+        z-index: 9999;
+        position: relative;
+    }
 
-   #columnContents canvas{
-    z-index:1 !important;
-   }
+    #columnContents canvas {
+        z-index: 1 !important;
+    }
+
+    .frontLoader {
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        background-color: #18181B;
+        z-index: 99999;
+        left: 0;
+        font-family: 'Roboto Mono', monospace;
+
+    }
+
+    .mainLoader {
+        position: absolute;
+        left: 50%;
+        top: 40%;
+        transform: translate(-50%, -50%);
+        width: 40%;
+        height: 40%;
+        overflow-y: scroll;
+    }
+
+    .showContent {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        background-color: #18181B;
+        width: 100%;
+        z-index: 999;
+    }
+
+    .showContent p {
+        background-color: white;
+        color: black;
+        padding: 3px;
+        border: solid 1px black;
+        margin: 0;
+        margin-top: 2px;
+        width: fit-content;
+        font-size: 12px;
+        border-radius: 10px;
+    }
+
+    .showContent p.current {
+        background-color: #282A36;
+        color: white;
+        padding: 3px;
+        border: solid 1px black;
+    }
+
+    .loadingBar {
+        width: 40%;
+        height: 20px;
+        position: fixed;
+        bottom: 25%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .loadingBarDynamic {
+        background-color: #282A36;
+        height: 100%;
+        width: 0%;
+        color: white;
+        border-radius: 5px;
+        text-align: center;
+    }
+
+
+    .loadIcon {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+     /* Extra Small Devices (Phones) */
+     @media only screen and (max-width: 576px) {
+        #columnFolder{
+            display: none;
+        }
+
+        #columnContents{
+            width:95vw;
+        }
+    }
+
+    /* Small Devices (Tablets) */
+    @media only screen and (min-width: 577px) and (max-width: 768px) {
+        #columnFolder{
+            display: none;
+        }
+
+        #columnContents{
+            width:95vw;
+        }
+    }
+
+    /* Medium Devices (Laptops and Desktops) */
+    @media only screen and (min-width: 769px) and (max-width: 992px) {
+        
+    }
+
+    /* Large Devices (Large Laptops and Desktops) */
+    @media only screen and (min-width: 993px) and (max-width: 1200px) {
+        /* CSS rules for large devices */
+    }
+
+    /* Extra Large Devices (Large Desktops and High-resolution Displays) */
+    @media only screen and (min-width: 1201px) {
+        /* CSS rules for extra large devices */
+    }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/codemirror.css">
 
@@ -416,6 +528,58 @@ if (isset($_SESSION['uid'])) {
     <link rel="stylesheet" href="../codemirror/addon/display/fullscreen.css">
     <script src="../codemirror/addon/display/fullscreen.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/mode/meta.js"></script>
+    <input data-loaded=0 type="hidden" id="loadCount">
+    <div class="frontLoader">
+        <div class="loadIcon">
+            <img style="width:100%;" src="../assets/images/miniLoader.gif" alt="">
+        </div>
+        <div class="mainLoader">
+
+            <div class="showContent">
+            </div>
+        </div>
+        <div class="loadingBar">
+            <div class="loadingBarDynamic"></div>
+        </div>
+
+    </div>
+    <script>
+    function loaded(dir) {
+        const showContent = document.querySelector(".showContent");
+        let allContent = showContent.querySelectorAll("p");
+        const loadCount = document.getElementById("loadCount");
+        const loadingBarDynamic = document.querySelector(".loadingBarDynamic");
+        const maxCount = 15;
+
+        const loadedCount = parseInt(loadCount.getAttribute("data-loaded")) + 1;
+        loadCount.setAttribute("data-loaded", loadedCount);
+
+        if (allContent.length >= maxCount) {
+            for (let i = 0, len = allContent.length - maxCount + 1; i < len; i++) {
+                allContent[i].remove();
+            }
+        }
+
+        allContent.forEach((line) => {
+            line.classList.remove("current");
+        });
+
+        const newElement = document.createElement("p");
+        newElement.textContent = "./" + dir;
+        newElement.classList.add("current");
+        newElement.addEventListener("click", function() {
+            allContent.forEach((line) => {
+                line.classList.remove("current");
+            });
+            this.classList.add("current");
+        });
+        showContent.appendChild(newElement);
+
+        const percentage = (loadedCount / parseInt(loadCount.value)) * 100;
+        loadingBarDynamic.style.width = percentage + "%";
+        loadingBarDynamic.textContent = percentage.toFixed(2) + "%";
+    }
+    </script>
     <div id="custom-box" style="display:none;">
         <button>ss</button>
         <br>
@@ -449,43 +613,70 @@ if (isset($_SESSION['uid'])) {
             $row = mysqli_fetch_assoc($result);
             $mainDir = '../scripts/'.$_SESSION['uid'].'_assets_' . $row['scripts_id'] . '/'; 
             $mainDir1 = 'scripts\/'.$_SESSION['uid'].'_assets_' . $row['scripts_id'];
-            
+            function getFilesAndFoldersCount($dir) {
+                $count = 0;
+                $files = scandir($dir);
+
+                foreach ($files as $file) {
+                    if ($file === '.' || $file === '..') {
+                        continue;
+                    }
+
+                    $path = $dir . '/' . $file;
+
+                    if (is_file($path)) {
+                        $count++;
+                    } elseif (is_dir($path)) {
+                        $count++; // Count the directory itself
+                        $count += getFilesAndFoldersCount($path); // Recursively count files and folders inside the directory
+                    }
+                }
+
+                return $count;
+            }
+            $count = getFilesAndFoldersCount($mainDir);
+            ?>
+            <script>
+            loadCount = document.querySelector("#loadCount");
+            loadCount.value = <?php echo $count;?>
+            </script>
+            <?php
             $length = strlen($mainDir);
             $substring = substr($mainDir, 0, $length - 1);
             $dir = $substring;
 
             function get_most_recent_files($dir) {
-                $files = array();
-                $time = time();
-            
-                if ($handle = opendir($dir)) {
-                    while (false !== ($entry = readdir($handle))) {
-                        if ($entry != "." && $entry != "..") {
-                            $fullpath = $dir . "/" . $entry;
-                            if (is_dir($fullpath)) {
-                                $files = array_merge($files, get_most_recent_files($fullpath));
-                            } else {
-                                $files[$fullpath] = array(
-                                    "atime" => fileatime($fullpath),
-                                    "path" => $fullpath
-                                );
-                            }
-                        }
-                    }
-                    closedir($handle);
-                }
-            
-                uasort($files, function ($a, $b) use ($time) {
-                    return $b["atime"] - $a["atime"];
-                });
-            
-                return array_slice($files, 0, 32);
+            $files = array();
+            $time = time();
+
+            if ($handle = opendir($dir)) {
+            while (false !== ($entry = readdir($handle))) {
+            if ($entry != "." && $entry != "..") {
+            $fullpath = $dir . "/" . $entry;
+            if (is_dir($fullpath)) {
+            $files = array_merge($files, get_most_recent_files($fullpath));
+            } else {
+            $files[$fullpath] = array(
+            "atime" => fileatime($fullpath),
+            "path" => $fullpath
+            );
+            }
+            }
+            }
+            closedir($handle);
+            }
+
+            uasort($files, function ($a, $b) use ($time) {
+            return $b["atime"] - $a["atime"];
+            });
+
+            return array_slice($files, 0, 32);
             }
             $most_recent_files = get_most_recent_files($dir);
-            
+
             // Convert the array to JSON
             $files_json = json_encode(array_values($most_recent_files));
-              
+
             ?>
             <script>
             recents = JSON.parse(`<?php echo $files_json;?>`);
@@ -516,13 +707,16 @@ if (isset($_SESSION['uid'])) {
                     if ($file != '.' && $file != '..') {
                         $mainDirectory = $dir;
 
-                        $mainDirectory = explode("/",$mainDirectory);
+                        $mainDirectory = explode("/", $mainDirectory);
+                        $front = array_slice($mainDirectory, 3);
+                        $front = implode("/", $front);
                         if (is_dir($dir . $file)) {
                             if ($root) {
                                 echo '<div class="columnItem" is_folder="true" open="false" full_path="' . $dir . $file . '/" onclick="loading(this);" style="display: block;">';
                                 ?>
             <script>
             all.push("<?php echo $dir . $file . '/';?>");
+            loaded("<?php echo $front . $file . '/';?>");
             </script>
             <?php
                             } else {
@@ -530,6 +724,7 @@ if (isset($_SESSION['uid'])) {
                                 ?>
             <script>
             all.push("<?php echo $dir . $file . '/';?>");
+            loaded("<?php echo $front . $file . '/';?>");
             </script>
             <?php
                             }
@@ -545,6 +740,7 @@ if (isset($_SESSION['uid'])) {
                                 ?>
             <script>
             all.push("<?php echo $full_path;?>");
+            loaded("<?php echo $front . $file;?>");
             </script>
             <?php
                             } else {
@@ -552,6 +748,7 @@ if (isset($_SESSION['uid'])) {
                                 ?>
             <script>
             all.push("<?php echo $full_path;?>");
+            loaded("<?php echo $front . $file;?>");
             </script>
             <?php
                             }
@@ -1411,6 +1608,8 @@ if (isset($_SESSION['uid'])) {
         document.body.innerHTML +=
             `<div id="first" class="columnItem activeFile" is_folder="true" open="false" full_path="../scripts/<?php echo $_SESSION['uid']?>_assets_<?php echo $row['scripts_id']?>/recent/" onclick="loading(this);" style="display: none;"></div>`
         document.getElementById("first").click();
+        document.querySelector(".frontLoader").style.display = "none";
+
     }
     // document.addEventListener('contextmenu', function(event) {
     //     // Prevent the default right-click menu from appearing
@@ -1435,33 +1634,36 @@ if (isset($_SESSION['uid'])) {
     // });
     </script>
 
-<script type="module">
-import Ambilight from 'http://webtoolsv2/scripts/0HAXkUrU_public/6467391dc4e8b/v1.04/6467391dc4e8b.js';
+    <script type="module">
+    import Ambilight from 'http://webtoolsv2/scripts/0HAXkUrU_public/6467391dc4e8b/v1.04/6467391dc4e8b.js';
 
-const videoList = document.querySelectorAll(".ambilight");
+    const videoList = document.querySelectorAll(".ambilight");
 
-videoList.forEach(function(video) {
-    newAmbilight = new Ambilight(video, 100, 50);
-});
+    videoList.forEach(function(video) {
+        newAmbilight = new Ambilight(video, 100, 50);
+    });
 
-// Create a new MutationObserver instance
-const observer = new MutationObserver(function(mutationsList) {
-    mutationsList.forEach(function(mutation) {
-        if (mutation.type === 'childList') {
-            const addedNodes = mutation.addedNodes;
-            for (let i = 0; i < addedNodes.length; i++) {
-                const addedNode = addedNodes[i];
-                if (addedNode.classList && addedNode.classList.contains('ambilight')) {
-                    const newVideoAmbilight = new Ambilight(addedNode, 100, 70);
+    // Create a new MutationObserver instance
+    const observer = new MutationObserver(function(mutationsList) {
+        mutationsList.forEach(function(mutation) {
+            if (mutation.type === 'childList') {
+                const addedNodes = mutation.addedNodes;
+                for (let i = 0; i < addedNodes.length; i++) {
+                    const addedNode = addedNodes[i];
+                    if (addedNode.classList && addedNode.classList.contains('ambilight')) {
+                        const newVideoAmbilight = new Ambilight(addedNode, 100, 70);
+                    }
                 }
             }
-        }
+        });
     });
-});
 
-// Start observing changes in the document's body
-observer.observe(document.body, { childList: true, subtree: true });
-</script>
+    // Start observing changes in the document's body
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+    </script>
 
 
 </body>

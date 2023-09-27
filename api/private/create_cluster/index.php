@@ -22,6 +22,15 @@ $version = $data->version;
 $auth_websites = $data->auth_websites;
 $decoded_websites = json_decode($auth_websites, true);
 
+// Check if name is longer than 150 characters
+if (strlen($name) > 150) {
+    echo json_encode(array(
+        "success" => false,
+        "message" => "Name exceeds the maximum limit of 150 characters.",
+    ));
+    exit;
+}
+
 $sanitized_websites = [];
 
 foreach ($decoded_websites as $url) {
@@ -34,20 +43,16 @@ foreach ($decoded_websites as $url) {
 
 
 function generateUID($conn) {
-    $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_';
     $uid = '';
     $uidExists = true;
     
     while ($uidExists) {
         $uid = '';
         
-        for ($i = 0; $i < 32; $i++) {
+        for ($i = 0; $i < 4; $i++) {
             $index = mt_rand(0, strlen($characters) - 1);
             $uid .= $characters[$index];
-            
-            if ($i == 7 || $i == 11) {
-                $uid .= '-';
-            }
         }
         
         $sql = 'SELECT uid FROM clusters WHERE uid = \'' . $uid . '\'';
@@ -73,9 +78,7 @@ function doesUIDExist($sql, $conn) {
 $content = array([
     "project_id" => $project_id,
     "author_id" => $author_id,
-    "status" => $status,
-    "version" => $version,
-    "name" => $name]
+    "version" => $version]
 );
 $content = json_encode($content);
 $cluster_id = generateUID($conn);

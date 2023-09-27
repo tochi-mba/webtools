@@ -412,14 +412,14 @@
     .htmlDiv {
         float: left;
         width: 50%;
-        height: 500px;
+        height: 100%;
         box-sizing: border-box;
     }
 
     .iframeDiv {
         float: right;
         width: 50%;
-        height: 500px;
+        height: 100%;
         background-color: #ccc;
         box-sizing: border-box;
         text-align: center;
@@ -431,7 +431,7 @@
         position: absolute;
         top: 0;
         left: 50%;
-        height: 500px;
+        height: 100%;
         width: 10px;
         background-color: #18181B;
         cursor: ew-resize;
@@ -531,7 +531,7 @@
                 <div style="float:right;margin:0;margin-right:20px;top:20%;" id="variables"></div>
 
             </div>
-            <div style="width:100%;position:relative;height:fill-content">
+            <div style="width:100%;position:relative;height:100vh">
                 <div class="htmlDivBtn" onclick="expandDiv1()"><svg xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 640 512">
                         <!--! Font Awesome Pro 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
@@ -969,7 +969,11 @@ box-shadow: inset -3px 10px 12px -6px rgba(0,0,0,0.75);" id="choiceBox" method="
 
                 }
             ?>
+            
         </center>
+        <div class="directoryChoice">
+                hhh
+            </div>
         <?php
         if (!isset($_GET['script_id'])) {
             $id = "jj";
