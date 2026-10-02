@@ -1,0 +1,17 @@
+{
+  "$schema": "https://tochi-mba.github.io/schema/project.schema.json",
+  "slug": "codeconnect",
+  "name": "CodeConnect",
+  "tagline": "A platform for creating, hosting and sharing JavaScript libraries.",
+  "description": "An early full-stack project: file hosting with a real-time search bar built on Levenshtein similarity, customisable HTML documentation sections, rendered code boxes with copy buttons, a node registry for CLI installs, collaboration, chat and a user dashboard.",
+  "highlights": ["Levenshtein-based live search", "User-authored documentation templates"],
+  "stack": ["PHP", "JavaScript"],
+  "category": "web",
+  "status": "archived",
+  "order": 720,
+  "display": true,
+  "links": {
+    "site": "https://webtools-iota.vercel.app"
+  },
+  "year": 2024
+}
